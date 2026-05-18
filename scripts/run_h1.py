@@ -456,6 +456,7 @@ def main(argv: list[str] | None = None) -> None:
     logger.info("Embeddings assigned: shape=%s", tuple(x.shape))
 
     # --- Build base TrainConfig ---
+    # Use the Yaml config
     base_config = TrainConfig(
         in_channels=in_channels,
         hidden_channels=training_cfg.get("hidden_channels", 128),
@@ -491,6 +492,7 @@ def main(argv: list[str] | None = None) -> None:
             continue
         model_cls = MODEL_REGISTRY[model_name]
 
+        # Running the model training
         per_seed, summary = run_model(
             model_name=model_name,
             model_cls=model_cls,
