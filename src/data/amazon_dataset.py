@@ -339,10 +339,12 @@ class AmazonCopurchase(InMemoryDataset):
     ) -> None:
         if not categories:
             raise ValueError("categories must contain at least one name")
-        if len(categories) > 2:
-            raise ValueError(
-                f"categories supports at most 2 top-level names, got {len(categories)}"
-            )
+        
+        # if len(categories) > 2:
+        #     raise ValueError(
+        #         f"categories supports at most 2 top-level names, got {len(categories)}"
+        #     )
+        
         self.categories: list[str] = list(categories)
         self.split_seed: int = int(split_seed)
         self.split_ratios: tuple[float, float, float] = tuple(split_ratios)  # type: ignore[assignment]

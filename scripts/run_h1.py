@@ -380,6 +380,8 @@ def main(argv: list[str] | None = None) -> None:
         argv: Override ``sys.argv[1:]`` for programmatic invocation /
             testing.
     """
+
+    # -- Handle command-line arguments.
     parser = argparse.ArgumentParser(
         description="Run the H1 experiment (GNN vs. no-graph baselines)."
     )
@@ -400,6 +402,7 @@ def main(argv: list[str] | None = None) -> None:
     )
     args = parser.parse_args(argv)
 
+    # -- Set the template for logging
     logging.basicConfig(
         level=getattr(logging, args.log_level),
         format="%(asctime)s %(levelname)s %(name)s :: %(message)s",
@@ -426,9 +429,11 @@ def main(argv: list[str] | None = None) -> None:
     output_file = Path(results_cfg["output_file"])
 
     # --- Load / build dataset ---
+    # -- Mock
     if args.mock:
         logger.info("Using MOCK dataset (--mock flag).")
         data = make_mock_dataset(n_nodes=200, n_classes=4)
+    # -- Real
     else:
         logger.info("Loading real dataset …")
         try:
