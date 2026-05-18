@@ -245,8 +245,7 @@ python scripts/run_h1.py --config experiments/h1_graph_vs_nograph.yaml --device 
 python scripts/run_h3_text.py --config experiments/h3_text_encoders.yaml
 
 # Smoke test: only sparse encoders, no model downloads:
-python scripts/run_h3_text.py --config experiments/h3_text_encoders.yaml \
-    --mock --encoders bow tfidf
+python scripts/run_h3_text.py --config experiments/h3_text_encoders.yaml --mock --encoders bow tfidf
 
 # Override the GNN (useful to test without torch_geometric):
 python scripts/run_h3_text.py --config experiments/h3_text_encoders.yaml \
@@ -276,8 +275,7 @@ python scripts/run_h3_text.py --config experiments/h3_text_encoders.yaml \
 python scripts/run_h2.py --config experiments/h2_multimodal.yaml
 
 # Smoke test (no downloads, uses all-zero image vectors):
-python scripts/run_h2.py --config experiments/h2_multimodal.yaml \
-    --mock --modalities text_only image_only --model MLP
+python scripts/run_h2.py --config experiments/h2_multimodal.yaml --mock --modalities text_only image_only --model MLP
 
 # Skip re-downloading images (reuse previous cache):
 python scripts/run_h2.py --config experiments/h2_multimodal.yaml --skip-image-download

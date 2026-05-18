@@ -1,6 +1,7 @@
 # Core deep learning
 torch>=2.2,<3.0
 torch-geometric>=2.5,<3.0
+torchvision>=0.15,<1.0
 
 # Encoders / NLP / vision
 transformers>=4.40,<5.0

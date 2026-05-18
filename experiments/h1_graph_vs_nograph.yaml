@@ -102,4 +102,4 @@ training:
 # --------------------------------------------------------------------------
 results:
   dir:             results
-  output_file:     results/overall/h1_results.json
+  output_file:     project_results/h1_results.json

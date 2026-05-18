@@ -29,7 +29,7 @@ dataset:
 # --------------------------------------------------------------------------
 # H1 results path (used to extract best GNN + hyperparams as warm-start)
 # --------------------------------------------------------------------------
-h1_results_path: results/h1_results.json
+h1_results_path: project_results/h1_results.json
 
 # Fallback values used when h1_results.json does not exist yet
 # (e.g., during --mock smoke tests).
@@ -159,5 +159,5 @@ training:
 # --------------------------------------------------------------------------
 results:
   dir:            results
-  output_file:    results/h3_results.json
+  output_file:    project_results/h3_results.json
   embeddings_dir: data/embeddings
