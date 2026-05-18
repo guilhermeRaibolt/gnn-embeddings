@@ -137,4 +137,5 @@ tempCodeRunnerFile.py
 desktop.ini
 
 __init__.py
-/.claude
+
+.claude/
