@@ -11,8 +11,7 @@
 module purge
 module load python/3.11 cuda/12.4
 
-source ~/miniconda3/etc/profile.d/conda.sh
-conda activate env_gnn
+source ~/projet/gnn-embeddings/env_gnn/bin/activate
 
 echo "Job $SLURM_JOB_ID started on $(hostname) at $(date)"
 
