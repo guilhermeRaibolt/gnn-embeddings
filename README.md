@@ -14,7 +14,7 @@ product category classification.
 |----|-----------|
 | H1 | GNNs using co-purchase links beat feature-only classifiers (same features, no graph). |
 | H2 | Multimodal (text + image) embeddings beat single-modality embeddings. |
-| H3 | Modern encoders (BERT, Qwen3, CLIP, DINOv2) beat TF-IDF / BoW baselines. |
+| H3 | Modern text encoders (Sentence-BERT, CLIP-Text, Qwen3) beat TF-IDF / BoW baselines. |
 
 ## Repository layout
 

@@ -139,3 +139,4 @@ desktop.ini
 __init__.py
 
 .claude/
+legacy/

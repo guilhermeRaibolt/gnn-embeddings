@@ -83,14 +83,13 @@ project/
 ├── src/                     # All reusable library code
 │   ├── data/
 │   │   ├── amazon_dataset.py   # Dataset loading + graph construction
-│   │   └── image_pipeline.py   # Concurrent image downloader
+│   │   └── image_features.py   # McAuley/UCSD precomputed Caffe feature loader
 │   ├── encoders/
 │   │   ├── base.py             # BaseEncoder ABC
 │   │   ├── bow_tfidf.py        # Bag-of-Words and TF-IDF (Tier 0)
 │   │   ├── sbert.py            # Sentence-BERT (Tier 1)
 │   │   ├── clip_text.py        # CLIP text encoder (Tier 1, contrastive)
 │   │   ├── qwen3.py            # Qwen3-Embedding 0.6B/4B/8B (Tier 2-3)
-│   │   ├── vision.py           # ResNet-50, CLIP vision, DINOv2
 │   │   └── registry.py         # build_encoder() factory function
 │   ├── models/
 │   │   ├── gnns.py             # GCN, GraphSAGE, GAT
@@ -124,7 +123,7 @@ project/
 ### Prerequisites
 
 - Python 3.11 or 3.12 (3.13 also works)
-- A CUDA-capable GPU is recommended for the neural encoders (Qwen3, CLIP, DINOv2) but not required — all code falls back to CPU automatically.
+- A CUDA-capable GPU is recommended for the neural text encoders (Qwen3, CLIP-Text) but not required — all code falls back to CPU automatically.
 
 ### Install
 
@@ -139,11 +138,9 @@ The key packages are:
 |---------|------|
 | `torch >= 2.2` | Core tensor framework |
 | `torch-geometric >= 2.5` | GCN / GraphSAGE / GAT convolution layers |
-| `transformers >= 4.40` | SBERT, CLIP, Qwen3, DINOv2 (via HuggingFace) |
+| `transformers >= 4.40` | SBERT, CLIP-Text, Qwen3 (via HuggingFace) |
 | `sentence-transformers >= 2.7` | Sentence-BERT encoder |
 | `scikit-learn >= 1.4` | TF-IDF, BoW, Logistic Regression |
-| `torchvision` | ResNet-50 (vision baseline) |
-| `Pillow` | Image loading for vision encoders |
 | `PyYAML` | YAML config loading |
 | `numpy`, `pandas` | Numerical + data utilities |
 
@@ -165,17 +162,20 @@ python scripts/run_h1.py --config experiments/h1_graph_vs_nograph.yaml --mock --
 
 ### The Amazon dataset
 
-The project uses the **McAuley/UCSD Amazon product review dataset** (2018 or 2023 format). Download the metadata file for your target category (e.g. "Electronics") and place it in `data/raw/`:
+The project uses the **McAuley/UCSD Amazon product review dataset**. For each
+target category you need **two** raw files in `data/raw/`:
 
 ```
-data/raw/meta_Electronics.json      # or .json.gz
+data/raw/meta_Electronics.json            # or .json.gz — product metadata
+data/raw/image_features_Electronics.b     # 4096-dim Caffe visual features (H2 only)
 ```
 
-Dataset home pages:
-- 2018: https://nijianmo.github.io/amazon/index.html
-- 2023: https://amazon-reviews-2023.github.io/
+Download both from
+<https://cseweb.ucsd.edu/~jmcauley/datasets/amazon/links.html>.  The metadata
+files are Python-literal JSONL (one record per line); the image-feature files
+are binary records of `[10-byte ASIN][4096 × float32]`.
 
-The code handles both formats automatically (it normalises 2018 vs. 2023 schema differences internally).
+> H1 and H3 only need the metadata file.  H2 also needs `image_features_*.b`.
 
 ### What `AmazonCopurchase` does on first load
 
@@ -199,11 +199,20 @@ The `Data` object produced has:
 
 When an encoder runs for the first time, it computes embeddings for all N nodes and saves them to `data/embeddings/{cache_key}.pt`. On repeat runs the `.pt` file is loaded directly, completely skipping the (potentially expensive) model forward pass.
 
-Cache keys follow the convention `"{encoder_name}_split{seed}"`, e.g. `tfidf_split0`, `sbert_split0`, `dinov2-B_vision_split0`.
+Cache keys follow the convention `"{encoder_name}_split{seed}"`, e.g. `tfidf_split0`, `sbert_split0`.
 
-### Image cache (H2 only)
+### Image features (H2 only)
 
-The `image_pipeline` module downloads product images in parallel to `data/images/{node_id:08d}.jpg`. Already-downloaded images are skipped. If an image cannot be downloaded (404, timeout, corrupt), the node's image embedding becomes a **zero vector** — this is documented and tracked in the H2 confounder analysis.
+H2 does **not** download images.  Instead it reads the **precomputed 4096-dim
+Caffe features** distributed by McAuley/UCSD alongside the metadata.  Place
+each binary file at `data/raw/image_features_<Category>.b`; the loader
+(`src/data/image_features.py`) streams it and returns a `(N, 4096)` tensor
+plus a boolean availability mask.  Products that are absent from the feature
+file receive a **zero vector** — the H2 runner reports a confounder warning
+when the with-features vs without-features accuracy gap exceeds 5 pp.
+
+> The on-the-fly image-download + ResNet/CLIP/DINOv2 pipeline has been retired;
+> see `legacy/README.md` for its archived modules and how to reintegrate them.
 
 ---
 
@@ -325,27 +334,32 @@ data = ds[0]   # The single Data object for the full graph
 
 On first use it downloads nothing (the metadata files must already be in `data/raw/`), processes them, and caches the result. Subsequent `AmazonCopurchase(...)` calls with the same args return the cached result instantly.
 
-#### `src/data/image_pipeline.py` — image downloading
+#### `src/data/image_features.py` — McAuley precomputed feature loader
+
+The H2 pipeline reads **precomputed 4096-dim Caffe visual features** from the
+McAuley/UCSD distribution
+([download page](https://cseweb.ucsd.edu/~jmcauley/datasets/amazon/links.html)).
+Each binary file is `[10-byte ASIN][4096 × float32]` per record.
 
 ```python
-from src.data.image_pipeline import fetch_and_cache_images, get_cached_image_paths
+from src.data.image_features import load_and_align
 
-# Download images (skips already-cached):
-image_available, image_paths = fetch_and_cache_images(
-    data=data,           # needs data.meta[i]["image_url"]
-    cache_dir="data/images",
-    max_workers=8,
-    timeout=15,
-    max_retries=2,
+# data.asins is a list of N ASINs in node order (populated by AmazonCopurchase).
+image_emb, available = load_and_align(
+    raw_dir="data/raw",
+    categories=["Electronics"],
+    asins=data.asins,
 )
-# image_available: bool np.ndarray (N,)
-# image_paths:     list[Path | None]  (None for failed downloads)
-
-# Scan an already-populated cache (no HTTP requests):
-image_available, image_paths = get_cached_image_paths(n_nodes=N, cache_dir="data/images")
+# image_emb : torch.float32 tensor (N, 4096)
+# available : np.bool_ array (N,) — True where the ASIN had a feature row.
 ```
 
-Missing images produce `None` entries in `image_paths`. Vision encoders fill those positions with **zero vectors** of the correct embedding dimension.
+ASINs that do not appear in the binary file get a **zero vector**, and the
+boolean mask flags them so the H2 confounder analysis can separate
+"with-features" vs "without-features" test subsets.
+
+> The retired on-the-fly image-download + vision-encoder pipeline lives in
+> `legacy/`; see `legacy/README.md` for context.
 
 ---
 
@@ -387,17 +401,12 @@ Supported `type` values:
 | `SentenceBERT` | `SentenceBERTEncoder` | 384 | all-MiniLM-L6-v2 default |
 | `CLIPText` | `CLIPTextEncoder` | 512 | Same CLIP space as `CLIPVision` |
 | `Qwen3` | `Qwen3Encoder` | 1024–7168 | 0.6B / 4B / 8B variants |
-| `ResNet` | `ResNetEncoder` | 2048 | ResNet-50 avg-pool, supervised |
-| `CLIPVision` | `CLIPVisionEncoder` | 512 | ViT-B/32, contrastive |
-| `DINOv2` | `DINOv2Encoder` | 768 / 1024 | ViT-B/14 or ViT-L/14, self-supervised |
 
-**Vision encoders** take `list[Path | None]` instead of `list[str]`:
-
-```python
-vision_enc = build_encoder({"type": "DINOv2", "model_size": "B"}, cache_dir="data/embeddings")
-x = vision_enc.encode_cached(image_paths, cache_key="dinov2-B_vision_split0")
-# x.shape == (N, 768), with zeros for None entries
-```
+> **Vision encoders are not in the registry.** The H2 experiment loads
+> precomputed 4096-dim Caffe features instead of running a vision encoder
+> on raw JPEGs.  See `src/data/image_features.py`.  The retired on-the-fly
+> encoders (`ResNet`, `CLIPVision`, `DINOv2`) are archived in
+> `legacy/src/encoders/vision.py`.
 
 ---
 
@@ -676,10 +685,10 @@ encoders:
 H2 adds:
 - `h1_results_path` + `h3_results_path` — paths to prior results for warm-starts.
 - `fallback_text_encoder` — encoder name to use if H3 results don't exist yet.
-- `vision_encoders` list — same structure as text encoders.
+- `image_features` block — informational; the loader uses
+  `data/raw/image_features_<Category>.b` (one file per dataset category).
 - `fusion_strategies: [concat, weighted, gated]`.
 - `modalities: [text_only, image_only, text+image]`.
-- `image_pipeline` section with `max_workers`, `timeout`, `max_retries`, `cache_dir`.
 
 ---
 
@@ -752,8 +761,7 @@ Tests that require optional libraries (transformers, sentence-transformers) are 
 Every source module has a smoke test in its `if __name__ == "__main__":` block. Run any of them with:
 
 ```bash
-python -m src.data.image_pipeline
-python -m src.encoders.vision
+python -m src.data.image_features
 python -m src.fusion.fusion
 python -m src.train
 python -m src.eval.harness
@@ -880,13 +888,23 @@ pip install torch-geometric torch-scatter torch-sparse -f https://data.pyg.org/w
 ```
 Replace `torch-2.2.0` with your actual torch version.
 
-### Image download fails / all images are missing
+### Image features missing / coverage warning
 
-In mock mode this is expected — all `image_url` fields are empty strings, so all image embeddings are zero vectors. On real data, check your internet connection and firewall settings. Increase `timeout` and `max_retries` in the YAML `image_pipeline` section for slow/unreliable connections.
+`image_features.py` logs an "Aligned N/M ASINs … coverage" line for every run.
+A low coverage usually means one of:
+
+- The `image_features_<Category>.b` file is for a different category than the
+  metadata file (the loader is name-matched).
+- Some ASINs in the metadata file were dropped from the binary distribution by
+  McAuley.  This is normal; the runner will still proceed with zero vectors
+  for missing rows, and the confounder analysis quantifies the impact.
+
+In `--mock` mode, no binary file is read and image features are all zeros by
+design.
 
 ### `CUDA out of memory`
 
-The vision encoders (`_encode_with_paths`) automatically halve `batch_size` and retry on CUDA OOM. For Qwen3 encoders, reduce `batch_size` in the YAML:
+For Qwen3 encoders, reduce `batch_size` in the YAML:
 ```yaml
 - name: qwen3-4B
   type: Qwen3

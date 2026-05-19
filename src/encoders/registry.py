@@ -14,11 +14,13 @@ Text encoders
 ``"Qwen3"``        → :class:`~src.encoders.qwen3.Qwen3Encoder`
 ``"CLIPText"``     → :class:`~src.encoders.clip_text.CLIPTextEncoder`
 
-Vision encoders (H2 multimodal experiment)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-``"ResNet"``       → :class:`~src.encoders.vision.ResNetEncoder`
-``"CLIPVision"``   → :class:`~src.encoders.vision.CLIPVisionEncoder`
-``"DINOv2"``       → :class:`~src.encoders.vision.DINOv2Encoder`
+Vision encoders
+~~~~~~~~~~~~~~~
+This project loads **precomputed 4096-dim Caffe visual features** from the
+McAuley/UCSD distribution (see :mod:`src.data.image_features`) rather than
+encoding images on the fly.  The on-the-fly vision encoders that used to live
+here (``ResNet``, ``CLIPVision``, ``DINOv2``) have been moved to ``legacy/``;
+see ``legacy/README.md`` for details and reintegration instructions.
 
 YAML example::
 
@@ -30,17 +32,6 @@ YAML example::
         type: SentenceBERT
         model_name: sentence-transformers/all-MiniLM-L6-v2
         batch_size: 64
-      - name: resnet
-        type: ResNet
-        batch_size: 32
-      - name: clip-vision
-        type: CLIPVision
-        model_name: openai/clip-vit-b-32
-        batch_size: 32
-      - name: dinov2-B
-        type: DINOv2
-        model_size: "B"
-        batch_size: 32
 """
 
 from __future__ import annotations
@@ -129,39 +120,12 @@ def build_encoder(
             normalize_embeddings=kwargs.get("normalize_embeddings", True),
         )
 
-    # ── Vision encoders (H2) ─────────────────────────────────────────────────
-
-    if enc_type == "ResNet":
-        from src.encoders.vision import ResNetEncoder
-        return ResNetEncoder(
-            cache_dir=cache_dir,
-            device=device,
-            batch_size=kwargs.get("batch_size", 32),
-            normalize_embeddings=kwargs.get("normalize_embeddings", False),
-        )
-
-    if enc_type == "CLIPVision":
-        from src.encoders.vision import CLIPVisionEncoder
-        return CLIPVisionEncoder(
-            cache_dir=cache_dir,
-            device=device,
-            model_name=kwargs.get("model_name", "openai/clip-vit-b-32"),
-            batch_size=kwargs.get("batch_size", 32),
-            normalize_embeddings=kwargs.get("normalize_embeddings", True),
-        )
-
-    if enc_type == "DINOv2":
-        from src.encoders.vision import DINOv2Encoder
-        return DINOv2Encoder(
-            cache_dir=cache_dir,
-            device=device,
-            model_size=kwargs.get("model_size", "B"),
-            batch_size=kwargs.get("batch_size", 32),
-            normalize_embeddings=kwargs.get("normalize_embeddings", True),
-        )
+    # ── Vision encoders ──────────────────────────────────────────────────────
+    # Removed: ResNet, CLIPVision, DINOv2 — see legacy/README.md.  The H2
+    # experiment now uses precomputed Caffe features loaded by
+    # ``src/data/image_features.py`` instead of an on-the-fly vision encoder.
 
     raise KeyError(
         f"Unknown encoder type '{enc_type}'. "
-        f"Registered types: BagOfWords, TFIDF, SentenceBERT, Qwen3, CLIPText, "
-        f"ResNet, CLIPVision, DINOv2."
+        f"Registered types: BagOfWords, TFIDF, SentenceBERT, Qwen3, CLIPText."
     )

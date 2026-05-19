@@ -1,15 +1,15 @@
 """Amazon McAuley/UCSD product co-purchase graph dataset.
 
-Loads product metadata (title, description, image URL) and ``also_buy`` /
-``also_bought`` edges for one or two top-level Amazon categories, and exposes
-them as a single PyTorch Geometric ``Data`` object usable by the GNNs and
-flat-classifier baselines defined under ``src/models/``.
+Loads product metadata (title, description, image URL) and ``also_bought`` /
+``bought_together`` edges for one or more top-level Amazon categories, and
+exposes them as a single PyTorch Geometric ``Data`` object usable by the GNNs
+and flat-classifier baselines defined under ``src/models/``.
 
 Pipeline
 --------
 1. Read one or more JSONL metadata files from ``data/raw/`` (the McAuley
    group publishes one ``meta_<Category>.json[.gz]`` per top-level category).
-2. Normalize records across the 2018 and 2023 schema variants.
+2. Normalize records into a stable internal schema.
 3. Keep only products with a usable label and a non-empty title.
 4. Build an undirected co-purchase edge_index, keeping only edges where
    both endpoints survive filtering.
@@ -22,10 +22,14 @@ Pipeline
 Node features ``x`` are deliberately a placeholder ``torch.empty(N, 0)`` —
 the encoders in ``src/encoders/`` fill them in later from cached embeddings.
 
-The reference dataset homepages:
-
-- 2018: https://nijianmo.github.io/amazon/index.html
-- 2023: https://amazon-reviews-2023.github.io/
+Dataset source
+--------------
+This loader targets the McAuley/UCSD distribution
+(https://cseweb.ucsd.edu/~jmcauley/datasets/amazon/links.html), which shares
+its schema with the 2018 dumps at https://nijianmo.github.io/amazon/index.html.
+Records are Python-literal dicts (``ast.literal_eval``-parseable) with the
+fields ``asin``, ``title``, ``description``, ``imUrl``, ``related``,
+``category`` / ``categories``.
 
 This module never downloads the dataset itself — drop the
 ``meta_<Category>.json[.gz]`` files into ``data/raw/`` before constructing
@@ -78,11 +82,12 @@ def _open_text(path: Path) -> Iterator[str]:
 
 
 def _parse_record(line: str) -> dict[str, Any] | None:
-    """Parse a single metadata line.
+    """Parse a single metadata line from a McAuley/UCSD JSONL dump.
 
-    The 2018 dump uses Python-literal dicts (``eval``-style) and the 2023
-    dump uses strict JSON. We try strict JSON first, then fall back to
-    ``ast.literal_eval`` for older files.
+    The McAuley distribution uses Python-literal dicts (``ast.literal_eval``-
+    parseable) — single-quoted keys and values.  A small number of records
+    may still be valid strict JSON, so ``json.loads`` is tried first as a
+    cheap fast path.
 
     Args:
         line: One line of a metadata file.
@@ -104,7 +109,12 @@ def _parse_record(line: str) -> dict[str, Any] | None:
 
 
 def _normalize_record(rec: dict[str, Any]) -> dict[str, Any] | None:
-    """Project a raw metadata record onto a stable internal schema.
+    """Project a raw McAuley/UCSD metadata record onto a stable internal schema.
+
+    The McAuley dumps (and the structurally-identical 2018 mirror) use the
+    field names ``asin``, ``title``, ``description`` (str), ``imUrl``,
+    ``related`` (dict with ``also_bought`` / ``bought_together`` lists), and
+    ``category`` / ``categories`` (list of category paths).
 
     Output keys:
 
@@ -122,46 +132,25 @@ def _normalize_record(rec: dict[str, Any]) -> dict[str, Any] | None:
     Returns:
         Normalized record dict, or ``None`` if the record has no ASIN.
     """
-    asin = rec.get("asin") or rec.get("parent_asin")
+    asin = rec.get("asin")
     if not asin:
         return None
 
-    # Title: 2018 uses "title", 2023 uses "title".
     title = (rec.get("title") or "").strip()
+    description = str(rec.get("description") or "").strip()
+    image_url = str(rec.get("imUrl") or "")
 
-    # Description: 2018 = str; 2023 = list[str].
-    desc_raw = rec.get("description") or rec.get("descriptions") or ""
-    if isinstance(desc_raw, list):
-        description = " ".join(str(x) for x in desc_raw).strip()
-    else:
-        description = str(desc_raw).strip()
-
-    # Image URL: 2018 = "imUrl" (str). 2023 = "images" (list of dicts).
-    image_url = ""
-    if isinstance(rec.get("imUrl"), str):
-        image_url = rec["imUrl"]
-    elif isinstance(rec.get("imageURL"), list) and rec["imageURL"]:
-        image_url = str(rec["imageURL"][0])
-    elif isinstance(rec.get("images"), list) and rec["images"]:
-        first = rec["images"][0]
-        if isinstance(first, dict):
-            # Prefer "large", fall back to whatever is present.
-            image_url = first.get("large") or first.get("hi_res") or first.get("thumb") or ""
-        else:
-            image_url = str(first)
-
-    # Co-purchase edges. 2018 nests under "related"; 2023 puts them at top.
+    # Co-purchase edges live under ``related`` in the McAuley schema.
     also_buy: list[str] = []
     related = rec.get("related") or {}
     if isinstance(related, dict):
         also_buy.extend(related.get("also_bought", []) or [])
         also_buy.extend(related.get("bought_together", []) or [])
-    also_buy.extend(rec.get("also_buy", []) or [])
     # De-duplicate, drop self-loops.
     also_buy = list({a for a in also_buy if a and a != asin})
 
-    # Category hierarchy: 2018 = "category" or "categories" -> list of paths.
-    # 2023 = "categories" -> single path (list[str]).
+    # Category hierarchy: prefer ``categories`` (list-of-paths), fall back to
+    # ``category`` (single path).  Each path is coarse → fine.
     cats_raw = rec.get("categories") if "categories" in rec else rec.get("category")
     categories: list[list[str]] = []
     if isinstance(cats_raw, list):
@@ -293,16 +282,16 @@ def _masks_from_indices(
 
 
 class AmazonCopurchase(InMemoryDataset):
-    """Amazon co-purchase graph dataset.
+    """Amazon co-purchase graph dataset (McAuley/UCSD schema).
 
-    Loads product metadata and co-purchase edges for one or two top-level
+    Loads product metadata and co-purchase edges for one or more top-level
     categories. Saves a processed PyG ``Data`` object to disk.
 
     Args:
         root: Path to the data directory. Raw files are expected at
             ``root/raw/meta_<Category>.json[.gz]`` and processed artifacts
             are written to ``root/processed/``.
-        categories: List of top-level category names to include (1 or 2).
+        categories: List of top-level category names to include (at least 1).
             Each category requires a corresponding raw metadata file.
         split_seed: Random seed for the train / val / test split.
         split_ratios: Tuple ``(train, val, test)`` summing to 1.0.
@@ -339,12 +328,7 @@ class AmazonCopurchase(InMemoryDataset):
     ) -> None:
         if not categories:
             raise ValueError("categories must contain at least one name")
-        
-        # if len(categories) > 2:
-        #     raise ValueError(
-        #         f"categories supports at most 2 top-level names, got {len(categories)}"
-        #     )
-        
+
         self.categories: list[str] = list(categories)
         self.split_seed: int = int(split_seed)
         self.split_ratios: tuple[float, float, float] = tuple(split_ratios)  # type: ignore[assignment]
@@ -388,8 +372,9 @@ class AmazonCopurchase(InMemoryDataset):
         if missing:
             raise FileNotFoundError(
                 "Missing Amazon metadata files. Download the per-category "
-                "JSONL dumps from https://nijianmo.github.io/amazon/ or "
-                "https://amazon-reviews-2023.github.io/ and place them at:\n  "
+                "JSONL dumps from "
+                "https://cseweb.ucsd.edu/~jmcauley/datasets/amazon/links.html "
+                "and place them at:\n  "
                 + "\n  ".join(missing)
             )
 
@@ -514,8 +499,13 @@ class AmazonCopurchase(InMemoryDataset):
             classes=np.array(class_names),
         )
 
+        # ASINs in node order — required for the McAuley precomputed
+        # image-feature loader (src/data/image_features.py).
+        asins: list[str] = [r["asin"] for r in kept2]
+
         meta = [
             {
+                "asin": r["asin"],
                 "title": r["title"],
                 "description": r["description"],
                 "image_url": r["image_url"],
@@ -533,6 +523,7 @@ class AmazonCopurchase(InMemoryDataset):
         )
         data.meta = meta
         data.class_names = class_names
+        data.asins = asins
 
         # Stats — useful for the supervisor's "report dataset stats" rule.
         logger.info("n_nodes=%d", n_nodes)
@@ -612,8 +603,8 @@ if __name__ == "__main__":
 
     ds = AmazonCopurchase(
         root=tmp,
-        split_seed=0,        
-        categories=["Books", "Electronics", "Movies_and_TV", "CDs_and_Vinyl", "Clothing_Shoes_and_Jewelry", "Home_and_Kitchen", "Kindle_Store", "Sports_and_Outdoors", "Cell_Phones_and_Accessories", "Health_and_Personal_Care", "Toys_and_Games", "Video_Games", "Tools_and_Home_Improvement", "Beauty", "Apps_for_Android", "Office_Products", "Pet_Supplies", "Automotive", "Grocery_and_Gourmet_Food", "Patio,_Lawn_and_Garden", "Musical_Instruments", "Baby", "Digital_Music", "Amazon_Instant_Video"],
+        split_seed=0,
+        categories=["Electronics"],
         split_ratios=(0.6, 0.2, 0.2),
         label_level=1,
         min_class_count=2,

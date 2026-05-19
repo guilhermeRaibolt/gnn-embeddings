@@ -3,20 +3,32 @@
 # The H2 grid compares three modalities on the same graph and GNN backbone:
 #
 #   text_only   — best text encoder from H3 (no images).
-#   image_only  — each vision encoder; missing images filled with zero vectors.
-#   text+image  — fusion of best text encoder + each vision encoder using
+#   image_only  — precomputed 4096-dim Caffe image features (McAuley/UCSD).
+#   text+image  — fusion of best text encoder + image features using
 #                 three fusion strategies (concat / weighted / gated).
 #
-# Each (modality × encoder × fusion) combination gets its own hyperparameter
-# search (FAIR) and seed sweep (STATISTICALLY SOUND).
+# Each (modality × fusion) combination gets its own hyperparameter search
+# (FAIR) and seed sweep (STATISTICALLY SOUND).
+#
+# Image features
+# --------------
+# The McAuley/UCSD distribution at
+# https://cseweb.ucsd.edu/~jmcauley/datasets/amazon/links.html publishes
+# 4096-dim Caffe reference visual features alongside the metadata.  We use
+# those directly — no image downloads, no on-the-fly vision encoder.  The
+# binary format is documented in ``src/data/image_features.py``.
+#
+# Place the files in ``data/raw/image_features_<Category>.b`` (same folder
+# as the metadata JSONL files).
 #
 # Missing-image confounder analysis
 # ----------------------------------
-# Because some product images cannot be downloaded, nodes with missing images
-# receive zero vectors.  The H2 runner flags a ">5 pp gap" warning when
-# test accuracy on nodes WITH available images is more than 5 percentage
-# points higher than on nodes WITHOUT images, indicating that the model may
-# be exploiting the missing-data pattern rather than image content.
+# Some products in the metadata files have no entry in the image-features
+# file (e.g. deleted listings).  Those nodes receive zero image vectors.
+# The H2 runner flags a ">5 pp gap" warning when test accuracy on nodes
+# WITH available features is more than 5 percentage points higher than on
+# nodes WITHOUT, indicating that the model may be exploiting the missing-
+# data pattern rather than image content.
 #
 # Design rules (from supervisor):
 #   - Each combo gets its own hyperparameter search (FAIR).
@@ -31,16 +43,38 @@
 dataset:
   root: data
   categories:
-    - Electronics
-  split_seed: 0
+    # - Electronics
+    # - Books
+    # - Movies_and_TV
+    # - CDs_and_Vinyl
+    # - Clothing_Shoes_and_Jewelry
+    # - Home_and_Kitchen
+    # - Kindle_Store
+    # - Sports_and_Outdoors
+    # - Cell_Phones_and_Accessories
+    # - Health_and_Personal_Care
+    # - Toys_and_Games
+    # - Video_Games
+    # - Tools_and_Home_Improvement
+    # - Beauty
+    # - Apps_for_Android
+    # - Office_Products
+    # - Pet_Supplies
+    # - Automotive
+    # - Grocery_and_Gourmet_Food
+    # - Patio,_Lawn_and_Garden
+    - Musical_Instruments
+    # - Baby
+    # - Digital_Music
+    # - Amazon_Instant_Video  split_seed: 0
   split_ratios: [0.6, 0.2, 0.2]
   label_level: 1
 
 # --------------------------------------------------------------------------
 # Prior-experiment result paths (used for warm-starts)
 # --------------------------------------------------------------------------
-h1_results_path: project_results/h1_results.json
-h3_results_path: project_results/h3_results.json
+h1_results_path: results/h1_results.json
+h3_results_path: results/h3_results.json
 
 # Fallbacks when result files don't exist (e.g., --mock smoke tests).
 fallback_gnn: GCN
@@ -55,13 +89,18 @@ fallback_hparams:
 fallback_text_encoder: tfidf
 
 # --------------------------------------------------------------------------
-# Image download settings
+# Image-feature settings
+#
+# The runner expects one binary file per dataset category, at
+# ``<dataset.root>/raw/image_features_<Category>.b``.  These are the
+# 4096-dim Caffe features from
+# https://cseweb.ucsd.edu/~jmcauley/datasets/amazon/links.html.
+#
+# The format and loader live in src/data/image_features.py.
 # --------------------------------------------------------------------------
-image_pipeline:
-  max_workers: 8       # concurrent download threads
-  timeout: 15          # per-request timeout in seconds
-  max_retries: 2       # retry attempts before giving up on a URL
-  cache_dir: data/images
+image_features:
+  feature_dim: 4096   # informational; loader uses the constant in image_features.py
+  source: mcauley-caffe
 
 # --------------------------------------------------------------------------
 # Text encoders
@@ -103,44 +142,19 @@ text_encoders:
     normalize_embeddings: true
 
 # --------------------------------------------------------------------------
-# Vision encoders
-#
-# Iterated for both ``image_only`` and ``text+image`` modalities.
-# Tier 0 (supervised) → Tier 1 (contrastive) → Tier 2 (self-supervised).
-# --------------------------------------------------------------------------
-vision_encoders:
-
-  - name: resnet
-    type: ResNet
-    batch_size: 32
-    normalize_embeddings: false   # 2048-dim avg-pool features, not normalized
-
-  - name: clip-vision
-    type: CLIPVision
-    model_name: openai/clip-vit-b-32
-    batch_size: 32
-    normalize_embeddings: true    # same CLIP space as clip-text encoder
-
-  - name: dinov2-B
-    type: DINOv2
-    model_size: "B"
-    batch_size: 32
-    normalize_embeddings: true    # L2-normalize DINOv2 CLS tokens
-
-# --------------------------------------------------------------------------
 # Fusion strategies
 #
-# Applied only for ``text+image`` modality.
-# Each strategy is paired with every (text_encoder × vision_encoder) combo.
+# Applied only for ``text+image`` modality.  Each strategy is paired with
+# the (text_encoder × precomputed_image_features) combination.
 # --------------------------------------------------------------------------
 fusion_strategies: [concat, weighted, gated]
 
 # --------------------------------------------------------------------------
 # Modalities to evaluate
 #
-# text_only   — 1 run per text encoder (1 encoder selected from H3)
-# image_only  — 1 run per vision encoder (3 encoders)
-# text+image  — 1 run per (vision_encoder × fusion_strategy) = 9 runs
+# text_only   — 1 run (text encoder selected from H3).
+# image_only  — 1 run (single precomputed feature set).
+# text+image  — 1 run per fusion strategy = 3 runs.
 # --------------------------------------------------------------------------
 modalities: [text_only, image_only, text+image]
 
@@ -172,5 +186,5 @@ training:
 # --------------------------------------------------------------------------
 results:
   dir:            results
-  output_file:    project_results/h2_results.json
+  output_file:    results/h2_results.json
   embeddings_dir: data/embeddings

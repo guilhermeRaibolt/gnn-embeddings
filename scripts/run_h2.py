@@ -7,17 +7,18 @@ Pipeline
 --------
 1. Determine the best GNN from H1 results (or fallback to config).
 2. Determine the best text encoder from H3 results (or fallback to config).
-3. Download and cache product images via the concurrent image pipeline.
+3. Load **precomputed** 4096-dim Caffe image features from the McAuley/UCSD
+   distribution (one ``image_features_<Category>.b`` per category, placed in
+   ``data/raw/``).  See :mod:`src.data.image_features` for the binary format.
 4. For each modality in ``{text_only, image_only, text+image}`` (configurable):
 
    text_only   — Compute text embeddings with the H3-best encoder; train with
                  the H1-best GNN using a fresh hyperparameter search.
 
-   image_only  — For each vision encoder in the YAML:
-                 Encode image_paths (zero vectors for missing images); train
-                 with the H1-best GNN.
+   image_only  — Use the precomputed image features directly as ``data.x``;
+                 missing rows are zero vectors.
 
-   text+image  — For each (vision_encoder × fusion_strategy) pair:
+   text+image  — For each fusion strategy:
                  Set ``data.x = cat([text_emb, image_emb], dim=-1)``; use a
                  :class:`~src.fusion.fusion.FusedModelFactory` as the
                  ``model_factory`` argument of ``hyperparameter_search`` so
@@ -25,7 +26,7 @@ Pipeline
 
 5. Missing-image confounder analysis:
    For image_only and text+image runs, evaluate the trained model separately
-   on test nodes WITH available images and test nodes WITHOUT images.  Flag
+   on test nodes WITH available image features and test nodes WITHOUT.  Flag
    a "⚠  CONFOUNDER" warning when the accuracy gap exceeds 5 percentage
    points.
 
@@ -33,16 +34,15 @@ Pipeline
 
 Usage
 -----
-# Full run (downloads neural encoders and product images on first pass):
+# Full run (requires raw McAuley files in data/raw/):
     python scripts/run_h2.py --config experiments/h2_multimodal.yaml
 
-# Quick smoke test (synthetic data, sparse text encoder, resnet, concat only):
+# Quick smoke test (synthetic data, sparse text encoder, concat only):
     python scripts/run_h2.py \\
         --config experiments/h2_multimodal.yaml \\
-        --mock --modalities text_only image_only \\
-        --vision-encoders resnet --fusion concat
+        --mock --modalities text_only image_only text+image --fusion concat
 
-# Skip image_only, use a single fusion strategy:
+# Skip image_only:
     python scripts/run_h2.py \\
         --config experiments/h2_multimodal.yaml \\
         --modalities text_only text+image --fusion concat
@@ -69,7 +69,7 @@ import yaml
 # Ensure the project root is on sys.path when invoked directly.
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from src.data.image_pipeline import fetch_and_cache_images, get_cached_image_paths
+from src.data.image_features import FEATURE_DIM, load_and_align
 from src.encoders.registry import build_encoder
 from src.eval.harness import aggregate_metrics, evaluate, run_seed_sweep
 from src.fusion.fusion import FusedModelFactory, build_fusion
@@ -106,6 +106,9 @@ _METADATA_KEYS = frozenset(
 # Accuracy-gap threshold for confounder flag (percentage points).
 _CONFOUNDER_GAP_THRESHOLD_PP = 5.0
 
+# Name shown in benchmark tables for the (single) precomputed image-feature set.
+_IMAGE_FEATURE_NAME = "mcauley-caffe-4096"
+
 
 # ---------------------------------------------------------------------------
 # Dataset helpers
@@ -119,8 +122,9 @@ def load_real_dataset(cfg: dict[str, Any]) -> Any:
         cfg: The ``dataset`` sub-dict from the experiment YAML.
 
     Returns:
-        A PyG ``Data`` object with ``x = torch.empty(N, 0)`` and a
-        ``meta`` attribute containing per-node dicts with ``image_url``.
+        A PyG ``Data`` object with ``x = torch.empty(N, 0)``, a ``meta``
+        attribute (per-node dicts with ``asin``/``title``/``description``/
+        ``image_url``), and a ``data.asins`` list (ASINs in node order).
 
     Raises:
         FileNotFoundError: If the raw metadata files are not present.
@@ -151,9 +155,10 @@ def load_real_dataset(cfg: dict[str, Any]) -> Any:
 def make_mock_dataset(n_nodes: int = 200, n_classes: int = 4) -> Any:
     """Build a small synthetic dataset for end-to-end smoke testing.
 
-    All ``image_url`` fields are empty strings so that the image pipeline
-    returns an all-False availability mask.  Image embeddings will therefore
-    be all-zero vectors, which is the expected behaviour for missing images.
+    Each mock node receives a synthetic 10-character ASIN.  No real McAuley
+    feature file exists for these ASINs, so the image-features loader is
+    bypassed in mock mode and the image embeddings are all-zero (with an
+    all-False availability mask).
 
     Args:
         n_nodes: Number of synthetic product nodes.
@@ -162,7 +167,7 @@ def make_mock_dataset(n_nodes: int = 200, n_classes: int = 4) -> Any:
     Returns:
         A :class:`types.SimpleNamespace` with the same attributes used by
         the training loop: ``x``, ``edge_index``, ``y``, ``*_mask``,
-        ``meta``, ``class_names``, ``num_nodes``.
+        ``meta``, ``class_names``, ``num_nodes``, ``asins``.
     """
     torch.manual_seed(0)
     y = torch.randint(0, n_classes, (n_nodes,))
@@ -186,11 +191,13 @@ def make_mock_dataset(n_nodes: int = 200, n_classes: int = 4) -> Any:
     val_mask[perm[n_train: n_train + n_val]] = True
     test_mask[perm[n_train + n_val:]]        = True
 
+    asins = [f"MOCK{i:06d}" for i in range(n_nodes)]
     meta = [
         {
+            "asin":        asins[i],
             "title":       f"Product {i}",
             "description": f"Category {'ABCD'[y[i]]} product number {i}",
-            "image_url":   "",    # empty → image pipeline returns zero vectors
+            "image_url":   "",
         }
         for i in range(n_nodes)
     ]
@@ -205,6 +212,7 @@ def make_mock_dataset(n_nodes: int = 200, n_classes: int = 4) -> Any:
         meta=meta,
         class_names=class_names,
         num_nodes=n_nodes,
+        asins=asins,
     )
     logger.info(
         "Mock dataset: N=%d  E=%d  C=%d  train=%d val=%d test=%d",
@@ -387,46 +395,43 @@ def compute_text_embeddings(
     return x
 
 
-def compute_vision_embeddings(
-    encoder_cfg: dict[str, Any],
-    image_paths: list[Path | None],
-    embeddings_dir: Path,
-    device: str = "auto",
-) -> torch.Tensor:
-    """Encode all product images with a vision encoder.
-
-    Nodes whose images are unavailable (``None`` in ``image_paths``) receive
-    a **zero vector** from the vision encoder.
+def load_precomputed_image_features(
+    data: Any,
+    raw_dir: Path,
+    categories: list[str],
+) -> tuple[torch.Tensor, np.ndarray]:
+    """Load and align McAuley precomputed image features for the dataset.
 
     Args:
-        encoder_cfg: Encoder dict from the YAML ``vision_encoders`` list.
-        image_paths: List of length ``N`` — a ``pathlib.Path`` for each
-            cached JPEG, or ``None`` for unavailable images.
-        embeddings_dir: Root directory for ``.pt`` cache files.
-        device: Inference device forwarded to :func:`build_encoder`.
+        data: Dataset with a ``data.asins`` list of length ``N``.
+        raw_dir: Directory holding ``image_features_<Category>.b`` files.
+        categories: Category names to load features for.
 
     Returns:
-        Dense ``(N, D_vision)`` float32 tensor (zero rows for missing images).
+        ``(image_emb, available)`` where ``image_emb`` is
+        ``(N, 4096)`` float32 and ``available`` is ``(N,)`` bool.
+        Missing ASINs receive zero vectors.
+
+    Raises:
+        FileNotFoundError: If any feature file is missing from ``raw_dir``.
     """
-    enc_name: str = encoder_cfg["name"]
-    enc_build_cfg = {k: v for k, v in encoder_cfg.items() if k not in _METADATA_KEYS}
-
-    logger.info("Building vision encoder '%s' (type=%s) …", enc_name, encoder_cfg.get("type"))
-    encoder = build_encoder(enc_build_cfg, cache_dir=embeddings_dir, device=device)
-
-    # Vision encoders are always frozen — no fit() needed.
-    cache_key = f"{enc_name}_vision_split0"
+    if not hasattr(data, "asins"):
+        raise AttributeError(
+            "data.asins is missing — required for aligning precomputed image "
+            "features.  Did you load with the updated AmazonCopurchase?"
+        )
     logger.info(
-        "Encoding %d image paths (cache_key='%s') …",
-        len(image_paths), cache_key,
+        "Loading precomputed image features from %s for categories=%s …",
+        raw_dir, categories,
     )
-    x = encoder.encode_cached(image_paths, cache_key)
-    n_valid = sum(1 for p in image_paths if p is not None)
+    image_emb, available = load_and_align(raw_dir, categories, data.asins)
+    n_avail = int(available.sum())
     logger.info(
-        "Vision embeddings '%s': shape=%s  valid=%d / %d",
-        enc_name, tuple(x.shape), n_valid, len(image_paths),
+        "Image features: shape=%s  available=%d / %d (%.1f%%)",
+        tuple(image_emb.shape), n_avail, len(data.asins),
+        100.0 * n_avail / max(1, len(data.asins)),
     )
-    return x
+    return image_emb, available
 
 
 # ---------------------------------------------------------------------------
@@ -465,8 +470,8 @@ def run_modality_combo(
         combo_name: Short identifier used for checkpoint and log file naming
             (e.g. ``"h2_text_only_tfidf"``).
         modality: One of ``"text_only"``, ``"image_only"``, ``"text+image"``.
-        combo_meta: Dict of metadata fields (modality, text_enc, vision_enc,
-            fusion) that are injected into every result record.
+        combo_meta: Dict of metadata fields (modality, text_enc, fusion)
+            that are injected into every result record.
         model_cls: GNN class.  Ignored when ``model_factory`` is not None.
         model_factory: Optional callable ``(TrainConfig) → nn.Module``
             injected into :func:`~src.train.hyperparameter_search` for the
@@ -620,7 +625,7 @@ def run_modality_combo(
 _H2_COLS = [
     ("modality",    12),
     ("text_enc",    14),
-    ("vision_enc",  12),
+    ("image_feat",  20),
     ("fusion",      10),
     ("model",       12),
     ("mean_acc",     9),
@@ -677,7 +682,7 @@ def print_h2_table(benchmark_rows: list[dict[str, Any]]) -> None:
         print("  ".join([
             str(r.get("modality",    "")).ljust(_H2_COLS[0][1]),
             str(r.get("text_enc",    "—")).ljust(_H2_COLS[1][1]),
-            str(r.get("vision_enc",  "—")).ljust(_H2_COLS[2][1]),
+            str(r.get("image_feat",  "—")).ljust(_H2_COLS[2][1]),
             str(r.get("fusion",      "—")).ljust(_H2_COLS[3][1]),
             str(r.get("model",       "")).ljust(_H2_COLS[4][1]),
             f"{r.get('mean_acc',   0.0):.4f}".ljust(_H2_COLS[5][1]),
@@ -705,7 +710,7 @@ def print_confounder_table(benchmark_rows: list[dict[str, Any]]) -> None:
         and r.get("acc_with_images") is not None
     ]
     if not vision_rows:
-        logger.info("Confounder analysis: no vision rows with subset metrics — skipping.")
+        logger.info("Confounder analysis: no image rows with subset metrics — skipping.")
         return
 
     header = "  ".join(c.ljust(w) for c, w in _CONF_COLS)
@@ -722,7 +727,6 @@ def print_confounder_table(benchmark_rows: list[dict[str, Any]]) -> None:
     for r in vision_rows:
         combo_name = (
             f"{r.get('modality', '')}/"
-            f"{r.get('vision_enc', '')}/"
             f"{r.get('fusion', '')}"
         ).rstrip("/")
         acc_with    = r.get("acc_with_images")
@@ -790,7 +794,7 @@ def main(argv: list[str] | None = None) -> None:
         "--mock", action="store_true",
         help=(
             "Use a small synthetic dataset instead of real Amazon data.  "
-            "Images will be all-missing (zero vectors), which is intentional."
+            "Image features will be all-zero (no McAuley file is read)."
         ),
     )
     parser.add_argument(
@@ -798,14 +802,6 @@ def main(argv: list[str] | None = None) -> None:
         choices=["text_only", "image_only", "text+image"],
         metavar="MODALITY",
         help="Restrict to specific modalities (default: all in YAML).",
-    )
-    parser.add_argument(
-        "--vision-encoders", nargs="+", metavar="ENC",
-        help=(
-            "Restrict vision encoders by name "
-            "(e.g. --vision-encoders resnet clip-vision).  "
-            "In --mock mode defaults to [resnet] if not specified."
-        ),
     )
     parser.add_argument(
         "--fusion", nargs="+",
@@ -829,13 +825,6 @@ def main(argv: list[str] | None = None) -> None:
         help=(
             "Override the GNN selected from H1 results "
             "(e.g. --model MLP for a quick smoke test without torch_geometric)."
-        ),
-    )
-    parser.add_argument(
-        "--skip-image-download", action="store_true",
-        help=(
-            "Skip downloading images; use only already-cached images.  "
-            "Useful when re-running after a previous download pass."
         ),
     )
     parser.add_argument(
@@ -868,14 +857,13 @@ def main(argv: list[str] | None = None) -> None:
     training_cfg  = exp_cfg["training"]
     results_cfg   = exp_cfg["results"]
     search_space  = exp_cfg["gnn_search_space"]
-    img_pipe_cfg  = exp_cfg.get("image_pipeline", {})
+    image_feat_cfg = exp_cfg.get("image_features", {})
 
     results_dir    = Path(results_cfg["dir"])
     results_dir.mkdir(parents=True, exist_ok=True)
     output_file    = Path(results_cfg["output_file"])
     embeddings_dir = Path(results_cfg.get("embeddings_dir", "data/embeddings"))
     embeddings_dir.mkdir(parents=True, exist_ok=True)
-    image_cache_dir = Path(img_pipe_cfg.get("cache_dir", "data/images"))
 
     # ── Dataset ───────────────────────────────────────────────────────────────
     if args.mock:
@@ -887,8 +875,8 @@ def main(argv: list[str] | None = None) -> None:
         except FileNotFoundError as exc:
             logger.error(
                 "Raw dataset not found: %s\n"
-                "Download from https://nijianmo.github.io/amazon/ and place files "
-                "in %s/raw/. Or run with --mock.",
+                "Download from https://cseweb.ucsd.edu/~jmcauley/datasets/amazon/links.html "
+                "and place files in %s/raw/. Or run with --mock.",
                 exc, dataset_cfg["root"],
             )
             sys.exit(1)
@@ -896,21 +884,12 @@ def main(argv: list[str] | None = None) -> None:
     out_channels = len(data.class_names)
     n_nodes      = data.num_nodes if hasattr(data, "num_nodes") else len(data.meta)
 
-    # ── Determine modalities, vision encoders, and fusion strategies ──────────
+    # ── Determine modalities and fusion strategies ────────────────────────────
     all_modalities      = exp_cfg.get("modalities", ["text_only", "image_only", "text+image"])
-    all_vision_cfgs     = exp_cfg.get("vision_encoders", [])
     all_fusion_names    = exp_cfg.get("fusion_strategies", ["concat", "weighted", "gated"])
     all_text_enc_cfgs   = exp_cfg.get("text_encoders", [])
 
     active_modalities = args.modalities if args.modalities else all_modalities
-
-    if args.vision_encoders:
-        vision_cfgs = [v for v in all_vision_cfgs if v["name"] in args.vision_encoders]
-    elif args.mock:
-        vision_cfgs = all_vision_cfgs[:1]   # only first (resnet) in mock mode
-        logger.info("--mock: restricting to first vision encoder '%s'.", vision_cfgs[0]["name"])
-    else:
-        vision_cfgs = all_vision_cfgs
 
     if args.fusion:
         fusion_names = [f for f in all_fusion_names if f in args.fusion]
@@ -975,36 +954,32 @@ def main(argv: list[str] | None = None) -> None:
         device=args.device,
     )
 
-    # ── Image pipeline ────────────────────────────────────────────────────────
+    # ── Image features (precomputed McAuley Caffe 4096-dim) ──────────────────
     need_images = any(m in active_modalities for m in ("image_only", "text+image"))
-
+    image_emb: torch.Tensor | None = None
     image_available: np.ndarray | None = None
-    image_paths: list[Path | None] = [None] * n_nodes
 
-    if need_images and not args.mock:
-        if args.skip_image_download:
-            logger.info("--skip-image-download: scanning existing cache …")
-            image_available, image_paths = get_cached_image_paths(n_nodes, image_cache_dir)
+    if need_images:
+        if args.mock:
+            logger.info("Mock mode: synthesising zero image features (no McAuley file read).")
+            image_emb = torch.zeros((n_nodes, FEATURE_DIM), dtype=torch.float32)
+            image_available = np.zeros(n_nodes, dtype=bool)
         else:
-            logger.info("Running image pipeline (max_workers=%d) …",
-                        img_pipe_cfg.get("max_workers", 8))
-            image_available, image_paths = fetch_and_cache_images(
-                data=data,
-                cache_dir=image_cache_dir,
-                max_workers=img_pipe_cfg.get("max_workers", 8),
-                timeout=img_pipe_cfg.get("timeout", 15),
-                max_retries=img_pipe_cfg.get("max_retries", 2),
-            )
-            n_avail = int(image_available.sum())
-            logger.info(
-                "Images available: %d / %d (%.1f%%)",
-                n_avail, n_nodes, 100.0 * n_avail / max(1, n_nodes),
-            )
-    elif need_images and args.mock:
-        # All images empty in mock mode.
-        image_available = np.zeros(n_nodes, dtype=bool)
-        image_paths = [None] * n_nodes
-        logger.info("Mock mode: all images set to None (zero vectors).")
+            raw_dir = Path(dataset_cfg["root"]) / "raw"
+            try:
+                image_emb, image_available = load_precomputed_image_features(
+                    data=data,
+                    raw_dir=raw_dir,
+                    categories=list(dataset_cfg["categories"]),
+                )
+            except FileNotFoundError as exc:
+                logger.error(
+                    "Could not load McAuley image features: %s\n"
+                    "Place 'image_features_<Category>.b' files in %s and re-run, "
+                    "or restrict to --modalities text_only.",
+                    exc, raw_dir,
+                )
+                sys.exit(1)
 
     # ── Pre-compute text embeddings once (reused across all combos) ───────────
     needs_text = any(m in active_modalities for m in ("text_only", "text+image"))
@@ -1020,23 +995,6 @@ def main(argv: list[str] | None = None) -> None:
         )
         logger.info("Text embeddings ready: shape=%s", tuple(text_emb.shape))
 
-    # ── Per-vision encoder image embeddings (computed on demand) ─────────────
-    # Cache the vision embeddings by encoder name so each is computed once even
-    # if used in both image_only and text+image.
-    vision_emb_cache: dict[str, torch.Tensor] = {}
-
-    def get_vision_emb(vcfg: dict[str, Any]) -> torch.Tensor:
-        """Return (or compute) the vision embedding for one encoder config."""
-        vname = vcfg["name"]
-        if vname not in vision_emb_cache:
-            vision_emb_cache[vname] = compute_vision_embeddings(
-                encoder_cfg=vcfg,
-                image_paths=image_paths,
-                embeddings_dir=embeddings_dir,
-                device=args.device,
-            )
-        return vision_emb_cache[vname]
-
     # ── Main experiment loop ──────────────────────────────────────────────────
     all_results:    list[dict[str, Any]] = []
     benchmark_rows: list[dict[str, Any]] = []
@@ -1050,7 +1008,7 @@ def main(argv: list[str] | None = None) -> None:
             combo_meta = {
                 "modality":   "text_only",
                 "text_enc":   best_text_name,
-                "vision_enc": None,
+                "image_feat": None,
                 "fusion":     None,
             }
             data_copy = deepcopy(data)
@@ -1076,7 +1034,7 @@ def main(argv: list[str] | None = None) -> None:
             benchmark_rows.append({
                 "modality":   "text_only",
                 "text_enc":   best_text_name,
-                "vision_enc": None,
+                "image_feat": None,
                 "fusion":     None,
                 "model":      best_gnn_name,
                 "mean_acc":   summary.get("test_accuracy_mean",      0.0),
@@ -1089,26 +1047,87 @@ def main(argv: list[str] | None = None) -> None:
 
         # ── image_only ────────────────────────────────────────────────────────
         elif modality == "image_only":
-            for vcfg in vision_cfgs:
-                vname = vcfg["name"]
-                image_emb = get_vision_emb(vcfg)
+            assert image_emb is not None
+            combo_name = f"image_only_{_IMAGE_FEATURE_NAME}"
+            combo_meta = {
+                "modality":   "image_only",
+                "text_enc":   None,
+                "image_feat": _IMAGE_FEATURE_NAME,
+                "fusion":     None,
+            }
+            data_copy = deepcopy(data)
+            data_copy.x = image_emb
 
-                combo_name = f"image_only_{vname}"
+            per_seed, summary = run_modality_combo(
+                combo_name=combo_name,
+                modality="image_only",
+                combo_meta=combo_meta,
+                model_cls=model_cls,
+                model_factory=None,
+                data=data_copy,
+                image_available=image_available,
+                training_cfg=training_cfg,
+                search_space=search_space,
+                base_config=base_config,
+                warm_start_params=warm_start_params,
+                results_dir=results_dir,
+                device=args.device,
+            )
+            all_results.extend(per_seed)
+            avg_rt = sum(r.get("runtime_seconds", 0) for r in per_seed) / max(1, len(per_seed))
+            row: dict[str, Any] = {
+                "modality":   "image_only",
+                "text_enc":   None,
+                "image_feat": _IMAGE_FEATURE_NAME,
+                "fusion":     None,
+                "model":      best_gnn_name,
+                "mean_acc":   summary.get("test_accuracy_mean",      0.0),
+                "std_acc":    summary.get("test_accuracy_std",        0.0),
+                "ci95_lower": summary.get("test_accuracy_ci95_lower", 0.0),
+                "ci95_upper": summary.get("test_accuracy_ci95_upper", 0.0),
+                "n_runs":     summary.get("n_runs",                   0),
+                "avg_rt_s":   avg_rt,
+            }
+            # Confounder stats (aggregated over seeds).
+            if summary.get("test_acc_with_images_mean") is not None:
+                row["acc_with_images"]    = summary["test_acc_with_images_mean"]
+                row["n_with_images"]      = summary.get("n_test_with_images_mean")
+                row["acc_without_images"] = summary.get("test_acc_without_images_mean")
+                row["n_without_images"]   = summary.get("n_test_without_images_mean")
+            benchmark_rows.append(row)
+
+        # ── text+image ────────────────────────────────────────────────────────
+        elif modality == "text+image":
+            assert text_emb is not None
+            assert image_emb is not None
+            text_dim  = int(text_emb.shape[1])
+            image_dim = int(image_emb.shape[1])
+
+            for fusion_name in fusion_names:
+                combo_name = f"h2_{best_text_name}_{_IMAGE_FEATURE_NAME}_{fusion_name}"
                 combo_meta = {
-                    "modality":   "image_only",
-                    "text_enc":   None,
-                    "vision_enc": vname,
-                    "fusion":     None,
+                    "modality":   "text+image",
+                    "text_enc":   best_text_name,
+                    "image_feat": _IMAGE_FEATURE_NAME,
+                    "fusion":     fusion_name,
                 }
-                data_copy = deepcopy(data)
-                data_copy.x = image_emb
+                data_copy   = deepcopy(data)
+                # Concatenate: FusedModel will split at [:, text_dim].
+                data_copy.x = torch.cat([text_emb, image_emb], dim=-1)
+
+                factory = FusedModelFactory(
+                    gnn_cls=model_cls,
+                    fusion_name=fusion_name,
+                    text_dim=text_dim,
+                    image_dim=image_dim,
+                )
 
                 per_seed, summary = run_modality_combo(
                     combo_name=combo_name,
-                    modality="image_only",
+                    modality="text+image",
                     combo_meta=combo_meta,
                     model_cls=model_cls,
-                    model_factory=None,
+                    model_factory=factory,
                     data=data_copy,
                     image_available=image_available,
                     training_cfg=training_cfg,
@@ -1119,12 +1138,15 @@ def main(argv: list[str] | None = None) -> None:
                     device=args.device,
                 )
                 all_results.extend(per_seed)
-                avg_rt = sum(r.get("runtime_seconds", 0) for r in per_seed) / max(1, len(per_seed))
-                row: dict[str, Any] = {
-                    "modality":   "image_only",
-                    "text_enc":   None,
-                    "vision_enc": vname,
-                    "fusion":     None,
+                avg_rt = (
+                    sum(r.get("runtime_seconds", 0) for r in per_seed)
+                    / max(1, len(per_seed))
+                )
+                row = {
+                    "modality":   "text+image",
+                    "text_enc":   best_text_name,
+                    "image_feat": _IMAGE_FEATURE_NAME,
+                    "fusion":     fusion_name,
                     "model":      best_gnn_name,
                     "mean_acc":   summary.get("test_accuracy_mean",      0.0),
                     "std_acc":    summary.get("test_accuracy_std",        0.0),
@@ -1133,81 +1155,12 @@ def main(argv: list[str] | None = None) -> None:
                     "n_runs":     summary.get("n_runs",                   0),
                     "avg_rt_s":   avg_rt,
                 }
-                # Confounder stats (aggregated over seeds).
                 if summary.get("test_acc_with_images_mean") is not None:
                     row["acc_with_images"]    = summary["test_acc_with_images_mean"]
                     row["n_with_images"]      = summary.get("n_test_with_images_mean")
                     row["acc_without_images"] = summary.get("test_acc_without_images_mean")
                     row["n_without_images"]   = summary.get("n_test_without_images_mean")
                 benchmark_rows.append(row)
-
-        # ── text+image ────────────────────────────────────────────────────────
-        elif modality == "text+image":
-            assert text_emb is not None
-            for vcfg in vision_cfgs:
-                vname = vcfg["name"]
-                image_emb = get_vision_emb(vcfg)
-                text_dim  = int(text_emb.shape[1])
-                image_dim = int(image_emb.shape[1])
-
-                for fusion_name in fusion_names:
-                    combo_name = f"h2_{best_text_name}_{vname}_{fusion_name}"
-                    combo_meta = {
-                        "modality":   "text+image",
-                        "text_enc":   best_text_name,
-                        "vision_enc": vname,
-                        "fusion":     fusion_name,
-                    }
-                    data_copy   = deepcopy(data)
-                    # Concatenate: FusedModel will split at [:, text_dim].
-                    data_copy.x = torch.cat([text_emb, image_emb], dim=-1)
-
-                    factory = FusedModelFactory(
-                        gnn_cls=model_cls,
-                        fusion_name=fusion_name,
-                        text_dim=text_dim,
-                        image_dim=image_dim,
-                    )
-
-                    per_seed, summary = run_modality_combo(
-                        combo_name=combo_name,
-                        modality="text+image",
-                        combo_meta=combo_meta,
-                        model_cls=model_cls,
-                        model_factory=factory,
-                        data=data_copy,
-                        image_available=image_available,
-                        training_cfg=training_cfg,
-                        search_space=search_space,
-                        base_config=base_config,
-                        warm_start_params=warm_start_params,
-                        results_dir=results_dir,
-                        device=args.device,
-                    )
-                    all_results.extend(per_seed)
-                    avg_rt = (
-                        sum(r.get("runtime_seconds", 0) for r in per_seed)
-                        / max(1, len(per_seed))
-                    )
-                    row = {
-                        "modality":   "text+image",
-                        "text_enc":   best_text_name,
-                        "vision_enc": vname,
-                        "fusion":     fusion_name,
-                        "model":      best_gnn_name,
-                        "mean_acc":   summary.get("test_accuracy_mean",      0.0),
-                        "std_acc":    summary.get("test_accuracy_std",        0.0),
-                        "ci95_lower": summary.get("test_accuracy_ci95_lower", 0.0),
-                        "ci95_upper": summary.get("test_accuracy_ci95_upper", 0.0),
-                        "n_runs":     summary.get("n_runs",                   0),
-                        "avg_rt_s":   avg_rt,
-                    }
-                    if summary.get("test_acc_with_images_mean") is not None:
-                        row["acc_with_images"]    = summary["test_acc_with_images_mean"]
-                        row["n_with_images"]      = summary.get("n_test_with_images_mean")
-                        row["acc_without_images"] = summary.get("test_acc_without_images_mean")
-                        row["n_without_images"]   = summary.get("n_test_without_images_mean")
-                    benchmark_rows.append(row)
 
     # ── Save all results ──────────────────────────────────────────────────────
     serialisable_results = [
