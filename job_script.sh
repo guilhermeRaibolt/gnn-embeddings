@@ -6,18 +6,18 @@
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=16G
-#SBATCH --time=1:00:00
+#SBATCH --time=4:00:00
 
 module purge
 module load python/3.11 cuda/12.4
 
 source ~/miniconda3/etc/profile.d/conda.sh
-conda activate venv
+conda activate env_gnn
 
 echo "Job $SLURM_JOB_ID started on $(hostname) at $(date)"
 
 nvidia-smi
 
-python train.py
+python scripts/run_h1.py --config experiments/h1_graph_vs_nograph.yaml
 
 echo "Job finished at $(date)"

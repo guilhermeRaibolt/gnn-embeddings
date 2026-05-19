@@ -93,7 +93,7 @@ training:
   patience:         20
   warmup_epochs:    10
   min_lr:           0.0001
-  n_hparam_trials:  1    # random trials per model during hparam search
+  n_hparam_trials:  20    # random trials per model during hparam search
   n_seed_runs:      5     # seed sweep repetitions for final evaluation
   base_seed:        0
 
