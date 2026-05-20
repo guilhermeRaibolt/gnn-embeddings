@@ -204,6 +204,31 @@ def _train_pytorch(
     model = model.to(device)
     data = _move_data(data, device)
 
+    # Convert edge_index -> SparseTensor for memory-efficient message passing.
+    # GCNConv transforms features *before* propagation, so it gathers only
+    # (num_edges, hidden) — small.  SAGEConv propagates the *raw* input
+    # features, so with a dense edge_index it materialises a
+    # (num_edges, in_channels) gather tensor: for 843k edges x 10k-dim
+    # TF-IDF that is ~31 GiB and OOMs even a 16 GB GPU.
+    # Passing a SparseTensor instead makes PyG dispatch to
+    # ``message_and_aggregate`` (sparse matmul), which never materialises
+    # that tensor.  The result is mathematically identical, and because the
+    # co-purchase graph is undirected the adjacency is symmetric so the
+    # transpose convention does not matter.
+    try:
+        from torch_sparse import SparseTensor
+
+        if not isinstance(data.edge_index, SparseTensor):
+            n_nodes = int(data.x.size(0))
+            data.edge_index = SparseTensor.from_edge_index(
+                data.edge_index, sparse_sizes=(n_nodes, n_nodes)
+            ).t()
+    except ImportError:
+        logger.warning(
+            "torch_sparse not installed — falling back to dense edge_index. "
+            "High-dimensional features may OOM with SAGEConv."
+        )
+
     ckpt_dir = Path(config.checkpoint_dir)
     ckpt_dir.mkdir(parents=True, exist_ok=True)
     ckpt_path = (
