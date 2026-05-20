@@ -8,15 +8,18 @@
 #SBATCH --mem=16G
 #SBATCH --time=4:00:00
 
+set -euo pipefail
+
 module purge
 module load python/3.11 cuda/12.4
 
-source ~/projet/gnn-embeddings/env_gnn/bin/activate
+source ~/miniconda3/etc/profile.d/conda.sh
+conda activate env_gnn
 
 echo "Job $SLURM_JOB_ID started on $(hostname) at $(date)"
 
 nvidia-smi
 
-python scripts/run_h1.py --config experiments/h1_graph_vs_nograph.yaml
+python3 scripts/run_h1.py --config experiments/h1_graph_vs_nograph.yaml
 
 echo "Job finished at $(date)"
