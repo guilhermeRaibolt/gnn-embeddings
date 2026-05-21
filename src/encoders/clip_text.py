@@ -42,7 +42,7 @@ from src.encoders.base import BaseEncoder
 
 logger = logging.getLogger(__name__)
 
-_DEFAULT_MODEL = "openai/clip-vit-b-32"
+_DEFAULT_MODEL = "openai/clip-vit-base-patch32"
 _CLIP_DIM = 512          # output of the text projection head for ViT-B/32
 _CLIP_MAX_TOKENS = 77    # CLIP tokeniser hard limit
 
@@ -92,7 +92,9 @@ class CLIPTextEncoder(BaseEncoder):
             ) from exc
 
         self._tokenizer = CLIPTokenizerFast.from_pretrained(model_name)
-        self._model = CLIPTextModelWithProjection.from_pretrained(model_name)
+        self._model = CLIPTextModelWithProjection.from_pretrained(
+            model_name, use_safetensors=True
+        )
         self._model = self._model.to(self.device)
         self._model.eval()
         for param in self._model.parameters():

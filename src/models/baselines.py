@@ -166,7 +166,6 @@ class LogRegClassifier(nn.Module):
             max_iter=max_iter,
             solver=solver,
             random_state=random_state,
-            n_jobs=-1,
         )
         self._fitted = False
 
@@ -224,9 +223,7 @@ class LogRegClassifier(nn.Module):
             C=self._logreg.C,
             max_iter=self._logreg.max_iter,
             solver=self._logreg.solver,
-            multi_class="auto",
             random_state=self._logreg.random_state,
-            n_jobs=-1,
         )
         self._fitted = False
 

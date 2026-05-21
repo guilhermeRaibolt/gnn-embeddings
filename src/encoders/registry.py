@@ -115,7 +115,7 @@ def build_encoder(
         return CLIPTextEncoder(
             cache_dir=cache_dir,
             device=device,
-            model_name=kwargs.get("model_name", "openai/clip-vit-b-32"),
+            model_name=kwargs.get("model_name", "openai/clip-vit-base-patch32"),
             batch_size=kwargs.get("batch_size", 64),
             normalize_embeddings=kwargs.get("normalize_embeddings", True),
         )

@@ -131,7 +131,7 @@ text_encoders:
 
   - name: clip-text
     type: CLIPText
-    model_name: openai/clip-vit-b-32
+    model_name: openai/clip-vit-base-patch32
     batch_size: 64
     normalize_embeddings: true
 
