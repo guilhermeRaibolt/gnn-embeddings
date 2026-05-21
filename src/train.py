@@ -358,10 +358,12 @@ def _train_logreg(
     )
     model.fit(x_train, y_train)
 
-    # Evaluate on CPU data (forward() always moves to CPU inside).
-    data_cpu = _move_data(deepcopy(data), torch.device("cpu"))
-    val_metrics = evaluate(model, data_cpu, data_cpu.val_mask.cpu())
-    test_metrics = evaluate(model, data_cpu, data_cpu.test_mask.cpu())
+    # ``data`` is already entirely on CPU in the LogReg path (sklearn never
+    # uses the GPU), so the previous ``_move_data(deepcopy(data), cpu)`` only
+    # duplicated the multi-GB dense TF-IDF matrix for no benefit — a real
+    # contributor to host-RAM OOM.  Evaluate directly on ``data``.
+    val_metrics = evaluate(model, data, data.val_mask.cpu())
+    test_metrics = evaluate(model, data, data.test_mask.cpu())
     runtime = time.perf_counter() - t0
 
     return {
