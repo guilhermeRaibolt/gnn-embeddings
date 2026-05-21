@@ -165,14 +165,29 @@ class BaseEncoder(ABC):
         if cache_path.exists():
             try:
                 x = torch.load(cache_path, weights_only=True)
-                logger.info(
-                    "Loaded cached embeddings: '%s' shape=%s",
-                    cache_key, tuple(x.shape),
-                )
-                return x
             except Exception as exc:  # corrupt / old format file
                 logger.warning(
                     "Failed to load cache '%s' (%s) — re-encoding.", cache_key, exc
+                )
+            else:
+                # Validate the cache matches the current request.  A
+                # row-count mismatch means the file was written for a
+                # different dataset — e.g. a 200-node ``--mock`` run leaving
+                # a file under the same cache key as a real 74k-node run.
+                # Returning the stale tensor desynchronises ``data.x`` from
+                # the graph and crashes much later (here: an out-of-range
+                # node index when building the SparseTensor adjacency).
+                # Treat the mismatch as a stale cache and re-encode.
+                if x.shape[0] == len(inputs):
+                    logger.info(
+                        "Loaded cached embeddings: '%s' shape=%s",
+                        cache_key, tuple(x.shape),
+                    )
+                    return x
+                logger.warning(
+                    "Cache '%s' has %d rows but %d inputs were requested "
+                    "— stale cache, re-encoding.",
+                    cache_key, x.shape[0], len(inputs),
                 )
 
         logger.info(

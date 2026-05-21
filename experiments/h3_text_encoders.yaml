@@ -44,7 +44,8 @@ dataset:
     - Musical_Instruments
     # - Baby
     # - Digital_Music
-    # - Amazon_Instant_Video  split_seed: 0
+    # - Amazon_Instant_Video  
+  split_seed: 0
   split_ratios: [0.6, 0.2, 0.2]
   label_level: 1
 
