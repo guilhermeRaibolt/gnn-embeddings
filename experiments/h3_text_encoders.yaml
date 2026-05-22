@@ -110,16 +110,16 @@ encoders:
     encoder_size_params: 4000000000
     pretraining_objective: retrieval
 
-  - name: qwen3-8B
-    type: Qwen3
-    model_size: "8B"
-    batch_size: 4
-    pooling: last_token
-    normalize_embeddings: true
-    modality: text
-    tier: 3
-    encoder_size_params: 8000000000
-    pretraining_objective: retrieval
+  # - name: qwen3-8B
+  #   type: Qwen3
+  #   model_size: "8B"
+  #   batch_size: 4
+  #   pooling: last_token
+  #   normalize_embeddings: true
+  #   modality: text
+  #   tier: 3
+  #   encoder_size_params: 8000000000
+  #   pretraining_objective: retrieval
 
   # ---- Tier 0: sparse baselines ------------------------------------------
   - name: bow
