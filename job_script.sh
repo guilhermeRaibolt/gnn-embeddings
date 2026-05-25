@@ -20,6 +20,6 @@ echo "Job $SLURM_JOB_ID started on $(hostname) at $(date)"
 
 nvidia-smi
 
-python3 scripts/run_h3_text.py --config experiments/h3_text_encoders.yaml
+python3 scripts/run_h2.py --config experiments/h2_multimodal.yaml
 
 echo "Job finished at $(date)"
