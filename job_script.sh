@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=gnn_h3
+#SBATCH --job-name=gnn_h2
 #SBATCH --output=%x_%j.out
 #SBATCH --error=%x_%j.err
 #SBATCH --partition=P100
