@@ -1115,11 +1115,18 @@ def main(argv: list[str] | None = None) -> None:
                 # Concatenate: FusedModel will split at [:, text_dim].
                 data_copy.x = torch.cat([text_emb, image_emb], dim=-1)
 
+                # Cap the shared fusion latent so WeightedFusion/GatedFusion
+                # don't allocate a (N, max(text_dim, image_dim)) projection — for
+                # TF-IDF (10000-dim) that would be ~3 GB per modality on a 74k-
+                # node graph, OOM on a 16 GB P100.  ConcatFusion ignores
+                # fusion_dim (its output is always text_dim + image_dim).
+                fusion_dim = min(1024, max(text_dim, image_dim))
                 factory = FusedModelFactory(
                     gnn_cls=model_cls,
                     fusion_name=fusion_name,
                     text_dim=text_dim,
                     image_dim=image_dim,
+                    fusion_dim=fusion_dim,
                 )
 
                 per_seed, summary = run_modality_combo(
@@ -1161,6 +1168,19 @@ def main(argv: list[str] | None = None) -> None:
                     row["acc_without_images"] = summary.get("test_acc_without_images_mean")
                     row["n_without_images"]   = summary.get("n_test_without_images_mean")
                 benchmark_rows.append(row)
+
+                # ── Free GPU memory before the next fusion strategy ────────────
+                # The PyTorch CUDA caching allocator does NOT return freed
+                # blocks to the driver, so leftover tensors from the previous
+                # fusion strategy (data_copy.x, trained backbone, optimizer
+                # state, autograd graphs) keep occupying VRAM.  Without this,
+                # the second/third strategy starts with only ~2 GB free on a
+                # 16 GB P100 and OOMs inside WeightedFusion / GatedFusion.
+                del data_copy, factory
+                import gc
+                gc.collect()
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
 
     # ── Save all results ──────────────────────────────────────────────────────
     serialisable_results = [
