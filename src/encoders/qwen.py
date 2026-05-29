@@ -7,20 +7,29 @@ from sklearn.model_selection import train_test_split
 
 import torch
 
+DEFAULT_QWEN_MODEL = "Qwen/Qwen3-Embedding-0.6B"
 
-class SBERTEncoder:
+class QwenEncoder:
     def __init__(
         self,
-        model_name="all-MiniLM-L6-v2",
-        batch_size=64,
+        model_name=DEFAULT_QWEN_MODEL,
+        batch_size=16,
         normalize=True,
         device=None,
+        max_seq_length=512,
     ):
         self.model_name = model_name
         self.batch_size = batch_size
         self.normalize = normalize
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
-        self.model = SentenceTransformer(model_name, device=self.device)
+
+        self.model = SentenceTransformer(
+            model_name,
+            device=self.device,
+            trust_remote_code=True,
+            model_kwargs={"torch_dtype": torch.float16} if self.device == "cuda" else None,
+        )
+        self.model.max_seq_length = max_seq_length
 
     def fit(self, texts):
         # Frozen pretrained encoder — nothing to learn.
@@ -44,7 +53,7 @@ class SBERTEncoder:
 
 
 def encode_dataframe(df):
-    encoder = SBERTEncoder()
+    encoder = QwenEncoder()
     X = encoder.fit_transform(df["text"])
     y = df["category"]
 
@@ -60,7 +69,7 @@ def train_logistic_regression(X, y):
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
 
-    print(f"\n[SCORES] SBERT Logistic Regression Accuracy: {accuracy_score(y_test, y_pred)}")
+    print(f"\n[SCORES] Qwen Logistic Regression Accuracy: {accuracy_score(y_test, y_pred)}")
     print(classification_report(y_test, y_pred))
 
     return clf
