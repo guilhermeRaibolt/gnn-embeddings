@@ -62,7 +62,7 @@ def parse_entries(path):
             
 
 def flatten_description(desc):
-    """description is sometimes a string, sometimes a list, sometimes missing."""
+    # description is sometimes a string, sometimes a list, sometimes missing.
     if isinstance(desc, list):
         return ' '.join(str(d) for d in desc)
     return str(desc) if desc else ''
