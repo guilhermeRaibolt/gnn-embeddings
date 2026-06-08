@@ -1,14 +1,16 @@
+import time
 import numpy as np
 import torch
 import torch.nn as nn
 from scipy import sparse
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import accuracy_score, f1_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from torch.utils.data import DataLoader, Dataset
 
-from src.encoders.tf_idf import get_tfidf_features
-from src.encoders.bow import get_bow_features
+from src.encoders.tf_idf import load_tfidf
+from src.encoders.bow import load_bow
+from src.encoders.sbert import load_sbert
 
 
 class MLP(nn.Module):
@@ -57,8 +59,20 @@ def train_mlp(
     
     print(f"\n[TRAINING] Starting MLP training on {encoder_name} features using device: {device}")
 
+    y = np.asarray(y)
+    classes, counts = np.unique(y, return_counts=True)
+    rare = classes[counts < 2]
+    if len(rare) > 0:
+        keep = ~np.isin(y, rare)
+        dropped = int((~keep).sum())
+        print(f"[FILTER] Dropping {len(rare)} classes with <2 samples ({dropped} rows removed)")
+        X = X[keep]
+        y = y[keep]
+
     label_encoder = LabelEncoder()
     y_enc = label_encoder.fit_transform(y)
+    
+    print(f"\n[DATA INFO] {len(label_encoder.classes_)} classes after filtering.")
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y_enc, test_size=test_size, random_state=random_state, stratify=y_enc
@@ -77,7 +91,9 @@ def train_mlp(
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
     criterion = nn.CrossEntropyLoss()
 
+    train_start = time.perf_counter()
     for epoch in range(1, epochs + 1):
+        epoch_start = time.perf_counter()
         model.train()
         running_loss, n = 0.0, 0
         for xb, yb in train_loader:
@@ -88,11 +104,27 @@ def train_mlp(
             optimizer.step()
             running_loss += loss.item() * xb.size(0)
             n += xb.size(0)
-        print(f"[EPOCH {epoch:02d}] train_loss={running_loss / n:.4f}")
+        epoch_elapsed = time.perf_counter() - epoch_start
+        total_elapsed = time.perf_counter() - train_start
+        print(
+            f"[EPOCH {epoch:02d}] train_loss={running_loss / n:.4f} "
+            f"epoch_time={epoch_elapsed:.2f}s total={total_elapsed:.2f}s"
+        )
+
+    train_elapsed = time.perf_counter() - train_start
+    print(f"\n[TRAINING] Completed in {train_elapsed:.2f}s")
 
     y_pred = predict(model, test_loader, device)
-    print(f"\n[SCORES] {encoder_name} MLP Accuracy: {accuracy_score(y_test, y_pred)}")
-    print(classification_report(y_test, y_pred, target_names=label_encoder.classes_))
+    
+    print("-" * 40)
+    print(f"[SCORES] MLP - Encoder: {encoder_name}")
+    accuracy = accuracy_score(y_test, y_pred)
+    macro_f1 = f1_score(y_test, y_pred, average='macro', zero_division=0)
+    weighted_f1 = f1_score(y_test, y_pred, average='weighted', zero_division=0)
+    print(f"Accuracy:    {accuracy:.4f}")
+    print(f"Macro F1:    {macro_f1:.4f}")
+    print(f"Weighted F1: {weighted_f1:.4f}")
+    print("-" * 40)
 
     return model, label_encoder
 
@@ -120,18 +152,15 @@ def predict_texts(model, encoder, label_encoder, texts, device=None):
 
 
 if __name__ == "__main__":
-    X, y, encoder = get_tfidf_features()
-    model, label_encoder = train_mlp(X, y, 'TF-IDF')
     
-    # X, y, encoder = get_bow_features()
-    # model, label_encoder = train_mlp(X, y, 'BOW')
-
-    # print("\n[TEST] Predicting categories for new inputs:")
-    # mock_data = [
-    #     "Acoustic Guitar",
-    #     "Truck 4x4",
-    #     "Car Radio Sound System",
-    # ]
-    # preds = predict_texts(model, encoder, label_encoder, mock_data)
-    # for text, pred in zip(mock_data, preds):
-    #     print(f"Input: {text}\nPredicted Category: {pred}\n")
+    # FIXME: if the training data is not exactly the same the models
+    # are not comparable (train/test split cant be different for example)
+    
+    X, y, encoder = load_tfidf()
+    train_mlp(X, y, 'TF-IDF')
+    
+    # X, y, encoder = load_bow()
+    # train_mlp(X, y, 'BOW')
+    
+    # X, y, encoder = load_sbert()
+    # train_mlp(X, y, 'SBERT')

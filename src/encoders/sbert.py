@@ -1,3 +1,5 @@
+import os
+
 from src.datasets.amazon_dataset import load_all_datasets_to_df
 
 from sentence_transformers import SentenceTransformer
@@ -8,6 +10,10 @@ from sklearn.model_selection import train_test_split
 import torch
 
 DEFAULT_BERT_MODEL = "all-MiniLM-L6-v2"
+SBERT_DIR = "data/sbert"
+X_PATH = os.path.join(SBERT_DIR, "X.npz")
+Y_PATH = os.path.join(SBERT_DIR, "y.npy")
+ENCODER_PATH = os.path.join(SBERT_DIR, "encoder.joblib")
 
 class SBERTEncoder:
     def __init__(
@@ -48,39 +54,32 @@ def encode_dataframe(df):
     encoder = SBERTEncoder()
     X = encoder.fit_transform(df["text"])
     y = df["category"]
-
-    print(f"\n[SANITY CHECK] Embedding shape: {X.shape} (dim={encoder.embedding_dim})")
     return X, y, encoder
 
 
-def train_logistic_regression(X, y):
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42
-    )
-    clf = LogisticRegression(max_iter=1000, random_state=42)
-    clf.fit(X_train, y_train)
-    y_pred = clf.predict(X_test)
-
-    print(f"\n[SCORES] SBERT Logistic Regression Accuracy: {accuracy_score(y_test, y_pred)}")
-    print(classification_report(y_test, y_pred))
-
-    return clf
-
-if __name__ == "__main__":
-
+def get_sbert_features():
     df = load_all_datasets_to_df()
     X, y, encoder = encode_dataframe(df)
-    lr_model = train_logistic_regression(X, y)
+    return X, y, encoder
 
-    print("\n[TEST] Predicting categories for new inputs:")
 
-    mock_data = [
-        "Acoustic Guitar",
-        "Truck 4x4",
-        "Car Radio Sound System",
-    ]
+def save_sbert(X, y, encoder, out_dir=SBERT_DIR):
+    os.makedirs(out_dir, exist_ok=True)
+    sparse.save_npz(os.path.join(out_dir, "X.npz"), X)
+    np.save(os.path.join(out_dir, "y.npy"), np.asarray(y))
+    joblib.dump(encoder, os.path.join(out_dir, "encoder.joblib"))
+    print(f"\n[SAVE] SBERT matrix: {X.shape} -> {out_dir}")
 
-    mock_X = encoder.transform(mock_data)
-    mock_pred = lr_model.predict(mock_X)
-    for input, pred in zip(mock_data, mock_pred):
-        print(f"Input: {input}\nPredicted Category: {pred}\n")
+
+def load_sbert(out_dir=SBERT_DIR):
+    if os.path.exists(os.path.join(out_dir, "X.npz")) and \
+        os.path.exists(os.path.join(out_dir, "y.npy")) and \
+        os.path.exists(os.path.join(out_dir, "encoder.joblib")):
+        X = sparse.load_npz(os.path.join(out_dir, "X.npz"))
+        y = np.load(os.path.join(out_dir, "y.npy"), allow_pickle=True)
+        encoder = joblib.load(os.path.join(out_dir, "encoder.joblib"))
+        return X, y, encoder
+    
+    X, y, encoder = get_sbert_features()
+    save_sbert(X, y, encoder, out_dir)
+    return X, y, encoder

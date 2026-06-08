@@ -58,12 +58,17 @@ def save_tfidf(X, y, encoder, out_dir=TFIDF_DIR):
 
 
 def load_tfidf(out_dir=TFIDF_DIR):
-    X = sparse.load_npz(os.path.join(out_dir, "X.npz"))
-    y = np.load(os.path.join(out_dir, "y.npy"), allow_pickle=True)
-    encoder = joblib.load(os.path.join(out_dir, "encoder.joblib"))
-    return X, y, encoder
-
-
-if __name__ == "__main__":
+    if os.path.exists(os.path.join(out_dir, "X.npz")) and \
+       os.path.exists(os.path.join(out_dir, "y.npy")) and \
+       os.path.exists(os.path.join(out_dir, "encoder.joblib")):
+           
+        print(f"\n[LOAD] Found existing TF-IDF features in {out_dir}. Loading...")
+        X = sparse.load_npz(os.path.join(out_dir, "X.npz"))
+        y = np.load(os.path.join(out_dir, "y.npy"), allow_pickle=True)
+        encoder = joblib.load(os.path.join(out_dir, "encoder.joblib"))
+        return X, y, encoder
+    
+    print(f"\n[LOAD] No existing TF-IDF features found in {out_dir}. Computing from scratch...")
     X, y, encoder = get_tfidf_features()
-    save_tfidf(X, y, encoder)
+    save_tfidf(X, y, encoder, out_dir)
+    return X, y, encoder
