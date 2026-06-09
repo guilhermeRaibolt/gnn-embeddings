@@ -1,0 +1,115 @@
+                                                                                                      
+[LOAD] Found existing SBERT features in data/sbert. Loading...                                        
+                                                                                                      
+[LOAD] Loading split indices from data/sbert                                                          
+                                                                                                      
+[LOAD] Loading split indices from data/sbert                                                          
+                                                                                                      
+[TRAINING] Starting MLP training on SBERT features using device: cuda                                 
+                                                                                                      
+[DATA INFO] 545 classes.                                                                              
+                                                                                                      
+[DATA SPLIT] Train: 61082 samples, Val: 6786 samples, Test: 16967 samples                             
+[EPOCH 01] train_loss=4.2825 val_loss=3.2013 epoch_time=2.11s total=2.11s *                           
+[EPOCH 02] train_loss=3.0499 val_loss=2.5895 epoch_time=1.77s total=3.88s *                           
+[EPOCH 03] train_loss=2.6826 val_loss=2.3462 epoch_time=1.84s total=5.72s *                           
+[EPOCH 04] train_loss=2.4966 val_loss=2.1938 epoch_time=1.85s total=7.57s *                           
+[EPOCH 05] train_loss=2.3763 val_loss=2.1029 epoch_time=1.68s total=9.24s *                           
+[EPOCH 06] train_loss=2.2969 val_loss=2.0393 epoch_time=1.77s total=11.02s *                          
+[EPOCH 07] train_loss=2.2252 val_loss=1.9823 epoch_time=1.59s total=12.61s *                          
+[EPOCH 08] train_loss=2.1768 val_loss=1.9489 epoch_time=1.71s total=14.32s *                          
+[EPOCH 09] train_loss=2.1291 val_loss=1.9131 epoch_time=1.68s total=16.00s *                          
+[EPOCH 10] train_loss=2.0927 val_loss=1.8909 epoch_time=2.02s total=18.02s *                          
+[EPOCH 11] train_loss=2.0665 val_loss=1.8642 epoch_time=2.00s total=20.02s *                          
+[EPOCH 12] train_loss=2.0442 val_loss=1.8484 epoch_time=1.69s total=21.71s *                          
+[EPOCH 13] train_loss=2.0190 val_loss=1.8353 epoch_time=1.66s total=23.37s *                          
+[EPOCH 14] train_loss=1.9959 val_loss=1.8199 epoch_time=1.66s total=25.03s *                          
+[EPOCH 15] train_loss=1.9729 val_loss=1.8107 epoch_time=1.72s total=26.75s *                          
+[EPOCH 16] train_loss=1.9655 val_loss=1.7962 epoch_time=1.60s total=28.36s *                          
+[EPOCH 17] train_loss=1.9413 val_loss=1.7888 epoch_time=1.68s total=30.04s *                          
+[EPOCH 18] train_loss=1.9290 val_loss=1.7758 epoch_time=1.65s total=31.69s *                          
+[EPOCH 19] train_loss=1.9137 val_loss=1.7692 epoch_time=2.07s total=33.76s *                          
+[EPOCH 20] train_loss=1.9050 val_loss=1.7586 epoch_time=1.60s total=35.36s *                          
+[EPOCH 21] train_loss=1.8863 val_loss=1.7528 epoch_time=1.78s total=37.13s *                          
+[EPOCH 22] train_loss=1.8664 val_loss=1.7426 epoch_time=1.56s total=38.70s *                          
+[EPOCH 23] train_loss=1.8560 val_loss=1.7417 epoch_time=1.79s total=40.49s *                          
+[EPOCH 24] train_loss=1.8496 val_loss=1.7328 epoch_time=1.57s total=42.06s *                          
+[EPOCH 25] train_loss=1.8381 val_loss=1.7265 epoch_time=1.82s total=43.88s *                          
+[EPOCH 26] train_loss=1.8216 val_loss=1.7213 epoch_time=1.79s total=45.66s *                          
+[EPOCH 27] train_loss=1.8151 val_loss=1.7142 epoch_time=1.70s total=47.36s *                          
+[EPOCH 28] train_loss=1.8026 val_loss=1.7080 epoch_time=1.57s total=48.93s *                          
+[EPOCH 29] train_loss=1.7945 val_loss=1.7072 epoch_time=1.66s total=50.59s *                          
+[EPOCH 30] train_loss=1.7875 val_loss=1.6990 epoch_time=1.94s total=52.53s *                          
+[EPOCH 31] train_loss=1.7775 val_loss=1.6945 epoch_time=1.74s total=54.27s *                          
+[EPOCH 32] train_loss=1.7666 val_loss=1.6936 epoch_time=1.63s total=55.91s *                          
+[EPOCH 33] train_loss=1.7625 val_loss=1.6881 epoch_time=1.87s total=57.78s *                          
+[EPOCH 34] train_loss=1.7549 val_loss=1.6864 epoch_time=2.07s total=59.85s *                          
+[EPOCH 35] train_loss=1.7490 val_loss=1.6824 epoch_time=2.21s total=62.06s *                          
+[EPOCH 36] train_loss=1.7402 val_loss=1.6727 epoch_time=2.10s total=64.16s *                          
+[EPOCH 37] train_loss=1.7391 val_loss=1.6787 epoch_time=2.08s total=66.24s                            
+[EPOCH 38] train_loss=1.7328 val_loss=1.6760 epoch_time=2.01s total=68.25s                            
+[EPOCH 39] train_loss=1.7293 val_loss=1.6711 epoch_time=2.08s total=70.33s *                          
+[EPOCH 40] train_loss=1.7222 val_loss=1.6718 epoch_time=2.08s total=72.41s                            
+[EPOCH 41] train_loss=1.7131 val_loss=1.6694 epoch_time=1.89s total=74.30s *                          
+[EPOCH 42] train_loss=1.7087 val_loss=1.6697 epoch_time=1.71s total=76.01s                            
+[EPOCH 43] train_loss=1.7074 val_loss=1.6634 epoch_time=1.62s total=77.63s * 
+[EPOCH 44] train_loss=1.6991 val_loss=1.6624 epoch_time=1.76s total=79.39s *
+[EPOCH 45] train_loss=1.6996 val_loss=1.6623 epoch_time=1.60s total=80.98s *
+[EPOCH 46] train_loss=1.6933 val_loss=1.6618 epoch_time=1.65s total=82.64s *
+[EPOCH 47] train_loss=1.6916 val_loss=1.6572 epoch_time=1.64s total=84.28s *
+[EPOCH 48] train_loss=1.6834 val_loss=1.6577 epoch_time=1.66s total=85.94s
+[EPOCH 49] train_loss=1.6826 val_loss=1.6540 epoch_time=1.59s total=87.53s *
+[EPOCH 50] train_loss=1.6769 val_loss=1.6545 epoch_time=1.98s total=89.51s
+[EPOCH 51] train_loss=1.6726 val_loss=1.6521 epoch_time=1.60s total=91.11s *
+[EPOCH 52] train_loss=1.6683 val_loss=1.6520 epoch_time=1.64s total=92.75s
+[EPOCH 53] train_loss=1.6655 val_loss=1.6510 epoch_time=1.99s total=94.74s *
+[EPOCH 54] train_loss=1.6627 val_loss=1.6496 epoch_time=1.86s total=96.60s *
+[EPOCH 55] train_loss=1.6565 val_loss=1.6484 epoch_time=1.97s total=98.57s *
+[EPOCH 56] train_loss=1.6556 val_loss=1.6517 epoch_time=1.89s total=100.46s
+[EPOCH 57] train_loss=1.6484 val_loss=1.6506 epoch_time=1.68s total=102.13s
+[EPOCH 58] train_loss=1.6496 val_loss=1.6486 epoch_time=1.65s total=103.79s
+[EPOCH 59] train_loss=1.6406 val_loss=1.6474 epoch_time=1.91s total=105.69s *
+[EPOCH 60] train_loss=1.6371 val_loss=1.6465 epoch_time=2.05s total=107.74s *
+[EPOCH 61] train_loss=1.6438 val_loss=1.6425 epoch_time=1.54s total=109.28s *
+[EPOCH 62] train_loss=1.6372 val_loss=1.6408 epoch_time=1.88s total=111.16s *
+[EPOCH 63] train_loss=1.6297 val_loss=1.6420 epoch_time=1.54s total=112.70s
+[EPOCH 64] train_loss=1.6321 val_loss=1.6456 epoch_time=1.69s total=114.39s
+[EPOCH 65] train_loss=1.6280 val_loss=1.6415 epoch_time=1.53s total=115.92s
+[EPOCH 66] train_loss=1.6184 val_loss=1.6380 epoch_time=1.72s total=117.64s *
+[EPOCH 67] train_loss=1.6186 val_loss=1.6405 epoch_time=1.65s total=119.29s
+[EPOCH 68] train_loss=1.6196 val_loss=1.6369 epoch_time=1.79s total=121.08s *
+[EPOCH 69] train_loss=1.6193 val_loss=1.6340 epoch_time=1.68s total=122.75s *
+[EPOCH 70] train_loss=1.6136 val_loss=1.6352 epoch_time=2.11s total=124.87s
+[EPOCH 71] train_loss=1.6114 val_loss=1.6362 epoch_time=2.50s total=127.37s
+[EPOCH 72] train_loss=1.6117 val_loss=1.6353 epoch_time=2.04s total=129.41s
+[EPOCH 73] train_loss=1.6123 val_loss=1.6278 epoch_time=1.99s total=131.40s *
+[EPOCH 74] train_loss=1.6020 val_loss=1.6327 epoch_time=1.66s total=133.06s
+[EPOCH 75] train_loss=1.6014 val_loss=1.6316 epoch_time=1.62s total=134.68s
+[EPOCH 76] train_loss=1.6016 val_loss=1.6308 epoch_time=1.64s total=136.32s
+[EPOCH 77] train_loss=1.6072 val_loss=1.6297 epoch_time=1.59s total=137.91s
+[EPOCH 78] train_loss=1.6005 val_loss=1.6332 epoch_time=1.76s total=139.67s
+[EPOCH 79] train_loss=1.6024 val_loss=1.6350 epoch_time=1.59s total=141.26s
+[EPOCH 80] train_loss=1.5918 val_loss=1.6276 epoch_time=1.70s total=142.96s *
+[EPOCH 81] train_loss=1.5917 val_loss=1.6309 epoch_time=1.60s total=144.56s
+[EPOCH 82] train_loss=1.5930 val_loss=1.6327 epoch_time=1.83s total=146.40s
+[EPOCH 83] train_loss=1.5917 val_loss=1.6250 epoch_time=1.58s total=147.97s *
+[EPOCH 84] train_loss=1.5828 val_loss=1.6280 epoch_time=1.70s total=149.68s
+[EPOCH 85] train_loss=1.5821 val_loss=1.6314 epoch_time=1.53s total=151.20s
+[EPOCH 86] train_loss=1.5837 val_loss=1.6285 epoch_time=2.04s total=153.24s
+[EPOCH 87] train_loss=1.5799 val_loss=1.6321 epoch_time=2.00s total=155.24s
+[EPOCH 88] train_loss=1.5767 val_loss=1.6257 epoch_time=2.05s total=157.29s
+[EPOCH 89] train_loss=1.5789 val_loss=1.6272 epoch_time=2.52s total=159.81s
+[EPOCH 90] train_loss=1.5701 val_loss=1.6283 epoch_time=2.44s total=162.25s
+[EPOCH 91] train_loss=1.5770 val_loss=1.6350 epoch_time=2.11s total=164.35s
+[EPOCH 92] train_loss=1.5668 val_loss=1.6276 epoch_time=2.00s total=166.35s
+[EPOCH 93] train_loss=1.5760 val_loss=1.6313 epoch_time=2.01s total=168.36s
+
+[EARLY STOP] No val improvement for 10 epochs. Best epoch 83 (val_loss=1.6250).
+
+[TRAINING] Completed in 168.36s (restored weights from epoch 83, val_loss=1.6250)
+----------------------------------------
+[SCORES] MLP - Encoder: SBERT
+Accuracy:    0.6211
+Macro F1:    0.2507
+Weighted F1: 0.5887
+----------------------------------------

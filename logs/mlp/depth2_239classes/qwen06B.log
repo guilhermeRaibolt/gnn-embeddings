@@ -1,0 +1,29 @@
+[SAVE] Qwen matrix: (84901, 1024) -> data/qwen
+[SPLIT] Dropping 32 classes with <2 samples (32 rows removed)
+[SAVE] Split indices: train=67895, test=16974 -> data/qwen
+
+[LOAD] Loading split indices from data/qwen
+
+[TRAINING] Starting MLP training on QWEN features using device: cuda
+
+[DATA INFO] 239 classes.
+
+[DATA SPLIT] Train: 67895 samples, Test: 16974 samples
+[EPOCH 01] train_loss=2.9146 epoch_time=2.11s total=2.11s
+[EPOCH 02] train_loss=1.8520 epoch_time=2.02s total=4.14s
+[EPOCH 03] train_loss=1.6157 epoch_time=2.02s total=6.16s
+[EPOCH 04] train_loss=1.5018 epoch_time=2.02s total=8.18s
+[EPOCH 05] train_loss=1.4315 epoch_time=2.01s total=10.19s
+[EPOCH 06] train_loss=1.3788 epoch_time=2.02s total=12.21s
+[EPOCH 07] train_loss=1.3378 epoch_time=2.02s total=14.22s
+[EPOCH 08] train_loss=1.3079 epoch_time=2.02s total=16.24s
+[EPOCH 09] train_loss=1.2809 epoch_time=2.02s total=18.26s
+[EPOCH 10] train_loss=1.2565 epoch_time=2.03s total=20.29s
+
+[TRAINING] Completed in 20.29s
+----------------------------------------
+[SCORES] MLP - Encoder: QWEN
+Accuracy:    0.7348
+Macro F1:    0.1471
+Weighted F1: 0.6957
+----------------------------------------

@@ -1,0 +1,44 @@
+[LOAD] No existing BOW features found in data/bow. Computing from scratch...                          
+-> data/musical_instruments.json.gz already exists. Skipping download.                                
+                                                                                                      
+[SAVE] BOW matrix: (84901, 5000) -> data/bow                                                          
+[SPLIT] Dropping 66 classes with <2 samples (66 rows removed)                                         
+[SAVE] Split indices: train=67868, test=16967 -> data/bow                                             
+                                                                                                      
+[SAVE] BOW matrix: (84901, 5000) -> data/bow                                                          
+[SPLIT] Dropping 66 classes with <2 samples (66 rows removed)                                         
+[SAVE] Split indices: train=67868, test=16967 -> data/bow                                             
+                                                                                                      
+[LOAD] Loading split indices from data/bow                                                            
+                                                                                                      
+[TRAINING] Starting MLP training on BOW features using device: cuda                                   
+                                                                                                      
+[DATA INFO] 545 classes.                                                                              
+                                                                                                      
+[DATA SPLIT] Train: 61082 samples, Val: 6786 samples, Test: 16967 samples
+[EPOCH 01] train_loss=3.7293 val_loss=2.4384 epoch_time=10.91s total=10.91s *
+[EPOCH 02] train_loss=2.3119 val_loss=1.9817 epoch_time=10.24s total=21.15s *
+[EPOCH 03] train_loss=1.9457 val_loss=1.8341 epoch_time=10.72s total=31.87s *
+[EPOCH 04] train_loss=1.7503 val_loss=1.7826 epoch_time=9.97s total=41.85s *
+[EPOCH 05] train_loss=1.6166 val_loss=1.7480 epoch_time=9.78s total=51.63s *
+[EPOCH 06] train_loss=1.5232 val_loss=1.7329 epoch_time=9.60s total=61.23s *
+[EPOCH 08] train_loss=1.3806 val_loss=1.7331 epoch_time=9.20s total=79.53s
+[EPOCH 09] train_loss=1.3225 val_loss=1.7450 epoch_time=8.91s total=88.44s
+[EPOCH 10] train_loss=1.2777 val_loss=1.7579 epoch_time=9.19s total=97.63s
+[EPOCH 11] train_loss=1.2371 val_loss=1.7596 epoch_time=9.64s total=107.27s
+[EPOCH 12] train_loss=1.1923 val_loss=1.7866 epoch_time=9.59s total=116.86s
+[EPOCH 13] train_loss=1.1537 val_loss=1.8211 epoch_time=9.81s total=126.67s
+[EPOCH 14] train_loss=1.1275 val_loss=1.8369 epoch_time=9.80s total=136.47s
+[EPOCH 15] train_loss=1.0944 val_loss=1.8509 epoch_time=9.64s total=146.10s
+[EPOCH 16] train_loss=1.0685 val_loss=1.8682 epoch_time=8.93s total=155.04s
+[EPOCH 17] train_loss=1.0555 val_loss=1.8743 epoch_time=9.13s total=164.17s
+
+[EARLY STOP] No val improvement for 10 epochs. Best epoch 7 (val_loss=1.7295).
+
+[TRAINING] Completed in 164.17s (restored weights from epoch 7, val_loss=1.7295)
+----------------------------------------
+[SCORES] MLP - Encoder: BOW
+Accuracy:    0.6446
+Macro F1:    0.2505
+Weighted F1: 0.6125
+----------------------------------------

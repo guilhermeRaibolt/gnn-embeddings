@@ -1,0 +1,36 @@
+[LOAD] Found existing TF-IDF features in data/tfidf. Loading...
+
+[LOAD] Loading split indices from data/tfidf
+
+[LOAD] Loading split indices from data/tfidf
+
+[TRAINING] Starting MLP training on TF-IDF features using device: cuda
+
+[DATA INFO] 48 classes.
+
+[DATA SPLIT] Train: 61123 samples, Val: 6791 samples, Test: 16979 samples
+[EPOCH 01] train_loss=1.8407 val_loss=0.9760 epoch_time=8.92s total=8.92s *
+[EPOCH 02] train_loss=0.9369 val_loss=0.8216 epoch_time=8.34s total=17.26s *
+[EPOCH 03] train_loss=0.7996 val_loss=0.7771 epoch_time=8.46s total=25.72s *
+[EPOCH 04] train_loss=0.7211 val_loss=0.7582 epoch_time=8.40s total=34.11s *
+[EPOCH 05] train_loss=0.6669 val_loss=0.7531 epoch_time=7.89s total=42.00s *
+[EPOCH 06] train_loss=0.6258 val_loss=0.7539 epoch_time=8.03s total=50.03s
+[EPOCH 07] train_loss=0.5894 val_loss=0.7582 epoch_time=8.02s total=58.05s
+[EPOCH 08] train_loss=0.5558 val_loss=0.7654 epoch_time=7.81s total=65.87s
+[EPOCH 09] train_loss=0.5262 val_loss=0.7742 epoch_time=7.89s total=73.76s
+[EPOCH 10] train_loss=0.4972 val_loss=0.7906 epoch_time=7.99s total=81.75s
+[EPOCH 11] train_loss=0.4735 val_loss=0.8006 epoch_time=8.03s total=89.77s
+[EPOCH 12] train_loss=0.4474 val_loss=0.8157 epoch_time=8.21s total=97.98s
+[EPOCH 13] train_loss=0.4263 val_loss=0.8255 epoch_time=8.17s total=106.15s
+[EPOCH 14] train_loss=0.4087 val_loss=0.8458 epoch_time=8.36s total=114.51s
+[EPOCH 15] train_loss=0.3869 val_loss=0.8737 epoch_time=8.30s total=122.82s
+
+[EARLY STOP] No val improvement for 10 epochs. Best epoch 5 (val_loss=0.7531).
+
+[TRAINING] Completed in 122.82s (restored weights from epoch 5, val_loss=0.7531)
+----------------------------------------
+[SCORES] MLP - Encoder: TF-IDF
+Accuracy:    0.8049
+Macro F1:    0.2960
+Weighted F1: 0.7812
+----------------------------------------

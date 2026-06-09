@@ -1,0 +1,17 @@
+[LOAD] Found existing BOW features in data/bow. Loading...
+
+[LOAD] Loading split indices from data/bow
+
+[LOAD] Loading split indices from data/bow
+
+[TRAINING] Starting Logistic Regression on BOW features using device: cpu
+
+[DATA SPLIT] Train: 67895 samples, Test: 16974 samples
+
+[TRAINING] Completed in 685.24s
+----------------------------------------
+[SCORES] Logistic Regression - Encoder: BOW
+Accuracy:    0.7294
+Macro F1:    0.1992
+Weighted F1: 0.7107
+----------------------------------------

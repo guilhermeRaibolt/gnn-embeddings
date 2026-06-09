@@ -1,0 +1,48 @@
+[LOAD] No existing TF-IDF features found in data/tfidf. Computing from scratch...                     
+-> data/musical_instruments.json.gz already exists. Skipping download.                                
+                                                                                                      
+[SAVE] TF-IDF matrix: (84901, 5000) -> data/tfidf                                                     
+[SPLIT] Dropping 66 classes with <2 samples (66 rows removed)                                         
+[SAVE] Split indices: train=67868, test=16967 -> data/tfidf                                           
+                                                                                                      
+[SAVE] TF-IDF matrix: (84901, 5000) -> data/tfidf                                                     
+[SPLIT] Dropping 66 classes with <2 samples (66 rows removed)                                         
+[SAVE] Split indices: train=67868, test=16967 -> data/tfidf                                           
+                                                                                                      
+[LOAD] Loading split indices from data/tfidf                                                          
+                                                                                                      
+[TRAINING] Starting MLP training on TF-IDF features using device: cuda                                
+                                                                                                      
+[DATA INFO] 545 classes.                                                                              
+                                                                                                      
+[DATA SPLIT] Train: 61082 samples, Val: 6786 samples, Test: 16967 samples                             
+[EPOCH 01] train_loss=4.5135 val_loss=3.1977 epoch_time=11.50s total=11.50s *
+[EPOCH 02] train_loss=2.8423 val_loss=2.3277 epoch_time=11.27s total=22.77s *
+[EPOCH 03] train_loss=2.3074 val_loss=2.0468 epoch_time=11.40s total=34.18s *
+[EPOCH 04] train_loss=2.0516 val_loss=1.9222 epoch_time=11.71s total=45.89s *
+[EPOCH 05] train_loss=1.8946 val_loss=1.8444 epoch_time=10.72s total=56.61s *
+[EPOCH 06] train_loss=1.7953 val_loss=1.8084 epoch_time=10.78s total=67.39s *
+[EPOCH 07] train_loss=1.7002 val_loss=1.7832 epoch_time=11.47s total=78.86s *
+[EPOCH 08] train_loss=1.6330 val_loss=1.7691 epoch_time=10.50s total=89.36s *
+[EPOCH 09] train_loss=1.5738 val_loss=1.7571 epoch_time=10.70s total=100.06s *
+[EPOCH 10] train_loss=1.5156 val_loss=1.7501 epoch_time=11.55s total=111.61s *
+[EPOCH 11] train_loss=1.4728 val_loss=1.7514 epoch_time=10.83s total=122.44s
+[EPOCH 12] train_loss=1.4219 val_loss=1.7519 epoch_time=11.74s total=134.18s
+[EPOCH 13] train_loss=1.3848 val_loss=1.7602 epoch_time=11.30s total=145.49s
+[EPOCH 14] train_loss=1.3459 val_loss=1.7701 epoch_time=10.97s total=156.46s
+[EPOCH 15] train_loss=1.3104 val_loss=1.7777 epoch_time=10.22s total=166.68s
+[EPOCH 16] train_loss=1.2774 val_loss=1.7848 epoch_time=9.88s total=176.56s
+[EPOCH 17] train_loss=1.2495 val_loss=1.8075 epoch_time=9.70s total=186.26s
+[EPOCH 18] train_loss=1.2218 val_loss=1.8118 epoch_time=9.64s total=195.90s
+[EPOCH 19] train_loss=1.1931 val_loss=1.8261 epoch_time=9.65s total=205.54s
+[EPOCH 20] train_loss=1.1634 val_loss=1.8519 epoch_time=10.14s total=215.69s
+
+[EARLY STOP] No val improvement for 10 epochs. Best epoch 10 (val_loss=1.7501).
+
+[TRAINING] Completed in 215.69s (restored weights from epoch 10, val_loss=1.7501)
+----------------------------------------
+[SCORES] MLP - Encoder: TF-IDF
+Accuracy:    0.6303
+Macro F1:    0.2244
+Weighted F1: 0.5918
+----------------------------------------

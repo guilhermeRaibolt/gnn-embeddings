@@ -1,0 +1,100 @@
+[LOAD] No existing Qwen features found in data/qwen. Computing from scratch...                        
+-> data/musical_instruments.json.gz already exists. Skipping download.                                
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable highe
+r rate limits and faster downloads.                                                                   
+Loading weights: 100%|████████████████████████████████████████████| 310/310 [00:00<00:00, 1021.30it/s]
+Batches: 100%|████████████████████████████████████████████████████| 2654/2654 [35:40<00:00,  1.24it/s]
+                                                                                                      
+[SAVE] Qwen matrix: (84901, 1024) -> data/qwen                                                        
+[SPLIT] Dropping 66 classes with <2 samples (66 rows removed)                                         
+[SAVE] Split indices: train=67868, test=16967 -> data/qwen                                            
+                                                                                                      
+[SAVE] Qwen matrix: (84901, 1024) -> data/qwen                                                        
+[SPLIT] Dropping 66 classes with <2 samples (66 rows removed)                                         
+[SAVE] Split indices: train=67868, test=16967 -> data/qwen                                            
+                                                                                                      
+[LOAD] Loading split indices from data/qwen                                                           
+                                                                                                      
+[TRAINING] Starting MLP training on QWEN features using device: cuda                                  
+                                                                                                      
+[DATA INFO] 545 classes.                                                                              
+                                                                                                      
+[DATA SPLIT] Train: 61082 samples, Val: 6786 samples, Test: 16967 samples                             
+[EPOCH 01] train_loss=4.3963 val_loss=3.2602 epoch_time=3.42s total=3.42s *                           
+[EPOCH 02] train_loss=3.0755 val_loss=2.5399 epoch_time=2.65s total=6.06s *                           
+[EPOCH 03] train_loss=2.6308 val_loss=2.2492 epoch_time=2.55s total=8.61s *                           
+[EPOCH 04] train_loss=2.4083 val_loss=2.0991 epoch_time=2.25s total=10.86s *                          
+[EPOCH 05] train_loss=2.2713 val_loss=1.9944 epoch_time=2.14s total=13.01s *                          
+[EPOCH 06] train_loss=2.1776 val_loss=1.9223 epoch_time=2.29s total=15.29s *                          
+[EPOCH 07] train_loss=2.1014 val_loss=1.8765 epoch_time=2.66s total=17.95s *                          
+[EPOCH 08] train_loss=2.0513 val_loss=1.8342 epoch_time=2.17s total=20.12s *                          
+[EPOCH 09] train_loss=2.0066 val_loss=1.7991 epoch_time=2.31s total=22.43s *                          
+[EPOCH 10] train_loss=1.9721 val_loss=1.7746 epoch_time=2.63s total=25.07s *                          
+[EPOCH 11] train_loss=1.9354 val_loss=1.7537 epoch_time=2.94s total=28.01s *                          
+[EPOCH 12] train_loss=1.9088 val_loss=1.7353 epoch_time=2.16s total=30.17s *                          
+[EPOCH 13] train_loss=1.8838 val_loss=1.7187 epoch_time=2.38s total=32.55s *                          
+[EPOCH 14] train_loss=1.8518 val_loss=1.7087 epoch_time=2.36s total=34.90s *                          
+[EPOCH 15] train_loss=1.8330 val_loss=1.6899 epoch_time=2.10s total=37.00s *                          
+[EPOCH 16] train_loss=1.8081 val_loss=1.6821 epoch_time=2.81s total=39.81s *                          
+[EPOCH 17] train_loss=1.7956 val_loss=1.6655 epoch_time=2.27s total=42.08s *                          
+[EPOCH 18] train_loss=1.7769 val_loss=1.6621 epoch_time=2.27s total=44.36s * 
+[EPOCH 19] train_loss=1.7606 val_loss=1.6470 epoch_time=2.16s total=46.52s *
+[EPOCH 20] train_loss=1.7495 val_loss=1.6399 epoch_time=2.41s total=48.93s *
+[EPOCH 21] train_loss=1.7354 val_loss=1.6366 epoch_time=2.77s total=51.70s *
+[EPOCH 22] train_loss=1.7240 val_loss=1.6257 epoch_time=2.33s total=54.03s *
+[EPOCH 23] train_loss=1.7075 val_loss=1.6234 epoch_time=2.18s total=56.21s *
+[EPOCH 24] train_loss=1.6980 val_loss=1.6163 epoch_time=2.24s total=58.45s *
+[EPOCH 25] train_loss=1.6867 val_loss=1.6091 epoch_time=2.34s total=60.79s *
+[EPOCH 26] train_loss=1.6723 val_loss=1.6069 epoch_time=2.13s total=62.93s *
+[EPOCH 27] train_loss=1.6644 val_loss=1.6001 epoch_time=2.27s total=65.19s *
+[EPOCH 28] train_loss=1.6521 val_loss=1.5943 epoch_time=3.18s total=68.37s *
+[EPOCH 29] train_loss=1.6433 val_loss=1.5932 epoch_time=2.85s total=71.22s *
+[EPOCH 30] train_loss=1.6340 val_loss=1.5863 epoch_time=2.89s total=74.12s *
+[EPOCH 31] train_loss=1.6254 val_loss=1.5841 epoch_time=2.85s total=76.96s *
+[EPOCH 32] train_loss=1.6136 val_loss=1.5772 epoch_time=2.94s total=79.90s *
+[EPOCH 33] train_loss=1.6052 val_loss=1.5742 epoch_time=2.73s total=82.64s *
+[EPOCH 34] train_loss=1.5969 val_loss=1.5680 epoch_time=2.25s total=84.89s *
+[EPOCH 35] train_loss=1.5923 val_loss=1.5697 epoch_time=2.21s total=87.10s
+[EPOCH 36] train_loss=1.5800 val_loss=1.5648 epoch_time=2.69s total=89.78s *
+[EPOCH 37] train_loss=1.5745 val_loss=1.5576 epoch_time=2.18s total=91.97s *
+[EPOCH 38] train_loss=1.5645 val_loss=1.5602 epoch_time=2.56s total=94.52s
+[EPOCH 39] train_loss=1.5574 val_loss=1.5574 epoch_time=2.22s total=96.74s *
+[EPOCH 40] train_loss=1.5503 val_loss=1.5535 epoch_time=2.69s total=99.43s *
+[EPOCH 41] train_loss=1.5469 val_loss=1.5493 epoch_time=2.24s total=101.67s *
+[EPOCH 42] train_loss=1.5423 val_loss=1.5586 epoch_time=2.54s total=104.21s
+[EPOCH 43] train_loss=1.5370 val_loss=1.5527 epoch_time=2.62s total=106.83s
+[EPOCH 44] train_loss=1.5284 val_loss=1.5474 epoch_time=2.20s total=109.03s *
+[EPOCH 45] train_loss=1.5233 val_loss=1.5435 epoch_time=2.23s total=111.27s *
+[EPOCH 46] train_loss=1.5170 val_loss=1.5448 epoch_time=2.26s total=113.53s
+[EPOCH 47] train_loss=1.5135 val_loss=1.5439 epoch_time=2.27s total=115.80s
+[EPOCH 48] train_loss=1.5038 val_loss=1.5379 epoch_time=2.11s total=117.91s *
+[EPOCH 49] train_loss=1.5074 val_loss=1.5471 epoch_time=2.67s total=120.58s
+[EPOCH 50] train_loss=1.4986 val_loss=1.5417 epoch_time=2.53s total=123.11s
+[EPOCH 51] train_loss=1.4937 val_loss=1.5413 epoch_time=2.19s total=125.30s
+[EPOCH 52] train_loss=1.4874 val_loss=1.5389 epoch_time=2.18s total=127.48s
+[EPOCH 53] train_loss=1.4802 val_loss=1.5417 epoch_time=2.53s total=130.01s
+[EPOCH 54] train_loss=1.4824 val_loss=1.5387 epoch_time=2.34s total=132.35s
+[EPOCH 55] train_loss=1.4712 val_loss=1.5482 epoch_time=2.20s total=134.55s
+[EPOCH 56] train_loss=1.4690 val_loss=1.5402 epoch_time=2.46s total=137.01s
+[EPOCH 57] train_loss=1.4623 val_loss=1.5448 epoch_time=2.38s total=139.39s
+[EPOCH 58] train_loss=1.4662 val_loss=1.5357 epoch_time=2.48s total=141.87s *
+[EPOCH 59] train_loss=1.4592 val_loss=1.5358 epoch_time=2.57s total=144.44s
+[EPOCH 60] train_loss=1.4501 val_loss=1.5428 epoch_time=2.19s total=146.63s
+[EPOCH 61] train_loss=1.4449 val_loss=1.5362 epoch_time=2.56s total=149.19s
+[EPOCH 62] train_loss=1.4470 val_loss=1.5359 epoch_time=2.52s total=151.70s
+[EPOCH 63] train_loss=1.4431 val_loss=1.5393 epoch_time=2.28s total=153.99s
+[EPOCH 64] train_loss=1.4417 val_loss=1.5443 epoch_time=2.22s total=156.21s
+[EPOCH 65] train_loss=1.4370 val_loss=1.5402 epoch_time=2.27s total=158.48s
+[EPOCH 66] train_loss=1.4301 val_loss=1.5399 epoch_time=2.35s total=160.84s
+[EPOCH 67] train_loss=1.4243 val_loss=1.5429 epoch_time=2.24s total=163.07s
+[EPOCH 68] train_loss=1.4242 val_loss=1.5393 epoch_time=2.29s total=165.36s
+
+[EARLY STOP] No val improvement for 10 epochs. Best epoch 58 (val_loss=1.5357).
+
+[TRAINING] Completed in 165.37s (restored weights from epoch 58, val_loss=1.5357)
+----------------------------------------
+[SCORES] MLP - Encoder: QWEN
+Accuracy:    0.6448
+Macro F1:    0.2637
+Weighted F1: 0.6111
+----------------------------------------
