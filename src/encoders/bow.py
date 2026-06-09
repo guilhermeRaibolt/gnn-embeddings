@@ -3,6 +3,7 @@ import joblib
 import numpy as np
 from scipy import sparse
 from src.datasets.amazon_dataset import load_all_datasets_to_df
+from src.datasets.splits import make_split, save_split, get_or_make_split
 
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer
@@ -40,7 +41,7 @@ class BOWEncoder:
 def encode_dataframe(df):
     encoder = BOWEncoder()
     X = encoder.fit_transform(df["text"])
-    y = df["category"]
+    y = df["category"].to_numpy()
     return X, y, encoder
 
 
@@ -57,6 +58,8 @@ def save_bow(X, y, encoder, out_dir=BOW_DIR):
     np.save(os.path.join(out_dir, "y.npy"), np.asarray(y))
     joblib.dump(encoder, os.path.join(out_dir, "encoder.joblib"))
     print(f"\n[SAVE] BOW matrix: {X.shape} -> {out_dir}")
+    train_idx, test_idx = make_split(y)
+    save_split(out_dir, train_idx, test_idx)
 
 
 def load_bow(out_dir=BOW_DIR):
@@ -68,6 +71,7 @@ def load_bow(out_dir=BOW_DIR):
         X = sparse.load_npz(os.path.join(out_dir, "X.npz"))
         y = np.load(os.path.join(out_dir, "y.npy"), allow_pickle=True)
         encoder = joblib.load(os.path.join(out_dir, "encoder.joblib"))
+        get_or_make_split(y, out_dir)
         return X, y, encoder
     
     print(f"\n[LOAD] No existing BOW features found in {out_dir}. Computing from scratch...")

@@ -1,19 +1,25 @@
-from src.datasets.amazon_dataset import load_all_datasets_to_df
+import os
 
-from sentence_transformers import SentenceTransformer
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, classification_report
-from sklearn.model_selection import train_test_split
-
+import joblib
+import numpy as np
 import torch
+from sentence_transformers import SentenceTransformer
+
+from src.datasets.amazon_dataset import load_all_datasets_to_df
+from src.datasets.splits import make_split, save_split, get_or_make_split
 
 DEFAULT_QWEN_MODEL = "Qwen/Qwen3-Embedding-0.6B"
+QWEN_DIR = "data/qwen"
+X_PATH = os.path.join(QWEN_DIR, "X.npy")
+Y_PATH = os.path.join(QWEN_DIR, "y.npy")
+ENCODER_PATH = os.path.join(QWEN_DIR, "encoder.joblib")
+
 
 class QwenEncoder:
     def __init__(
         self,
         model_name=DEFAULT_QWEN_MODEL,
-        batch_size=16,
+        batch_size=32,
         normalize=True,
         device=None,
         max_seq_length=512,
@@ -55,41 +61,40 @@ class QwenEncoder:
 def encode_dataframe(df):
     encoder = QwenEncoder()
     X = encoder.fit_transform(df["text"])
-    y = df["category"]
-
-    print(f"\n[SANITY CHECK] Embedding shape: {X.shape} (dim={encoder.embedding_dim})")
+    y = df["category"].to_numpy()
     return X, y, encoder
 
 
-def train_logistic_regression(X, y):
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42
-    )
-    clf = LogisticRegression(max_iter=1000, random_state=42)
-    clf.fit(X_train, y_train)
-    y_pred = clf.predict(X_test)
-
-    print(f"\n[SCORES] Qwen Logistic Regression Accuracy: {accuracy_score(y_test, y_pred)}")
-    print(classification_report(y_test, y_pred))
-
-    return clf
-
-
-if __name__ == "__main__":
-
+def get_qwen_features():
     df = load_all_datasets_to_df()
     X, y, encoder = encode_dataframe(df)
-    lr_model = train_logistic_regression(X, y)
+    save_qwen(X, y, encoder)
+    return X, y, encoder
 
-    print("\n[TEST] Predicting categories for new inputs:")
 
-    mock_data = [
-        "Acoustic Guitar",
-        "Truck 4x4",
-        "Car Radio Sound System",
-    ]
+def save_qwen(X, y, encoder, out_dir=QWEN_DIR):
+    os.makedirs(out_dir, exist_ok=True)
+    np.save(os.path.join(out_dir, "X.npy"), np.asarray(X))
+    np.save(os.path.join(out_dir, "y.npy"), np.asarray(y))
+    joblib.dump(encoder, os.path.join(out_dir, "encoder.joblib"))
+    print(f"\n[SAVE] Qwen matrix: {X.shape} -> {out_dir}")
+    train_idx, test_idx = make_split(y)
+    save_split(out_dir, train_idx, test_idx)
 
-    mock_X = encoder.transform(mock_data)
-    mock_pred = lr_model.predict(mock_X)
-    for input, pred in zip(mock_data, mock_pred):
-        print(f"Input: {input}\nPredicted Category: {pred}\n")
+
+def load_qwen(out_dir=QWEN_DIR):
+    if os.path.exists(os.path.join(out_dir, "X.npy")) and \
+        os.path.exists(os.path.join(out_dir, "y.npy")) and \
+        os.path.exists(os.path.join(out_dir, "encoder.joblib")):
+
+        print(f"\n[LOAD] Found existing Qwen features in {out_dir}. Loading...")
+        X = np.load(os.path.join(out_dir, "X.npy"))
+        y = np.load(os.path.join(out_dir, "y.npy"), allow_pickle=True)
+        encoder = joblib.load(os.path.join(out_dir, "encoder.joblib"))
+        get_or_make_split(y, out_dir)
+        return X, y, encoder
+
+    print(f"\n[LOAD] No existing Qwen features found in {out_dir}. Computing from scratch...")
+    X, y, encoder = get_qwen_features()
+    save_qwen(X, y, encoder, out_dir)
+    return X, y, encoder

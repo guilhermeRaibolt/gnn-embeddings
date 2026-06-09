@@ -1,17 +1,16 @@
 import os
 
-from src.datasets.amazon_dataset import load_all_datasets_to_df
-
-from sentence_transformers import SentenceTransformer
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, classification_report
-from sklearn.model_selection import train_test_split
-
+import joblib
+import numpy as np
 import torch
+from sentence_transformers import SentenceTransformer
+
+from src.datasets.amazon_dataset import load_all_datasets_to_df
+from src.datasets.splits import make_split, save_split, get_or_make_split
 
 DEFAULT_BERT_MODEL = "all-MiniLM-L6-v2"
 SBERT_DIR = "data/sbert"
-X_PATH = os.path.join(SBERT_DIR, "X.npz")
+X_PATH = os.path.join(SBERT_DIR, "X.npy")
 Y_PATH = os.path.join(SBERT_DIR, "y.npy")
 ENCODER_PATH = os.path.join(SBERT_DIR, "encoder.joblib")
 
@@ -53,33 +52,40 @@ class SBERTEncoder:
 def encode_dataframe(df):
     encoder = SBERTEncoder()
     X = encoder.fit_transform(df["text"])
-    y = df["category"]
+    y = df["category"].to_numpy()
     return X, y, encoder
 
 
 def get_sbert_features():
     df = load_all_datasets_to_df()
     X, y, encoder = encode_dataframe(df)
+    save_sbert(X, y, encoder)
     return X, y, encoder
 
 
 def save_sbert(X, y, encoder, out_dir=SBERT_DIR):
     os.makedirs(out_dir, exist_ok=True)
-    sparse.save_npz(os.path.join(out_dir, "X.npz"), X)
+    np.save(os.path.join(out_dir, "X.npy"), np.asarray(X))
     np.save(os.path.join(out_dir, "y.npy"), np.asarray(y))
     joblib.dump(encoder, os.path.join(out_dir, "encoder.joblib"))
     print(f"\n[SAVE] SBERT matrix: {X.shape} -> {out_dir}")
+    train_idx, test_idx = make_split(y)
+    save_split(out_dir, train_idx, test_idx)
 
 
 def load_sbert(out_dir=SBERT_DIR):
-    if os.path.exists(os.path.join(out_dir, "X.npz")) and \
+    if os.path.exists(os.path.join(out_dir, "X.npy")) and \
         os.path.exists(os.path.join(out_dir, "y.npy")) and \
         os.path.exists(os.path.join(out_dir, "encoder.joblib")):
-        X = sparse.load_npz(os.path.join(out_dir, "X.npz"))
+
+        print(f"\n[LOAD] Found existing SBERT features in {out_dir}. Loading...")
+        X = np.load(os.path.join(out_dir, "X.npy"))
         y = np.load(os.path.join(out_dir, "y.npy"), allow_pickle=True)
         encoder = joblib.load(os.path.join(out_dir, "encoder.joblib"))
+        get_or_make_split(y, out_dir)
         return X, y, encoder
-    
+
+    print(f"\n[LOAD] No existing SBERT features found in {out_dir}. Computing from scratch...")
     X, y, encoder = get_sbert_features()
     save_sbert(X, y, encoder, out_dir)
     return X, y, encoder

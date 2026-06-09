@@ -7,6 +7,7 @@ from scipy import sparse
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 from src.datasets.amazon_dataset import load_all_datasets_to_df
+from src.datasets.splits import make_split, save_split, get_or_make_split
 
 TFIDF_DIR = "data/tfidf"
 X_PATH = os.path.join(TFIDF_DIR, "X.npz")
@@ -55,6 +56,8 @@ def save_tfidf(X, y, encoder, out_dir=TFIDF_DIR):
     np.save(os.path.join(out_dir, "y.npy"), np.asarray(y))
     joblib.dump(encoder, os.path.join(out_dir, "encoder.joblib"))
     print(f"\n[SAVE] TF-IDF matrix: {X.shape} -> {out_dir}")
+    train_idx, test_idx = make_split(y)
+    save_split(out_dir, train_idx, test_idx)
 
 
 def load_tfidf(out_dir=TFIDF_DIR):
@@ -66,6 +69,7 @@ def load_tfidf(out_dir=TFIDF_DIR):
         X = sparse.load_npz(os.path.join(out_dir, "X.npz"))
         y = np.load(os.path.join(out_dir, "y.npy"), allow_pickle=True)
         encoder = joblib.load(os.path.join(out_dir, "encoder.joblib"))
+        get_or_make_split(y, out_dir)
         return X, y, encoder
     
     print(f"\n[LOAD] No existing TF-IDF features found in {out_dir}. Computing from scratch...")

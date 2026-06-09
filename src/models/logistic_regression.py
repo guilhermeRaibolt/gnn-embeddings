@@ -1,17 +1,38 @@
+import time
+
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, f1_score
-from sklearn.model_selection import train_test_split
 
-from src.encoders.tf_idf import load_tfidf
-import numpy as np
+from src.datasets.splits import load_split
+from src.encoders.tf_idf import load_tfidf, TFIDF_DIR
+from src.encoders.bow import load_bow, BOW_DIR
+from src.encoders.sbert import load_sbert, SBERT_DIR
+from src.encoders.qwen import load_qwen, QWEN_DIR
 
 
-def train_logistic_regression(X, y, encoder_name, test_size=0.2, random_state=42):
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=test_size, random_state=random_state
-    )
-    clf = LogisticRegression(random_state=random_state, max_iter=1000)
+def train_logistic_regression(
+    X,
+    y,
+    encoder_name,
+    train_idx,
+    test_idx,
+    max_iter=1000,
+    random_state=42,
+):
+    X_train, X_test = X[train_idx], X[test_idx]
+    y_train, y_test = y[train_idx], y[test_idx]
+
+    device = "cpu"  # Logistic Regression runs on CPU
+    print(f"\n[TRAINING] Starting Logistic Regression on {encoder_name} features using device: {device}")
+    print(f"\n[DATA SPLIT] Train: {X_train.shape[0]} samples, Test: {X_test.shape[0]} samples")
+    
+    print(f"\n[DATA INFO] {len(set(y))} classes.")
+
+    clf = LogisticRegression(max_iter=max_iter, random_state=random_state)
+    train_start = time.perf_counter()
     clf.fit(X_train, y_train)
+    train_elapsed = time.perf_counter() - train_start
+    print(f"\n[TRAINING] Completed in {train_elapsed:.2f}s")
     y_pred = clf.predict(X_test)
 
     print("-" * 40)
@@ -28,11 +49,19 @@ def train_logistic_regression(X, y, encoder_name, test_size=0.2, random_state=42
 
 
 if __name__ == "__main__":
-    X, y, encoder = load_tfidf()
-    train_logistic_regression(X, y, "TF-IDF")
     
+    # X, y, encoder = load_tfidf()
+    # train_idx, test_idx = load_split(TFIDF_DIR)
+    # train_logistic_regression(X, y, "TF-IDF", train_idx, test_idx)
+
     # X, y, encoder = load_bow()
-    # train_logistic_regression(X, y, "BOW")
-    
+    # train_idx, test_idx = load_split(BOW_DIR)
+    # train_logistic_regression(X, y, "BOW", train_idx, test_idx)
+
     # X, y, encoder = load_sbert()
-    # train_logistic_regression(X, y, "SBERT")
+    # train_idx, test_idx = load_split(SBERT_DIR)
+    # train_logistic_regression(X, y, "SBERT", train_idx, test_idx)
+    
+    X, y, encoder = load_qwen()
+    train_idx, test_idx = load_split(QWEN_DIR)
+    train_logistic_regression(X, y, 'QWEN', train_idx, test_idx)

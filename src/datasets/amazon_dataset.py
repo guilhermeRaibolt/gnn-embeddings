@@ -5,8 +5,6 @@ import urllib.request
 
 import pandas as pd
 
-# MAX_ITEMS_PER_DATASET = 50000 # set to 0 to load all items 
-MAX_ITEMS_PER_DATASET = 0 
 SUBCATEGORY_DEPTH = 2
 
 # data from https://cseweb.ucsd.edu/~jmcauley/datasets/amazon/links.html
@@ -77,8 +75,8 @@ def extract_category(category_list):
     if not category_list or not isinstance(category_list, list):
         return None
     
-    # in multi-branch items, we prioritize 
-    # the branch that explicitly satisfies our required depth constraint.
+    # in multi-branch items, we prioritize the branch that 
+    # explicitly satisfies our required depth constraint.
     for path in category_list:
         if isinstance(path, list) and len(path) > SUBCATEGORY_DEPTH:
             return path[SUBCATEGORY_DEPTH]
@@ -91,15 +89,13 @@ def extract_category(category_list):
     return None
 
 
-def load_dataset_to_df(path, max_items=MAX_ITEMS_PER_DATASET):
+def load_dataset_to_df(path):
 
     ensure_data_exists(path)
 
     data = []
     for i, entry in enumerate(parse_entries(path)):
-        if max_items and i >= max_items:
-            break
-
+        
         # for now we only include title and description, but 
         # later on we can include the review text or something else.
         title = entry.get('title', '')
@@ -114,15 +110,16 @@ def load_dataset_to_df(path, max_items=MAX_ITEMS_PER_DATASET):
             'text': f"{title} {description}".strip(),
             'category': category
         })
+        
     return pd.DataFrame(data)
 
-def load_all_datasets_to_df(max_items_per_dataset=MAX_ITEMS_PER_DATASET):
+def load_all_datasets_to_df():
     df = pd.DataFrame()
     for local_path in DATASET_URLS.keys():
 
         if "musical_instruments" not in local_path.lower():
             continue
 
-        dataset_df = load_dataset_to_df(local_path, max_items=max_items_per_dataset)
+        dataset_df = load_dataset_to_df(local_path)
         df = pd.concat([df, dataset_df], ignore_index=True)
     return df
