@@ -1,0 +1,19 @@
+[LOAD] Found existing Qwen features in data/qwen_depth1. Loading...
+
+[LOAD] Loading split indices from data/qwen_depth1
+
+[LOAD] Loading split indices from data/qwen_depth1
+
+[TRAINING] Starting Logistic Regression on QWEN features using device: cpu
+
+[DATA SPLIT] Train: 67914 samples, Test: 16979 samples
+
+[DATA INFO] 56 classes.
+
+[TRAINING] Completed in 82.80s
+----------------------------------------
+[SCORES] Logistic Regression - Encoder: QWEN
+Accuracy:    0.8105
+Macro F1:    0.3706
+Weighted F1: 0.7948
+----------------------------------------

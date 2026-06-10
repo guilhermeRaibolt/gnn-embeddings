@@ -1,0 +1,44 @@
+[LOAD] No existing TF-IDF features found in data/tfidf_depth1. Computing from scratch...
+-> data/musical_instruments.json.gz already exists. Skipping download.
+
+[SAVE] TF-IDF matrix: (84901, 5000) -> data/tfidf
+[SPLIT] Dropping 8 classes with <2 samples (8 rows removed)
+[SAVE] Split indices: train=67914, test=16979 -> data/tfidf
+
+[SAVE] TF-IDF matrix: (84901, 5000) -> data/tfidf_depth1
+[SPLIT] Dropping 8 classes with <2 samples (8 rows removed)
+[SAVE] Split indices: train=67914, test=16979 -> data/tfidf_depth1
+
+[LOAD] Loading split indices from data/tfidf_depth1
+
+[TRAINING] Starting MLP training on TF-IDF features using device: cuda
+
+[DATA INFO] 48 classes.
+
+[DATA SPLIT] Train: 61123 samples, Val: 6791 samples, Test: 16979 samples
+[EPOCH 01] train_loss=1.7858 val_loss=0.9544 val_acc=0.7595 epoch_time=11.55s total=11.55s *
+[EPOCH 02] train_loss=0.9143 val_loss=0.8169 val_acc=0.7866 epoch_time=10.88s total=22.43s *
+[EPOCH 03] train_loss=0.7836 val_loss=0.7780 val_acc=0.7968 epoch_time=10.62s total=33.05s *
+[EPOCH 04] train_loss=0.7139 val_loss=0.7608 val_acc=0.8028 epoch_time=10.90s total=43.95s *
+[EPOCH 05] train_loss=0.6552 val_loss=0.7592 val_acc=0.8068 epoch_time=10.89s total=54.84s *
+[EPOCH 06] train_loss=0.6153 val_loss=0.7572 val_acc=0.8055 epoch_time=10.81s total=65.65s *
+[EPOCH 07] train_loss=0.5779 val_loss=0.7593 val_acc=0.8068 epoch_time=9.53s total=75.18s
+[EPOCH 08] train_loss=0.5453 val_loss=0.7769 val_acc=0.8047 epoch_time=9.54s total=84.73s
+[EPOCH 09] train_loss=0.5139 val_loss=0.7830 val_acc=0.8062 epoch_time=9.59s total=94.32s
+[EPOCH 10] train_loss=0.4848 val_loss=0.7991 val_acc=0.8053 epoch_time=10.66s total=104.98s
+[EPOCH 11] train_loss=0.4599 val_loss=0.8183 val_acc=0.8059 epoch_time=10.88s total=115.86s
+[EPOCH 12] train_loss=0.4378 val_loss=0.8248 val_acc=0.8034 epoch_time=10.90s total=126.76s
+[EPOCH 13] train_loss=0.4143 val_loss=0.8433 val_acc=0.8046 epoch_time=10.89s total=137.65s
+[EPOCH 14] train_loss=0.3943 val_loss=0.8675 val_acc=0.8039 epoch_time=10.20s total=147.85s
+[EPOCH 15] train_loss=0.3748 val_loss=0.8907 val_acc=0.8006 epoch_time=9.71s total=157.57s
+[EPOCH 16] train_loss=0.3607 val_loss=0.9055 val_acc=0.8040 epoch_time=10.89s total=168.46s
+
+[EARLY STOP] No val improvement for 10 epochs. Best epoch 6 (val_loss=0.7572).
+
+[TRAINING] Completed in 168.46s (restored weights from epoch 6, val_loss=0.7572)
+----------------------------------------
+[SCORES] MLP - Encoder: TF-IDF
+Accuracy:    0.8048
+Macro F1:    0.2995
+Weighted F1: 0.7828
+----------------------------------------
