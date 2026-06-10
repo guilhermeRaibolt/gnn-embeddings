@@ -1,0 +1,79 @@
+[LOAD] No existing Qwen features found in data/qwen_depth1. Computing from scratch...                 
+-> data/musical_instruments.json.gz already exists. Skipping download.                                
+Loading weights:  53%|████████████████████████▍                     | 165/310 [00:06<00:04, 35.11it/s]
+srun: error: Munge decode failed: Unauthorized credential for client UID=82165 GID=1600               
+srun: auth/munge: _print_cred: ENCODED: Thu Jan 01 01:00:00 1970                                      
+srun: auth/munge: _print_cred: DECODED: Thu Jan 01 01:00:00 1970                                      
+srun: error: slurm_unpack_received_msg: [[gpu-gw.enst.fr]:5827] auth_g_verify: SRUN_TIMEOUT has authen
+tication error: Unspecified error                                                                     
+srun: error: slurm_unpack_received_msg: [[gpu-gw.enst.fr]:5827] Protocol authentication error         
+srun: error: Munge decode failed: Unauthorized credential for client UID=82165 GID=1600               
+srun: auth/munge: _print_cred: ENCODED: Thu Jan 01 01:00:00 1970                                      
+srun: auth/munge: _print_cred: DECODED: Thu Jan 01 01:00:00 1970                                      
+srun: error: slurm_unpack_received_msg: [[gpu-gw.enst.fr]:8899] auth_g_verify: SRUN_JOB_COMPLETE has a
+uthentication error: Unspecified error                                                                
+srun: error: slurm_unpack_received_msg: [[gpu-gw.enst.fr]:8899] Protocol authentication error         
+Loading weights: 100%|██████████████████████████████████████████████| 310/310 [00:09<00:00, 32.40it/s]
+Batches: 100%|████████████████████████████████████████████████████| 2654/2654 [35:24<00:00,  1.25it/s]
+                                                                                                      
+[SAVE] Qwen matrix: (84901, 1024) -> data/qwen                            
+[SPLIT] Dropping 8 classes with <2 samples (8 rows removed)
+[SAVE] Split indices: train=67914, test=16979 -> data/qwen
+
+[SAVE] Qwen matrix: (84901, 1024) -> data/qwen_depth1
+[SPLIT] Dropping 8 classes with <2 samples (8 rows removed)
+[SAVE] Split indices: train=67914, test=16979 -> data/qwen_depth1
+
+[LOAD] Loading split indices from data/qwen_depth1
+
+[TRAINING] Starting MLP training on QWEN features using device: cuda
+
+[DATA INFO] 48 classes.
+
+[DATA SPLIT] Train: 61123 samples, Val: 6791 samples, Test: 16979 samples
+[EPOCH 01] train_loss=1.8877 val_loss=1.1086 val_acc=0.6884 epoch_time=2.47s total=2.47s *
+[EPOCH 02] train_loss=1.1123 val_loss=0.9286 val_acc=0.7426 epoch_time=2.45s total=4.93s *
+[EPOCH 03] train_loss=0.9784 val_loss=0.8609 val_acc=0.7719 epoch_time=2.45s total=7.38s *
+[EPOCH 04] train_loss=0.9003 val_loss=0.8128 val_acc=0.7835 epoch_time=2.42s total=9.80s *
+[EPOCH 05] train_loss=0.8507 val_loss=0.7771 val_acc=0.7925 epoch_time=2.43s total=12.23s *
+[EPOCH 06] train_loss=0.8138 val_loss=0.7612 val_acc=0.7965 epoch_time=2.45s total=14.68s *
+[EPOCH 07] train_loss=0.7877 val_loss=0.7457 val_acc=0.7983 epoch_time=2.45s total=17.13s *
+[EPOCH 08] train_loss=0.7674 val_loss=0.7339 val_acc=0.8009 epoch_time=2.49s total=19.62s *
+[EPOCH 09] train_loss=0.7485 val_loss=0.7218 val_acc=0.8044 epoch_time=2.58s total=22.20s *
+[EPOCH 10] train_loss=0.7350 val_loss=0.7176 val_acc=0.8055 epoch_time=2.58s total=24.78s *
+[EPOCH 11] train_loss=0.7155 val_loss=0.7116 val_acc=0.8075 epoch_time=2.57s total=27.35s *
+[EPOCH 12] train_loss=0.7071 val_loss=0.7037 val_acc=0.8112 epoch_time=2.58s total=29.92s *
+[EPOCH 13] train_loss=0.6910 val_loss=0.6989 val_acc=0.8118 epoch_time=2.58s total=32.51s *
+[EPOCH 14] train_loss=0.6851 val_loss=0.6941 val_acc=0.8139 epoch_time=2.57s total=35.08s *
+[EPOCH 15] train_loss=0.6763 val_loss=0.6893 val_acc=0.8161 epoch_time=2.45s total=37.53s *
+[EPOCH 16] train_loss=0.6662 val_loss=0.6843 val_acc=0.8140 epoch_time=2.43s total=39.96s *
+[EPOCH 17] train_loss=0.6578 val_loss=0.6824 val_acc=0.8156 epoch_time=2.43s total=42.39s *
+[EPOCH 18] train_loss=0.6519 val_loss=0.6842 val_acc=0.8148 epoch_time=2.45s total=44.84s
+[EPOCH 19] train_loss=0.6425 val_loss=0.6825 val_acc=0.8170 epoch_time=2.45s total=47.29s
+[EPOCH 20] train_loss=0.6341 val_loss=0.6734 val_acc=0.8180 epoch_time=2.07s total=49.36s *
+[EPOCH 21] train_loss=0.6271 val_loss=0.6759 val_acc=0.8170 epoch_time=1.85s total=51.22s
+[EPOCH 22] train_loss=0.6217 val_loss=0.6788 val_acc=0.8178 epoch_time=1.86s total=53.07s
+[EPOCH 23] train_loss=0.6178 val_loss=0.6749 val_acc=0.8173 epoch_time=1.86s total=54.93s
+[EPOCH 24] train_loss=0.6132 val_loss=0.6724 val_acc=0.8196 epoch_time=1.85s total=56.78s *
+[EPOCH 25] train_loss=0.6084 val_loss=0.6811 val_acc=0.8174 epoch_time=1.94s total=58.72s
+[EPOCH 26] train_loss=0.6004 val_loss=0.6717 val_acc=0.8208 epoch_time=2.45s total=61.17s *
+[EPOCH 27] train_loss=0.5949 val_loss=0.6739 val_acc=0.8195 epoch_time=2.44s total=63.61s
+[EPOCH 28] train_loss=0.5897 val_loss=0.6746 val_acc=0.8214 epoch_time=2.44s total=66.06s
+[EPOCH 29] train_loss=0.5861 val_loss=0.6763 val_acc=0.8204 epoch_time=2.45s total=68.50s
+[EPOCH 30] train_loss=0.5799 val_loss=0.6761 val_acc=0.8221 epoch_time=2.43s total=70.93s
+[EPOCH 31] train_loss=0.5788 val_loss=0.6760 val_acc=0.8192 epoch_time=2.44s total=73.37s
+[EPOCH 32] train_loss=0.5727 val_loss=0.6876 val_acc=0.8192 epoch_time=2.42s total=75.78s
+[EPOCH 33] train_loss=0.5697 val_loss=0.6765 val_acc=0.8218 epoch_time=2.45s total=78.23s
+[EPOCH 34] train_loss=0.5645 val_loss=0.6745 val_acc=0.8212 epoch_time=2.45s total=80.68s
+[EPOCH 35] train_loss=0.5623 val_loss=0.6718 val_acc=0.8223 epoch_time=2.43s total=83.11s
+[EPOCH 36] train_loss=0.5590 val_loss=0.6784 val_acc=0.8211 epoch_time=2.42s total=85.53s
+
+[EARLY STOP] No val improvement for 10 epochs. Best epoch 26 (val_loss=0.6717).
+
+[TRAINING] Completed in 85.53s (restored weights from epoch 26, val_loss=0.6717)
+----------------------------------------
+[SCORES] MLP - Encoder: QWEN
+Accuracy:    0.8251
+Macro F1:    0.3427
+Weighted F1: 0.8096
+----------------------------------------

@@ -1,13 +1,6 @@
-[LOAD] No existing TF-IDF features found in data/tfidf. Computing from scratch...                     
--> data/musical_instruments.json.gz already exists. Skipping download.                                
+[LOAD] Found existing TF-IDF features in data/tfidf. Loading...                                       
                                                                                                       
-[SAVE] TF-IDF matrix: (84901, 5000) -> data/tfidf                                                     
-[SPLIT] Dropping 66 classes with <2 samples (66 rows removed)                                         
-[SAVE] Split indices: train=67868, test=16967 -> data/tfidf                                           
-                                                                                                      
-[SAVE] TF-IDF matrix: (84901, 5000) -> data/tfidf                                                     
-[SPLIT] Dropping 66 classes with <2 samples (66 rows removed)                                         
-[SAVE] Split indices: train=67868, test=16967 -> data/tfidf                                           
+[LOAD] Loading split indices from data/tfidf                                                          
                                                                                                       
 [LOAD] Loading split indices from data/tfidf                                                          
                                                                                                       
@@ -16,33 +9,35 @@
 [DATA INFO] 545 classes.                                                                              
                                                                                                       
 [DATA SPLIT] Train: 61082 samples, Val: 6786 samples, Test: 16967 samples                             
-[EPOCH 01] train_loss=4.5135 val_loss=3.1977 epoch_time=11.50s total=11.50s *
-[EPOCH 02] train_loss=2.8423 val_loss=2.3277 epoch_time=11.27s total=22.77s *
-[EPOCH 03] train_loss=2.3074 val_loss=2.0468 epoch_time=11.40s total=34.18s *
-[EPOCH 04] train_loss=2.0516 val_loss=1.9222 epoch_time=11.71s total=45.89s *
-[EPOCH 05] train_loss=1.8946 val_loss=1.8444 epoch_time=10.72s total=56.61s *
-[EPOCH 06] train_loss=1.7953 val_loss=1.8084 epoch_time=10.78s total=67.39s *
-[EPOCH 07] train_loss=1.7002 val_loss=1.7832 epoch_time=11.47s total=78.86s *
-[EPOCH 08] train_loss=1.6330 val_loss=1.7691 epoch_time=10.50s total=89.36s *
-[EPOCH 09] train_loss=1.5738 val_loss=1.7571 epoch_time=10.70s total=100.06s *
-[EPOCH 10] train_loss=1.5156 val_loss=1.7501 epoch_time=11.55s total=111.61s *
-[EPOCH 11] train_loss=1.4728 val_loss=1.7514 epoch_time=10.83s total=122.44s
-[EPOCH 12] train_loss=1.4219 val_loss=1.7519 epoch_time=11.74s total=134.18s
-[EPOCH 13] train_loss=1.3848 val_loss=1.7602 epoch_time=11.30s total=145.49s
-[EPOCH 14] train_loss=1.3459 val_loss=1.7701 epoch_time=10.97s total=156.46s
-[EPOCH 15] train_loss=1.3104 val_loss=1.7777 epoch_time=10.22s total=166.68s
-[EPOCH 16] train_loss=1.2774 val_loss=1.7848 epoch_time=9.88s total=176.56s
-[EPOCH 17] train_loss=1.2495 val_loss=1.8075 epoch_time=9.70s total=186.26s
-[EPOCH 18] train_loss=1.2218 val_loss=1.8118 epoch_time=9.64s total=195.90s
-[EPOCH 19] train_loss=1.1931 val_loss=1.8261 epoch_time=9.65s total=205.54s
-[EPOCH 20] train_loss=1.1634 val_loss=1.8519 epoch_time=10.14s total=215.69s
-
-[EARLY STOP] No val improvement for 10 epochs. Best epoch 10 (val_loss=1.7501).
-
-[TRAINING] Completed in 215.69s (restored weights from epoch 10, val_loss=1.7501)
-----------------------------------------
-[SCORES] MLP - Encoder: TF-IDF
-Accuracy:    0.6303
-Macro F1:    0.2244
-Weighted F1: 0.5918
-----------------------------------------
+[EPOCH 01] train_loss=4.5555 val_loss=3.2774 val_acc=0.3576 epoch_time=7.98s total=7.98s *            
+[EPOCH 02] train_loss=2.9202 val_loss=2.3830 val_acc=0.4972 epoch_time=7.60s total=15.58s *           
+[EPOCH 03] train_loss=2.3498 val_loss=2.0751 val_acc=0.5566 epoch_time=7.68s total=23.27s *           
+[EPOCH 04] train_loss=2.0875 val_loss=1.9354 val_acc=0.5830 epoch_time=7.43s total=30.69s *           
+[EPOCH 05] train_loss=1.9283 val_loss=1.8590 val_acc=0.5981 epoch_time=7.35s total=38.05s *           
+[EPOCH 06] train_loss=1.8157 val_loss=1.8204 val_acc=0.6045 epoch_time=7.69s total=45.73s *           
+[EPOCH 07] train_loss=1.7303 val_loss=1.7936 val_acc=0.6164 epoch_time=7.30s total=53.03s *           
+[EPOCH 08] train_loss=1.6475 val_loss=1.7740 val_acc=0.6174 epoch_time=7.54s total=60.57s *           
+[EPOCH 09] train_loss=1.5874 val_loss=1.7653 val_acc=0.6198 epoch_time=7.64s total=68.21s *           
+[EPOCH 10] train_loss=1.5360 val_loss=1.7641 val_acc=0.6242 epoch_time=7.29s total=75.51s *           
+[EPOCH 11] train_loss=1.4891 val_loss=1.7583 val_acc=0.6297 epoch_time=8.26s total=83.77s *           
+[EPOCH 12] train_loss=1.4426 val_loss=1.7580 val_acc=0.6286 epoch_time=8.01s total=91.77s *           
+[EPOCH 13] train_loss=1.4044 val_loss=1.7627 val_acc=0.6288 epoch_time=7.86s total=99.64s             
+[EPOCH 14] train_loss=1.3574 val_loss=1.7753 val_acc=0.6306 epoch_time=7.36s total=107.00s            
+[EPOCH 15] train_loss=1.3252 val_loss=1.7877 val_acc=0.6304 epoch_time=7.28s total=114.28s            
+[EPOCH 16] train_loss=1.2920 val_loss=1.7902 val_acc=0.6314 epoch_time=7.76s total=122.04s            
+[EPOCH 17] train_loss=1.2626 val_loss=1.8032 val_acc=0.6263 epoch_time=7.80s total=129.84s            
+[EPOCH 18] train_loss=1.2278 val_loss=1.8117 val_acc=0.6276 epoch_time=8.60s total=138.44s            
+[EPOCH 19] train_loss=1.2037 val_loss=1.8292 val_acc=0.6310 epoch_time=8.75s total=147.19s            
+[EPOCH 20] train_loss=1.1734 val_loss=1.8375 val_acc=0.6340 epoch_time=8.26s total=155.45s            
+[EPOCH 21] train_loss=1.1503 val_loss=1.8461 val_acc=0.6309 epoch_time=8.71s total=164.15s            
+[EPOCH 22] train_loss=1.1224 val_loss=1.8536 val_acc=0.6322 epoch_time=8.56s total=172.71s            
+                                                                                                      
+[EARLY STOP] No val improvement for 10 epochs. Best epoch 12 (val_loss=1.7580).                       
+                                                                                                      
+[TRAINING] Completed in 172.71s (restored weights from epoch 12, val_loss=1.7580)                     
+----------------------------------------                                                              
+[SCORES] MLP - Encoder: TF-IDF                                                                        
+Accuracy:    0.6309                                                                                   
+Macro F1:    0.2334                                                                                   
+Weighted F1: 0.5994                                                                                   
+---------------------------------------- 

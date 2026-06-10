@@ -45,8 +45,8 @@ def encode_dataframe(df):
     return X, y, encoder
 
 
-def get_bow_features():
-    df = load_all_datasets_to_df()
+def get_bow_features(depth):
+    df = load_all_datasets_to_df(depth)
     X, y, encoder = encode_dataframe(df)
     save_bow(X, y, encoder)
     return X, y, encoder
@@ -75,6 +75,7 @@ def load_bow(out_dir=BOW_DIR):
         return X, y, encoder
     
     print(f"\n[LOAD] No existing BOW features found in {out_dir}. Computing from scratch...")
-    X, y, encoder = get_bow_features()
+    depth = int(out_dir.split("_depth")[-1]) if "_depth" in out_dir else None
+    X, y, encoder = get_bow_features(depth)
     save_bow(X, y, encoder, out_dir)
     return X, y, encoder

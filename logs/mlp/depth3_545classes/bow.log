@@ -1,13 +1,6 @@
-[LOAD] No existing BOW features found in data/bow. Computing from scratch...                          
--> data/musical_instruments.json.gz already exists. Skipping download.                                
+[LOAD] Found existing BOW features in data/bow. Loading...                                            
                                                                                                       
-[SAVE] BOW matrix: (84901, 5000) -> data/bow                                                          
-[SPLIT] Dropping 66 classes with <2 samples (66 rows removed)                                         
-[SAVE] Split indices: train=67868, test=16967 -> data/bow                                             
-                                                                                                      
-[SAVE] BOW matrix: (84901, 5000) -> data/bow                                                          
-[SPLIT] Dropping 66 classes with <2 samples (66 rows removed)                                         
-[SAVE] Split indices: train=67868, test=16967 -> data/bow                                             
+[LOAD] Loading split indices from data/bow                                                            
                                                                                                       
 [LOAD] Loading split indices from data/bow                                                            
                                                                                                       
@@ -15,30 +8,32 @@
                                                                                                       
 [DATA INFO] 545 classes.                                                                              
                                                                                                       
-[DATA SPLIT] Train: 61082 samples, Val: 6786 samples, Test: 16967 samples
-[EPOCH 01] train_loss=3.7293 val_loss=2.4384 epoch_time=10.91s total=10.91s *
-[EPOCH 02] train_loss=2.3119 val_loss=1.9817 epoch_time=10.24s total=21.15s *
-[EPOCH 03] train_loss=1.9457 val_loss=1.8341 epoch_time=10.72s total=31.87s *
-[EPOCH 04] train_loss=1.7503 val_loss=1.7826 epoch_time=9.97s total=41.85s *
-[EPOCH 05] train_loss=1.6166 val_loss=1.7480 epoch_time=9.78s total=51.63s *
-[EPOCH 06] train_loss=1.5232 val_loss=1.7329 epoch_time=9.60s total=61.23s *
-[EPOCH 08] train_loss=1.3806 val_loss=1.7331 epoch_time=9.20s total=79.53s
-[EPOCH 09] train_loss=1.3225 val_loss=1.7450 epoch_time=8.91s total=88.44s
-[EPOCH 10] train_loss=1.2777 val_loss=1.7579 epoch_time=9.19s total=97.63s
-[EPOCH 11] train_loss=1.2371 val_loss=1.7596 epoch_time=9.64s total=107.27s
-[EPOCH 12] train_loss=1.1923 val_loss=1.7866 epoch_time=9.59s total=116.86s
-[EPOCH 13] train_loss=1.1537 val_loss=1.8211 epoch_time=9.81s total=126.67s
-[EPOCH 14] train_loss=1.1275 val_loss=1.8369 epoch_time=9.80s total=136.47s
-[EPOCH 15] train_loss=1.0944 val_loss=1.8509 epoch_time=9.64s total=146.10s
-[EPOCH 16] train_loss=1.0685 val_loss=1.8682 epoch_time=8.93s total=155.04s
-[EPOCH 17] train_loss=1.0555 val_loss=1.8743 epoch_time=9.13s total=164.17s
-
-[EARLY STOP] No val improvement for 10 epochs. Best epoch 7 (val_loss=1.7295).
-
-[TRAINING] Completed in 164.17s (restored weights from epoch 7, val_loss=1.7295)
-----------------------------------------
-[SCORES] MLP - Encoder: BOW
-Accuracy:    0.6446
-Macro F1:    0.2505
-Weighted F1: 0.6125
-----------------------------------------
+[DATA SPLIT] Train: 61082 samples, Val: 6786 samples, Test: 16967 samples                             
+[EPOCH 01] train_loss=3.7325 val_loss=2.4494 val_acc=0.5333 epoch_time=7.99s total=7.99s *            
+[EPOCH 02] train_loss=2.3235 val_loss=1.9966 val_acc=0.5961 epoch_time=7.98s total=15.98s *           
+[EPOCH 03] train_loss=1.9527 val_loss=1.8452 val_acc=0.6202 epoch_time=7.99s total=23.96s *           
+[EPOCH 04] train_loss=1.7530 val_loss=1.7750 val_acc=0.6306 epoch_time=7.93s total=31.90s *           
+[EPOCH 05] train_loss=1.6253 val_loss=1.7583 val_acc=0.6362 epoch_time=8.14s total=40.04s *           
+[EPOCH 06] train_loss=1.5221 val_loss=1.7461 val_acc=0.6404 epoch_time=8.20s total=48.24s *           
+[EPOCH 07] train_loss=1.4425 val_loss=1.7531 val_acc=0.6387 epoch_time=8.21s total=56.45s             
+[EPOCH 08] train_loss=1.3811 val_loss=1.7457 val_acc=0.6456 epoch_time=7.96s total=64.41s *           
+[EPOCH 09] train_loss=1.3267 val_loss=1.7712 val_acc=0.6449 epoch_time=8.03s total=72.45s             
+[EPOCH 10] train_loss=1.2719 val_loss=1.7806 val_acc=0.6500 epoch_time=8.38s total=80.82s             
+[EPOCH 11] train_loss=1.2342 val_loss=1.8046 val_acc=0.6459 epoch_time=8.48s total=89.30s             
+[EPOCH 12] train_loss=1.1970 val_loss=1.8151 val_acc=0.6441 epoch_time=8.19s total=97.49s             
+[EPOCH 13] train_loss=1.1566 val_loss=1.8408 val_acc=0.6441 epoch_time=7.99s total=105.49s            
+[EPOCH 14] train_loss=1.1320 val_loss=1.8702 val_acc=0.6478 epoch_time=7.98s total=113.47s            
+[EPOCH 15] train_loss=1.1084 val_loss=1.8622 val_acc=0.6474 epoch_time=7.97s total=121.44s            
+[EPOCH 16] train_loss=1.0781 val_loss=1.9131 val_acc=0.6459 epoch_time=7.85s total=129.28s            
+[EPOCH 17] train_loss=1.0492 val_loss=1.9614 val_acc=0.6468 epoch_time=7.11s total=136.39s            
+[EPOCH 18] train_loss=1.0257 val_loss=1.9842 val_acc=0.6465 epoch_time=7.51s total=143.91s            
+                                                                                                      
+[EARLY STOP] No val improvement for 10 epochs. Best epoch 8 (val_loss=1.7457).                        
+                                                                                                      
+[TRAINING] Completed in 143.91s (restored weights from epoch 8, val_loss=1.7457)                      
+----------------------------------------                                                              
+[SCORES] MLP - Encoder: BOW                                                                           
+Accuracy:    0.6419                                                                                   
+Macro F1:    0.2533                                                                                   
+Weighted F1: 0.6116                                                                                   
+----------------------------------------  

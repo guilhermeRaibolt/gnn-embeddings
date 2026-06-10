@@ -43,8 +43,8 @@ def encode_dataframe(df):
     return X, y, encoder
 
 
-def get_tfidf_features():
-    df = load_all_datasets_to_df()
+def get_tfidf_features(depth):
+    df = load_all_datasets_to_df(depth)
     X, y, encoder = encode_dataframe(df)
     save_tfidf(X, y, encoder)
     return X, y, encoder
@@ -73,6 +73,7 @@ def load_tfidf(out_dir=TFIDF_DIR):
         return X, y, encoder
     
     print(f"\n[LOAD] No existing TF-IDF features found in {out_dir}. Computing from scratch...")
-    X, y, encoder = get_tfidf_features()
+    depth = int(out_dir.split("_depth")[-1]) if "_depth" in out_dir else None
+    X, y, encoder = get_tfidf_features(depth)
     save_tfidf(X, y, encoder, out_dir)
     return X, y, encoder

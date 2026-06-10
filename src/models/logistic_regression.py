@@ -50,18 +50,24 @@ def train_logistic_regression(
 
 if __name__ == "__main__":
     
-    # X, y, encoder = load_tfidf()
-    # train_idx, test_idx = load_split(TFIDF_DIR)
-    # train_logistic_regression(X, y, "TF-IDF", train_idx, test_idx)
+    target_subcategory_depth = 3
 
-    # X, y, encoder = load_bow()
-    # train_idx, test_idx = load_split(BOW_DIR)
-    # train_logistic_regression(X, y, "BOW", train_idx, test_idx)
+    # dir_tfidf = TFIDF_DIR+"_depth"+str(target_subcategory_depth)
+    # X, y, encoder = load_tfidf(dir_tfidf)
+    # train_idx, test_idx = load_split(dir_tfidf)
+    # train_logistic_regression(X, y, 'TF-IDF', train_idx, test_idx)
 
-    # X, y, encoder = load_sbert()
-    # train_idx, test_idx = load_split(SBERT_DIR)
-    # train_logistic_regression(X, y, "SBERT", train_idx, test_idx)
+    # dir_bow = BOW_DIR+"_depth"+str(target_subcategory_depth)
+    # X, y, encoder = load_bow(dir_bow)
+    # train_idx, test_idx = load_split(dir_bow)
+    # train_logistic_regression(X, y, 'BOW', train_idx, test_idx)
+
+    # dir_sbert = SBERT_DIR+"_depth"+str(target_subcategory_depth)
+    # X, y, encoder = load_sbert(dir_sbert)
+    # train_idx, test_idx = load_split(dir_sbert)
+    # train_logistic_regression(X, y, 'SBERT', train_idx, test_idx)
     
-    X, y, encoder = load_qwen()
-    train_idx, test_idx = load_split(QWEN_DIR)
+    dir_qwen = QWEN_DIR+"_depth"+str(target_subcategory_depth)
+    X, y, encoder = load_qwen(dir_qwen)
+    train_idx, test_idx = load_split(dir_qwen)
     train_logistic_regression(X, y, 'QWEN', train_idx, test_idx)

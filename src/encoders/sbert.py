@@ -56,8 +56,8 @@ def encode_dataframe(df):
     return X, y, encoder
 
 
-def get_sbert_features():
-    df = load_all_datasets_to_df()
+def get_sbert_features(depth):
+    df = load_all_datasets_to_df(depth)
     X, y, encoder = encode_dataframe(df)
     save_sbert(X, y, encoder)
     return X, y, encoder
@@ -86,6 +86,7 @@ def load_sbert(out_dir=SBERT_DIR):
         return X, y, encoder
 
     print(f"\n[LOAD] No existing SBERT features found in {out_dir}. Computing from scratch...")
-    X, y, encoder = get_sbert_features()
+    depth = int(out_dir.split("_depth")[-1]) if "_depth" in out_dir else None
+    X, y, encoder = get_sbert_features(depth)
     save_sbert(X, y, encoder, out_dir)
     return X, y, encoder

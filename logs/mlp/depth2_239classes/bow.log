@@ -1,35 +1,36 @@
-[LOAD] Found existing BOW features in data/bow. Loading...                                            
+[LOAD] Found existing BOW features in data/bow_depth2. Loading...                                     
                                                                                                       
-[LOAD] Loading split indices from data/bow                                                            
+[LOAD] Loading split indices from data/bow_depth2                                                     
                                                                                                       
-[LOAD] Loading split indices from data/bow                                                            
+[LOAD] Loading split indices from data/bow_depth2                                                     
                                                                                                       
 [TRAINING] Starting MLP training on BOW features using device: cuda                                   
                                                                                                       
 [DATA INFO] 239 classes.                                                                              
                                                                                                       
 [DATA SPLIT] Train: 61106 samples, Val: 6789 samples, Test: 16974 samples                             
-[EPOCH 01] train_loss=2.4485 val_loss=1.4782 epoch_time=10.30s total=10.30s *                         
-[EPOCH 02] train_loss=1.4370 val_loss=1.2887 epoch_time=9.33s total=19.62s *                          
-[EPOCH 03] train_loss=1.2303 val_loss=1.2261 epoch_time=9.31s total=28.93s *                          
-[EPOCH 04] train_loss=1.1161 val_loss=1.2170 epoch_time=9.40s total=38.33s *                          
-[EPOCH 05] train_loss=1.0317 val_loss=1.2192 epoch_time=8.96s total=47.29s                            
-[EPOCH 06] train_loss=0.9651 val_loss=1.2443 epoch_time=9.20s total=56.49s                            
-[EPOCH 07] train_loss=0.9101 val_loss=1.2488 epoch_time=9.14s total=65.63s                            
-[EPOCH 08] train_loss=0.8628 val_loss=1.2692 epoch_time=9.15s total=74.78s                            
-[EPOCH 09] train_loss=0.8249 val_loss=1.2856 epoch_time=9.58s total=84.36s                            
-[EPOCH 10] train_loss=0.7863 val_loss=1.3107 epoch_time=9.80s total=94.16s                            
-[EPOCH 11] train_loss=0.7524 val_loss=1.3329 epoch_time=9.31s total=103.47s                           
-[EPOCH 12] train_loss=0.7304 val_loss=1.3653 epoch_time=9.74s total=113.21s                           
-[EPOCH 13] train_loss=0.6970 val_loss=1.3865 epoch_time=9.64s total=122.84s                           
-[EPOCH 14] train_loss=0.6813 val_loss=1.4121 epoch_time=9.51s total=132.35s                           
+[EPOCH 01] train_loss=2.4324 val_loss=1.4869 val_acc=0.6786 epoch_time=7.21s total=7.21s *            
+[EPOCH 02] train_loss=1.4399 val_loss=1.2958 val_acc=0.7263 epoch_time=7.41s total=14.62s *           
+[EPOCH 03] train_loss=1.2386 val_loss=1.2384 val_acc=0.7360 epoch_time=7.15s total=21.77s *           
+[EPOCH 04] train_loss=1.1222 val_loss=1.2199 val_acc=0.7413 epoch_time=7.24s total=29.02s *           
+[EPOCH 05] train_loss=1.0405 val_loss=1.2126 val_acc=0.7437 epoch_time=7.12s total=36.14s *           
+[EPOCH 06] train_loss=0.9819 val_loss=1.2183 val_acc=0.7452 epoch_time=7.61s total=43.76s             
+[EPOCH 07] train_loss=0.9206 val_loss=1.2274 val_acc=0.7499 epoch_time=8.41s total=52.17s             
+[EPOCH 08] train_loss=0.8766 val_loss=1.2439 val_acc=0.7466 epoch_time=8.42s total=60.59s             
+[EPOCH 09] train_loss=0.8390 val_loss=1.2569 val_acc=0.7469 epoch_time=8.42s total=69.01s             
+[EPOCH 10] train_loss=0.7979 val_loss=1.2820 val_acc=0.7468 epoch_time=8.52s total=77.54s             
+[EPOCH 11] train_loss=0.7706 val_loss=1.3030 val_acc=0.7502 epoch_time=8.22s total=85.76s             
+[EPOCH 12] train_loss=0.7403 val_loss=1.3242 val_acc=0.7465 epoch_time=8.08s total=93.83s             
+[EPOCH 13] train_loss=0.7156 val_loss=1.3438 val_acc=0.7478 epoch_time=8.07s total=101.90s            
+[EPOCH 14] train_loss=0.6920 val_loss=1.3794 val_acc=0.7439 epoch_time=8.08s total=109.99s            
+[EPOCH 15] train_loss=0.6706 val_loss=1.4014 val_acc=0.7444 epoch_time=8.38s total=118.37s            
                                                                                                       
-[EARLY STOP] No val improvement for 10 epochs. Best epoch 4 (val_loss=1.2170).                        
+[EARLY STOP] No val improvement for 10 epochs. Best epoch 5 (val_loss=1.2126).                        
                                                                                                       
-[TRAINING] Completed in 132.35s (restored weights from epoch 4, val_loss=1.2170)                      
+[TRAINING] Completed in 118.37s (restored weights from epoch 5, val_loss=1.2126)                      
 ----------------------------------------                                                              
 [SCORES] MLP - Encoder: BOW                                                                           
-Accuracy:    0.7427                                                                                   
-Macro F1:    0.1609                                                                                   
-Weighted F1: 0.7067                                                                                   
----------------------------------------- 
+Accuracy:    0.7404                                                                                   
+Macro F1:    0.1594                                                                                   
+Weighted F1: 0.7046                                                                                   
+----------------------------------------

@@ -1,35 +1,41 @@
-[LOAD] Found existing BOW features in data/bow. Loading...
+[LOAD] No existing BOW features found in data/bow_depth1. Computing from scratch...
+-> data/musical_instruments.json.gz already exists. Skipping download.
 
-[LOAD] Loading split indices from data/bow
+[SAVE] BOW matrix: (84901, 5000) -> data/bow
+[SPLIT] Dropping 8 classes with <2 samples (8 rows removed)
+[SAVE] Split indices: train=67914, test=16979 -> data/bow
 
-[LOAD] Loading split indices from data/bow
+[SAVE] BOW matrix: (84901, 5000) -> data/bow_depth1 
+[SPLIT] Dropping 8 classes with <2 samples (8 rows removed)
+[SAVE] Split indices: train=67914, test=16979 -> data/bow_depth1
+
+[LOAD] Loading split indices from data/bow_depth1
 
 [TRAINING] Starting MLP training on BOW features using device: cuda
 
 [DATA INFO] 48 classes.
 
 [DATA SPLIT] Train: 61123 samples, Val: 6791 samples, Test: 16979 samples
-[EPOCH 01] train_loss=1.4720 val_loss=0.8856 epoch_time=7.63s total=7.63s *
-[EPOCH 02] train_loss=0.8292 val_loss=0.7852 epoch_time=7.47s total=15.10s *
-[EPOCH 03] train_loss=0.7010 val_loss=0.7618 epoch_time=8.15s total=23.25s *
-[EPOCH 04] train_loss=0.6211 val_loss=0.7525 epoch_time=7.92s total=31.17s *
-[EPOCH 05] train_loss=0.5643 val_loss=0.7678 epoch_time=7.63s total=38.79s
-[EPOCH 06] train_loss=0.5140 val_loss=0.7846 epoch_time=7.67s total=46.46s
-[EPOCH 07] train_loss=0.4799 val_loss=0.7901 epoch_time=7.57s total=54.03s
-[EPOCH 08] train_loss=0.4501 val_loss=0.8237 epoch_time=7.64s total=61.68s
-[EPOCH 09] train_loss=0.4221 val_loss=0.8482 epoch_time=8.05s total=69.73s
-[EPOCH 10] train_loss=0.3991 val_loss=0.8682 epoch_time=7.67s total=77.39s
-[EPOCH 11] train_loss=0.3835 val_loss=0.8795 epoch_time=7.68s total=85.08s
-[EPOCH 12] train_loss=0.3650 val_loss=0.9039 epoch_time=7.93s total=93.00s
-[EPOCH 13] train_loss=0.3493 val_loss=0.9486 epoch_time=7.96s total=100.97s
-[EPOCH 14] train_loss=0.3386 val_loss=0.9532 epoch_time=8.02s total=108.99s
+[EPOCH 01] train_loss=1.4551 val_loss=0.8846 val_acc=0.7829 epoch_time=9.60s total=9.60s *
+[EPOCH 02] train_loss=0.8360 val_loss=0.7901 val_acc=0.8012 epoch_time=9.64s total=19.24s *
+[EPOCH 03] train_loss=0.7071 val_loss=0.7552 val_acc=0.8092 epoch_time=9.57s total=28.81s *
+[EPOCH 04] train_loss=0.6320 val_loss=0.7559 val_acc=0.8105 epoch_time=9.57s total=38.38s
+[EPOCH 05] train_loss=0.5702 val_loss=0.7627 val_acc=0.8111 epoch_time=9.58s total=47.96s
+[EPOCH 06] train_loss=0.5231 val_loss=0.7853 val_acc=0.8109 epoch_time=9.69s total=57.65s
+[EPOCH 07] train_loss=0.4894 val_loss=0.8013 val_acc=0.8114 epoch_time=9.66s total=67.31s
+[EPOCH 08] train_loss=0.4536 val_loss=0.8100 val_acc=0.8120 epoch_time=9.66s total=76.96s
+[EPOCH 09] train_loss=0.4299 val_loss=0.8226 val_acc=0.8087 epoch_time=9.66s total=86.62s
+[EPOCH 10] train_loss=0.4041 val_loss=0.8560 val_acc=0.8128 epoch_time=9.67s total=96.29s
+[EPOCH 11] train_loss=0.3903 val_loss=0.8734 val_acc=0.8108 epoch_time=9.66s total=105.95s
+[EPOCH 12] train_loss=0.3694 val_loss=0.9072 val_acc=0.8099 epoch_time=9.61s total=115.56s
+[EPOCH 13] train_loss=0.3544 val_loss=0.9372 val_acc=0.8124 epoch_time=9.57s total=125.14s
 
-[EARLY STOP] No val improvement for 10 epochs. Best epoch 4 (val_loss=0.7525).
+[EARLY STOP] No val improvement for 10 epochs. Best epoch 3 (val_loss=0.7552).
 
-[TRAINING] Completed in 108.99s (restored weights from epoch 4, val_loss=0.7525)
+[TRAINING] Completed in 125.14s (restored weights from epoch 3, val_loss=0.7552)
 ----------------------------------------
 [SCORES] MLP - Encoder: BOW
-Accuracy:    0.8118
-Macro F1:    0.3052
-Weighted F1: 0.7902
+Accuracy:    0.8083
+Macro F1:    0.2949
+Weighted F1: 0.7849
 ----------------------------------------

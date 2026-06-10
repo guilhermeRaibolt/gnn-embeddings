@@ -5,7 +5,7 @@ import urllib.request
 
 import pandas as pd
 
-SUBCATEGORY_DEPTH = 2
+DEFAULT_SUBCATEGORY_DEPTH = 2
 
 # data from https://cseweb.ucsd.edu/~jmcauley/datasets/amazon/links.html
 
@@ -70,7 +70,7 @@ def extract_description(desc):
     return str(desc) if desc else ''
 
 
-def extract_category(category_list):
+def extract_category(category_list, depth=DEFAULT_SUBCATEGORY_DEPTH):
     # fallback if the record doesn't contain category listings
     if not category_list or not isinstance(category_list, list):
         return None
@@ -78,8 +78,8 @@ def extract_category(category_list):
     # in multi-branch items, we prioritize the branch that 
     # explicitly satisfies our required depth constraint.
     for path in category_list:
-        if isinstance(path, list) and len(path) > SUBCATEGORY_DEPTH:
-            return path[SUBCATEGORY_DEPTH]
+        if isinstance(path, list) and len(path) > depth:
+            return path[depth]
             
     # if no single branch is long enough, grab the deepest leaf node 
     # of the very first branch to avoid throwing away data entirely.
@@ -89,7 +89,7 @@ def extract_category(category_list):
     return None
 
 
-def load_dataset_to_df(path):
+def load_dataset_to_df(path, depth=DEFAULT_SUBCATEGORY_DEPTH):
 
     ensure_data_exists(path)
 
@@ -102,7 +102,7 @@ def load_dataset_to_df(path):
         description = entry.get('description', '')
         description = extract_description(description)
 
-        category = extract_category(entry.get('categories', []))
+        category = extract_category(entry.get('categories', []), depth)
         if not category:
             continue
             
@@ -113,13 +113,13 @@ def load_dataset_to_df(path):
         
     return pd.DataFrame(data)
 
-def load_all_datasets_to_df():
+def load_all_datasets_to_df(depth=DEFAULT_SUBCATEGORY_DEPTH):
     df = pd.DataFrame()
     for local_path in DATASET_URLS.keys():
 
         if "musical_instruments" not in local_path.lower():
             continue
 
-        dataset_df = load_dataset_to_df(local_path)
+        dataset_df = load_dataset_to_df(local_path, depth)
         df = pd.concat([df, dataset_df], ignore_index=True)
     return df

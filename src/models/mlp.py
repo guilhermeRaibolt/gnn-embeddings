@@ -123,7 +123,7 @@ def train_mlp(
             running_loss += loss.item() * xb.size(0)
             n += xb.size(0)
 
-        val_loss = evaluate_loss(model, val_loader, criterion, device)
+        val_loss, val_acc = evaluate_loss(model, val_loader, criterion, device)
 
         epoch_elapsed = time.perf_counter() - epoch_start
         total_elapsed = time.perf_counter() - train_start
@@ -139,7 +139,7 @@ def train_mlp(
 
         print(
             f"[EPOCH {epoch:02d}] train_loss={running_loss / n:.4f} "
-            f"val_loss={val_loss:.4f} "
+            f"val_loss={val_loss:.4f} val_acc={val_acc:.4f} "
             f"epoch_time={epoch_elapsed:.2f}s total={total_elapsed:.2f}s"
             + (" *" if improved else "")
         )
@@ -186,12 +186,15 @@ def predict(model, loader, device):
 @torch.no_grad()
 def evaluate_loss(model, loader, criterion, device):
     model.eval()
-    total_loss, n = 0.0, 0
+    total_loss, total_correct, n = 0.0, 0, 0
     for xb, yb in loader:
         xb, yb = xb.to(device), yb.to(device)
-        total_loss += criterion(model(xb), yb).item() * xb.size(0)
+        logits = model(xb)
+        total_loss += criterion(logits, yb).item() * xb.size(0)
+        total_correct += (logits.argmax(dim=1) == yb).sum().item()
         n += xb.size(0)
-    return total_loss / max(n, 1)
+    denom = max(n, 1)
+    return total_loss / denom, total_correct / denom
 
 
 @torch.no_grad()
@@ -207,19 +210,25 @@ def predict_texts(model, encoder, label_encoder, texts, device=None):
 
 
 if __name__ == "__main__":
-
-    # X, y, encoder = load_tfidf()
-    # train_idx, test_idx = load_split(TFIDF_DIR)
-    # train_mlp(X, y, 'TF-IDF', train_idx, test_idx)
-
-    # X, y, encoder = load_bow()
-    # train_idx, test_idx = load_split(BOW_DIR)
-    # train_mlp(X, y, 'BOW', train_idx, test_idx)
-
-    # X, y, encoder = load_sbert()
-    # train_idx, test_idx = load_split(SBERT_DIR)
-    # train_mlp(X, y, 'SBERT', train_idx, test_idx)
     
-    X, y, encoder = load_qwen()
-    train_idx, test_idx = load_split(QWEN_DIR)
+    target_subcategory_depth = 1
+
+    dir_tfidf = TFIDF_DIR+"_depth"+str(target_subcategory_depth)
+    X, y, encoder = load_tfidf(dir_tfidf)
+    train_idx, test_idx = load_split(dir_tfidf)
+    train_mlp(X, y, 'TF-IDF', train_idx, test_idx)
+
+    dir_bow = BOW_DIR+"_depth"+str(target_subcategory_depth)
+    X, y, encoder = load_bow(dir_bow)
+    train_idx, test_idx = load_split(dir_bow)
+    train_mlp(X, y, 'BOW', train_idx, test_idx)
+
+    dir_sbert = SBERT_DIR+"_depth"+str(target_subcategory_depth)
+    X, y, encoder = load_sbert(dir_sbert)
+    train_idx, test_idx = load_split(dir_sbert)
+    train_mlp(X, y, 'SBERT', train_idx, test_idx)
+    
+    dir_qwen = QWEN_DIR+"_depth"+str(target_subcategory_depth)
+    X, y, encoder = load_qwen(dir_qwen)
+    train_idx, test_idx = load_split(dir_qwen)
     train_mlp(X, y, 'QWEN', train_idx, test_idx)

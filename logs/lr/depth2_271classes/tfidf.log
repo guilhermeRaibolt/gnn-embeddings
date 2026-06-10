@@ -1,0 +1,19 @@
+[LOAD] Found existing TF-IDF features in data/tfidf_depth2. Loading...
+
+[LOAD] Loading split indices from data/tfidf_depth2
+
+[LOAD] Loading split indices from data/tfidf_depth2
+
+[TRAINING] Starting Logistic Regression on TF-IDF features using device: cpu
+
+[DATA SPLIT] Train: 67895 samples, Test: 16974 samples
+
+[DATA INFO] 271 classes.
+
+[TRAINING] Completed in 240.30s
+----------------------------------------
+[SCORES] Logistic Regression - Encoder: TF-IDF
+Accuracy:    0.7432
+Macro F1:    0.1714
+Weighted F1: 0.7094
+----------------------------------------
