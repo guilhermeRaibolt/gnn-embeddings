@@ -4,11 +4,13 @@ Comparison of text-classification baselines on Amazon product metadata. The goal
 
 >Plots comparing encoders across MLP and Logistic Regression for each label depth live in [results.ipynb](results.ipynb).
 
->ALERT: For now, this repo is comparing only the non-graph approaches.
+>ALERT: At the moment, this repo is comparing only the non-graph approaches.
 
 ## Scope
 
-Each product is described by `title + description`; the label is its category at a configurable depth in the Amazon taxonomy (`SUBCATEGORY_DEPTH` in [src/datasets/amazon_dataset.py](src/datasets/amazon_dataset.py)). Three depths are evaluated:
+Each product is described by `title + description`; the label is its category at a configurable depth in the Amazon taxonomy. Amazon stores categories as ordered paths (e.g. `["Musical Instruments", "Guitars", "Acoustic Guitars"]`), and `depth` simply picks the index in that path: depth 1 keeps a coarse label, higher depths drill into more specific sub-categories. Items whose path is shorter than the requested depth fall back to the deepest leaf of their first branch (see `extract_category` in [src/datasets/amazon_dataset.py](src/datasets/amazon_dataset.py)).
+
+The depth is selected per-run by setting `target_subcategory_depth` in the model entry points ([src/models/mlp.py](src/models/mlp.py), [src/models/logistic_regression.py](src/models/logistic_regression.py)); each encoder loader is then pointed at a depth-specific cache directory (e.g. `data/tfidf_depth2/`). The default `DEFAULT_SUBCATEGORY_DEPTH` lives in [src/datasets/amazon_dataset.py](src/datasets/amazon_dataset.py) and is only used as a fallback. Three depths are evaluated:
 
 | Depth | # classes (Musical Instruments subset) |
 | ----- | -------------------------------------- |
@@ -20,15 +22,7 @@ Class counts differ slightly between runs because rare classes (`<2` samples) ar
 
 ## Pipeline
 
-```
-raw .json.gz  ─►  load_*_features() ─►  cached X, y, encoder ─►  train_{mlp,logistic_regression}()
-                       ▲                       │
-                       └───── make_split / load_split (stratified, seeded)
-```
-
-- **Encoders** ([src/encoders/](src/encoders)) all expose the same `fit_transform(texts)` interface and cache outputs under `data/<encoder>/{X.*,y.npy,encoder.joblib,train_idx.npy,test_idx.npy}`.
-- **Splits** ([src/datasets/splits.py](src/datasets/splits.py)) are generated once with `random_state=42`, stratified on `y`, then reused. Re-running an encoder will pick up the existing split, so all four encoders are evaluated on identical train/test rows.
-- **Models** ([src/models/](src/models)) read the cached matrices; nothing in `train_*` re-encodes text.
+The raw `meta_*.json.gz` files are parsed once into `(text, category)` pairs at the chosen depth. Each encoder turns the texts into a feature matrix `X` and saves `X`, `y`, and the fitted encoder under `data/<encoder>_depth<d>/`. A stratified train/test split (seed `42`) is generated alongside and reused, so every encoder at the same depth is evaluated on the exact same rows. Classifiers then load the cached matrices and split indices — no re-encoding happens at training time.
 
 ## Encoders compared
 
@@ -64,12 +58,13 @@ The best-val-loss `state_dict` is kept in memory and restored before the final t
 ## Repo layout
 
 ```
-data/<encoder>/        cached features + split indices
+data/<encoder>_depth<d>/   cached features + split indices for label depth <d>
+data/<encoder>/            legacy cache (no depth suffix, kept for backwards compatibility)
 logs/<model>/depth<d>_<n>classes/<encoder>.log
-src/datasets/          dataset loader (Amazon meta_*.json.gz) + stratified split helpers
-src/encoders/          one module per encoder, identical fit/transform/save/load API
-src/models/            classifiers (logistic_regression, mlp); gnn.py reserved for the graph model
-results.ipynb          parses logs/ and renders the per-depth comparison plots
+src/datasets/              dataset loader (Amazon meta_*.json.gz) + stratified split helpers
+src/encoders/              one module per encoder, identical fit/transform/save/load API
+src/models/                classifiers (logistic_regression, mlp); gnn.py reserved for the graph model
+results.ipynb              parses logs/ and renders the per-depth comparison plots
 ```
 
 ## Quick start
@@ -80,7 +75,7 @@ python3 -m src.models.logistic_regression
 python3 -m src.models.mlp
 ```
 
-To change the label depth, edit `SUBCATEGORY_DEPTH` in [src/datasets/amazon_dataset.py](src/datasets/amazon_dataset.py), then **delete the matching `data/<encoder>/` directory** (otherwise the cached `y.npy` is reused) and re-run.
+To change the label depth, edit `target_subcategory_depth` at the top of the `__main__` block in [src/models/mlp.py](src/models/mlp.py) or [src/models/logistic_regression.py](src/models/logistic_regression.py) and re-run. Each encoder loader will look for `data/<encoder>_depth<d>/`; if the directory is missing it is built from scratch at the requested depth, so multiple depths can coexist without manually clearing caches.
 
 ## Results
 
