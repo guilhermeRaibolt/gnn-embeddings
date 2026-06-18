@@ -5,9 +5,10 @@ from sklearn.model_selection import train_test_split
 
 TRAIN_IDX_FILE = "train_idx.npy"
 TEST_IDX_FILE = "test_idx.npy"
+TEST_SIZE=0.3
 
 
-def make_split(y, test_size=0.2, random_state=42, min_class_count=2):
+def make_split(y, test_size=TEST_SIZE, random_state=42, min_class_count=2):
     y = np.asarray(y)
     indices = np.arange(len(y))
 
@@ -50,7 +51,7 @@ def load_split(out_dir):
     return np.load(train_path), np.load(test_path)
 
 
-def get_or_make_split(y, out_dir, test_size=0.2, random_state=42, min_class_count=2):
+def get_or_make_split(y, out_dir, test_size=TEST_SIZE, random_state=42, min_class_count=2):
     train_path = os.path.join(out_dir, TRAIN_IDX_FILE)
     test_path = os.path.join(out_dir, TEST_IDX_FILE)
     if os.path.exists(train_path) and os.path.exists(test_path):

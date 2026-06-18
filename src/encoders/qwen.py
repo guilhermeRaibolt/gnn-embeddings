@@ -1,4 +1,5 @@
 import os
+import time
 
 import joblib
 import numpy as np
@@ -60,7 +61,11 @@ class QwenEncoder:
 
 def encode_dataframe(df):
     encoder = QwenEncoder()
+    print(f"\n[ENCODE] Qwen encoding {len(df)} documents...")
+    start = time.perf_counter()
     X = encoder.fit_transform(df["text"])
+    elapsed = time.perf_counter() - start
+    print(f"[ENCODE] Qwen done in {elapsed:.2f}s -> matrix {X.shape}")
     y = df["category"].to_numpy()
     return X, y, encoder
 
@@ -68,7 +73,6 @@ def encode_dataframe(df):
 def get_qwen_features(depth):
     df = load_all_datasets_to_df(depth)
     X, y, encoder = encode_dataframe(df)
-    save_qwen(X, y, encoder)
     return X, y, encoder
 
 

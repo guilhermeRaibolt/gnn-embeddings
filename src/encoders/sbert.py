@@ -1,4 +1,5 @@
 import os
+import time
 
 import joblib
 import numpy as np
@@ -18,7 +19,7 @@ class SBERTEncoder:
     def __init__(
         self,
         model_name=DEFAULT_BERT_MODEL,
-        batch_size=64,
+        batch_size=256,
         normalize=True,
         device=None,
     ):
@@ -51,7 +52,11 @@ class SBERTEncoder:
 
 def encode_dataframe(df):
     encoder = SBERTEncoder()
+    print(f"\n[ENCODE] SBERT encoding {len(df)} documents...")
+    start = time.perf_counter()
     X = encoder.fit_transform(df["text"])
+    elapsed = time.perf_counter() - start
+    print(f"[ENCODE] SBERT done in {elapsed:.2f}s -> matrix {X.shape}")
     y = df["category"].to_numpy()
     return X, y, encoder
 
@@ -59,7 +64,6 @@ def encode_dataframe(df):
 def get_sbert_features(depth):
     df = load_all_datasets_to_df(depth)
     X, y, encoder = encode_dataframe(df)
-    save_sbert(X, y, encoder)
     return X, y, encoder
 
 

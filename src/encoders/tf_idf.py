@@ -1,5 +1,6 @@
 import os
 import random
+import time
 
 import joblib
 import numpy as np
@@ -38,7 +39,11 @@ class TFIDFEncoder:
 
 def encode_dataframe(df):
     encoder = TFIDFEncoder()
+    print(f"\n[ENCODE] TF-IDF encoding {len(df)} documents...")
+    start = time.perf_counter()
     X = encoder.fit_transform(df["text"])
+    elapsed = time.perf_counter() - start
+    print(f"[ENCODE] TF-IDF done in {elapsed:.2f}s -> matrix {X.shape}")
     y = df["category"].to_numpy()
     return X, y, encoder
 
@@ -46,7 +51,6 @@ def encode_dataframe(df):
 def get_tfidf_features(depth):
     df = load_all_datasets_to_df(depth)
     X, y, encoder = encode_dataframe(df)
-    save_tfidf(X, y, encoder)
     return X, y, encoder
 
 
