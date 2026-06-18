@@ -20,7 +20,7 @@ DATASET_URLS = {
     # 'data/sports_outdoors.json.gz': 'https://snap.stanford.edu/data/amazon/productGraph/categoryFiles/meta_Sports_and_Outdoors.json.gz',
     # 'data/cell_phones_accessories.json.gz': 'https://snap.stanford.edu/data/amazon/productGraph/categoryFiles/meta_Cell_Phones_and_Accessories.json.gz',
     # 'data/health_personal_care.json.gz': 'https://snap.stanford.edu/data/amazon/productGraph/categoryFiles/meta_Health_and_Personal_Care.json.gz',
-    # 'data/toys_games.json.gz': 'https://snap.stanford.edu/data/amazon/productGraph/categoryFiles/meta_Toys_and_Games.json.gz',
+    'data/toys_games.json.gz': 'https://snap.stanford.edu/data/amazon/productGraph/categoryFiles/meta_Toys_and_Games.json.gz',
     # 'data/video_games.json.gz': 'https://snap.stanford.edu/data/amazon/productGraph/categoryFiles/meta_Video_Games.json.gz',
     # 'data/tools_home_improvement.json.gz': 'https://snap.stanford.edu/data/amazon/productGraph/categoryFiles/meta_Tools_and_Home_Improvement.json.gz',
     # 'data/beauty.json.gz': 'https://snap.stanford.edu/data/amazon/productGraph/categoryFiles/meta_Beauty.json.gz',
@@ -78,13 +78,13 @@ def extract_category(category_list, depth=DEFAULT_SUBCATEGORY_DEPTH):
     # in multi-branch items, we prioritize the branch that 
     # explicitly satisfies our required depth constraint.
     for path in category_list:
-        if isinstance(path, list) and len(path) > depth:
-            return path[depth]
+        if isinstance(path, list) and len(path) > depth and path[0] == 'Toys & Games':
+            return path[depth] if path[depth] != 'Toys & Games' else None
             
     # if no single branch is long enough, grab the deepest leaf node 
     # of the very first branch to avoid throwing away data entirely.
     if category_list and isinstance(category_list[0], list) and len(category_list[0]) > 0:
-        return category_list[0][-1]
+        return category_list[0][-1] if category_list[0][-1] != 'Toys & Games' else None
         
     return None
 
@@ -105,10 +105,14 @@ def load_dataset_to_df(path, depth=DEFAULT_SUBCATEGORY_DEPTH):
         category = extract_category(entry.get('categories', []), depth)
         if not category:
             continue
-            
+
+        related = entry.get('related', {}) or {}
+
         data.append({
+            'asin': entry.get('asin'),
             'text': f"{title} {description}".strip(),
-            'category': category
+            'category': category,
+            'related': related,
         })
         
     return pd.DataFrame(data)
@@ -117,9 +121,41 @@ def load_all_datasets_to_df(depth=DEFAULT_SUBCATEGORY_DEPTH):
     df = pd.DataFrame()
     for local_path in DATASET_URLS.keys():
 
-        if "musical_instruments" not in local_path.lower():
+        if "toys_games" not in local_path.lower():
             continue
 
         dataset_df = load_dataset_to_df(local_path, depth)
         df = pd.concat([df, dataset_df], ignore_index=True)
     return df
+
+
+def get_related_data(df):
+    return df[['asin', 'related']].copy().reset_index(drop=True)
+
+
+def _related_cache_path(depth):
+    suffix = "any" if depth is None else str(depth)
+    return os.path.join("data", f"related_depth{suffix}.pkl")
+
+
+def save_related_data(related, cache_path):
+    os.makedirs(os.path.dirname(cache_path), exist_ok=True)
+    related.to_pickle(cache_path)
+    print(f"[SAVE] Cached related data: {len(related)} rows -> {cache_path}")
+
+
+def load_related_data(depth=DEFAULT_SUBCATEGORY_DEPTH):
+    cache_path = _related_cache_path(depth)
+    if os.path.exists(cache_path):
+        print(f"\n[LOAD] Found cached related data at {cache_path}. Loading...")
+        return pd.read_pickle(cache_path)
+
+    print(f"\n[LOAD] No cached related data at {cache_path}. Rebuilding from raw datasets...")
+    df = load_all_datasets_to_df(depth)
+    related = get_related_data(df)
+    save_related_data(related, cache_path)
+    return related
+
+if __name__ == "__main__":
+    df = load_all_datasets_to_df()
+    print("Unique categories:", df['category'].nunique())

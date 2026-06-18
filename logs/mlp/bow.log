@@ -1,0 +1,50 @@
+[LOAD] No existing BOW features found in data/bow_depth1. Computing from scratch...                   
+-> data/toys_games.json.gz already exists. Skipping download.                                         
+                                                                                                      
+[ENCODE] BOW encoding 317329 documents...                                                             
+[ENCODE] BOW done in 15.53s -> matrix (317329, 5000)                                                  
+                                                                                                      
+[SAVE] BOW matrix: (317329, 5000) -> data/bow_depth1                                                  
+[SAVE] Split indices: train=222130, test=95199 -> data/bow_depth1                                     
+                                                                                                      
+[LOAD] Loading split indices from data/bow_depth1                                                     
+                                                                                                      
+[TRAINING] Starting MLP training on BOW features using device: cuda                                   
+                                                                                                      
+[DATA INFO] 18 classes.                                                                               
+['Action Figures & Statues' 'Arts & Crafts' 'Baby & Toddler Toys'                                     
+ 'Building Toys' 'Dolls & Accessories' 'Dress Up & Pretend Play'                                      
+ 'Electronics for Kids' 'Games' 'Grown-Up Toys' 'Hobbies'                                             
+ 'Learning & Education' 'Novelty & Gag Toys' 'Party Supplies' 'Puzzles'                               
+ 'Sports & Outdoor Play' 'Stuffed Animals & Plush'                                                    
+ 'Toy Remote Control & Play Vehicles' 'Tricycles, Scooters & Wagons']                                 
+                                                                                                      
+[DATA SPLIT] Train: 222130 samples, Val: 47599 samples, Test: 47600 samples                           
+[EPOCH 10] train_loss=1.5721 val_loss=1.4784 val_acc=0.6406 epoch_time=0.03s total=0.31s *
+[EPOCH 20] train_loss=1.2884 val_loss=1.2340 val_acc=0.6742 epoch_time=0.03s total=0.61s *
+[EPOCH 30] train_loss=1.1957 val_loss=1.1439 val_acc=0.6870 epoch_time=0.03s total=0.91s *
+[EPOCH 40] train_loss=1.1469 val_loss=1.1041 val_acc=0.6918 epoch_time=0.03s total=1.21s *
+[EPOCH 50] train_loss=1.1168 val_loss=1.0783 val_acc=0.6958 epoch_time=0.03s total=1.51s *
+[EPOCH 60] train_loss=1.1007 val_loss=1.0620 val_acc=0.6978 epoch_time=0.03s total=1.81s *
+[EPOCH 70] train_loss=1.0868 val_loss=1.0497 val_acc=0.7007 epoch_time=0.03s total=2.11s *
+[EPOCH 80] train_loss=1.0767 val_loss=1.0418 val_acc=0.7019 epoch_time=0.03s total=2.41s *
+[EPOCH 90] train_loss=1.0706 val_loss=1.0342 val_acc=0.7038 epoch_time=0.03s total=2.71s *
+[EPOCH 100] train_loss=1.0639 val_loss=1.0298 val_acc=0.7052 epoch_time=0.03s total=3.00s *
+[EPOCH 110] train_loss=1.0598 val_loss=1.0261 val_acc=0.7064 epoch_time=0.03s total=3.30s *
+[EPOCH 120] train_loss=1.0567 val_loss=1.0228 val_acc=0.7068 epoch_time=0.03s total=3.60s *
+[EPOCH 130] train_loss=1.0538 val_loss=1.0196 val_acc=0.7077 epoch_time=0.03s total=3.90s *
+[EPOCH 140] train_loss=1.0505 val_loss=1.0172 val_acc=0.7082 epoch_time=0.03s total=4.20s *
+[EPOCH 150] train_loss=1.0488 val_loss=1.0151 val_acc=0.7080 epoch_time=0.03s total=4.50s *
+[EPOCH 160] train_loss=1.0471 val_loss=1.0128 val_acc=0.7093 epoch_time=0.03s total=4.80s *
+[EPOCH 170] train_loss=1.0441 val_loss=1.0113 val_acc=0.7099 epoch_time=0.03s total=5.10s *
+[EPOCH 180] train_loss=1.0433 val_loss=1.0105 val_acc=0.7098 epoch_time=0.03s total=5.39s *
+[EPOCH 190] train_loss=1.0417 val_loss=1.0092 val_acc=0.7096 epoch_time=0.03s total=5.69s *
+[EPOCH 200] train_loss=1.0406 val_loss=1.0086 val_acc=0.7107 epoch_time=0.03s total=5.99s
+
+[TRAINING] Completed in 5.99s (restored weights from epoch 193, val_loss=1.0084)
+----------------------------------------
+[SCORES] MLP - Encoder: BOW
+Accuracy:    0.7093
+Macro F1:    0.6078
+Weighted F1: 0.6914
+----------------------------------------

@@ -6,14 +6,14 @@
 
 [TRAINING] Starting Logistic Regression on BOW features using device: cpu
 
-[DATA SPLIT] Train: 67914 samples, Test: 16979 samples
+[DATA SPLIT] Train: 222130 samples, Test: 95199 samples
 
-[DATA INFO] 56 classes.
+[DATA INFO] 18 classes.
 
-[TRAINING] Completed in 179.22s
+[TRAINING] Completed in 84.54s
 ----------------------------------------
 [SCORES] Logistic Regression - Encoder: BOW
-Accuracy:    0.7921
-Macro F1:    0.3901
-Weighted F1: 0.7789
+Accuracy:    0.7807
+Macro F1:    0.7239
+Weighted F1: 0.7769
 ----------------------------------------

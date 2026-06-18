@@ -1,0 +1,38 @@
+[LOAD] Found existing BOW features in data/bow_depth1. Loading...                                     
+                                                                                                      
+[LOAD] Loading split indices from data/bow_depth1                                                     
+                                                                                                      
+[LOAD] Loading split indices from data/bow_depth1                                                     
+                                                                                                      
+[TRAINING] Starting GraphSAGE training on BOW features using device: cuda                             
+                                                                                                      
+[DATA INFO] 18 classes.                                                                               
+                                                                                                      
+[GRAPH] Building Amazon co-purchase graph...                                                          
+[GRAPH] 317329 nodes and 7492956 edges built in 5.17s                                                                  
+                                                                                                      
+[DATA SPLIT] Train: 222130 samples, Val: 47599 samples, Test: 47600 samples                           
+[EPOCH 10] train_loss=1.5449 val_loss=1.5477 val_acc=0.6425 epoch_time=0.23s total=2.29s *            
+[EPOCH 20] train_loss=1.2409 val_loss=1.2364 val_acc=0.6851 epoch_time=0.23s total=4.56s *            
+[EPOCH 30] train_loss=1.1235 val_loss=1.1286 val_acc=0.7020 epoch_time=0.23s total=6.84s *            
+[EPOCH 40] train_loss=1.0624 val_loss=1.0691 val_acc=0.7127 epoch_time=0.23s total=9.11s *            
+[EPOCH 50] train_loss=1.0292 val_loss=1.0406 val_acc=0.7174 epoch_time=0.23s total=11.39s             
+[EPOCH 60] train_loss=1.0063 val_loss=1.0172 val_acc=0.7214 epoch_time=0.23s total=13.66s *           
+[EPOCH 70] train_loss=0.9916 val_loss=1.0034 val_acc=0.7223 epoch_time=0.23s total=15.93s *           
+[EPOCH 80] train_loss=0.9801 val_loss=0.9901 val_acc=0.7253 epoch_time=0.23s total=18.20s *           
+[EPOCH 90] train_loss=0.9695 val_loss=0.9892 val_acc=0.7229 epoch_time=0.23s total=20.47s             
+[EPOCH 100] train_loss=0.9628 val_loss=0.9804 val_acc=0.7248 epoch_time=0.23s total=22.74s *          
+[EPOCH 110] train_loss=0.9585 val_loss=0.9741 val_acc=0.7271 epoch_time=0.23s total=25.01s *          
+[EPOCH 120] train_loss=0.9546 val_loss=0.9680 val_acc=0.7262 epoch_time=0.23s total=27.29s *          
+[EPOCH 130] train_loss=0.9493 val_loss=0.9638 val_acc=0.7282 epoch_time=0.23s total=29.56s *          
+[EPOCH 140] train_loss=0.9471 val_loss=0.9679 val_acc=0.7287 epoch_time=0.23s total=31.82s            
+                                                                                                      
+[EARLY STOP] No val improvement for 10 epochs. Best epoch 130 (val_loss=0.9638).                      
+                                                                                                      
+[TRAINING] Completed in 31.82s (restored weights from epoch 130, val_loss=0.9638)                     
+----------------------------------------                                                              
+[SCORES] GraphSAGE - Encoder: BOW                                                                     
+Accuracy:    0.7410                                                                                   
+Macro F1:    0.6453                                                                                   
+Weighted F1: 0.7256                                                                                   
+---------------------------------------- 

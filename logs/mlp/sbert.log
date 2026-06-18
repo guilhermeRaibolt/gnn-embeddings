@@ -1,0 +1,54 @@
+[LOAD] No existing SBERT features found in data/sbert_depth1. Computing from scratch...               
+-> data/toys_games.json.gz already exists. Skipping download.                                         
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable highe
+r rate limits and faster downloads.                                                                   
+Loading weights: 100%|████████████████████████████████████████████| 103/103 [00:00<00:00, 3744.49it/s]
+                                                                                                      
+[ENCODE] SBERT encoding 317329 documents...                                                           
+Batches: 100%|████████████████████████████████████████████████████| 1240/1240 [04:28<00:00,  4.61it/s]
+[ENCODE] SBERT done in 270.75s -> matrix (317329, 384)                                                
+                                                                                                      
+[SAVE] SBERT matrix: (317329, 384) -> data/sbert_depth1                                               
+[SAVE] Split indices: train=222130, test=95199 -> data/sbert_depth1                                   
+                                                                                                      
+[LOAD] Loading split indices from data/sbert_depth1                                                   
+                                                                                                      
+[TRAINING] Starting MLP training on SBERT features using device: cuda                                 
+                                                                                                      
+[DATA INFO] 18 classes.                                                                               
+['Action Figures & Statues' 'Arts & Crafts' 'Baby & Toddler Toys'                                     
+ 'Building Toys' 'Dolls & Accessories' 'Dress Up & Pretend Play'                                      
+ 'Electronics for Kids' 'Games' 'Grown-Up Toys' 'Hobbies'                                             
+ 'Learning & Education' 'Novelty & Gag Toys' 'Party Supplies' 'Puzzles'                               
+ 'Sports & Outdoor Play' 'Stuffed Animals & Plush'                                                    
+ 'Toy Remote Control & Play Vehicles' 'Tricycles, Scooters & Wagons']                                 
+                                                                                                      
+[DATA SPLIT] Train: 222130 samples, Val: 47599 samples, Test: 47600 samples                           
+[EPOCH 10] train_loss=1.8437 val_loss=1.7329 val_acc=0.5644 epoch_time=0.04s total=0.36s *
+[EPOCH 20] train_loss=1.3285 val_loss=1.2444 val_acc=0.6450 epoch_time=0.03s total=0.71s *
+[EPOCH 30] train_loss=1.1610 val_loss=1.1003 val_acc=0.6847 epoch_time=0.04s total=1.07s *
+[EPOCH 40] train_loss=1.0959 val_loss=1.0325 val_acc=0.7053 epoch_time=0.04s total=1.42s *
+[EPOCH 50] train_loss=1.0657 val_loss=1.0089 val_acc=0.7147 epoch_time=0.04s total=1.78s *
+[EPOCH 60] train_loss=1.0424 val_loss=0.9852 val_acc=0.7192 epoch_time=0.04s total=2.13s *
+[EPOCH 70] train_loss=1.0254 val_loss=0.9701 val_acc=0.7230 epoch_time=0.03s total=2.49s *
+[EPOCH 80] train_loss=1.0136 val_loss=0.9608 val_acc=0.7249 epoch_time=0.04s total=2.84s *
+[EPOCH 90] train_loss=1.0041 val_loss=0.9523 val_acc=0.7265 epoch_time=0.04s total=3.19s *
+[EPOCH 100] train_loss=0.9978 val_loss=0.9465 val_acc=0.7279 epoch_time=0.04s total=3.55s *
+[EPOCH 110] train_loss=0.9904 val_loss=0.9422 val_acc=0.7288 epoch_time=0.04s total=3.90s *
+[EPOCH 120] train_loss=0.9865 val_loss=0.9394 val_acc=0.7296 epoch_time=0.04s total=4.26s *
+[EPOCH 130] train_loss=0.9852 val_loss=0.9371 val_acc=0.7301 epoch_time=0.03s total=4.61s *
+[EPOCH 140] train_loss=0.9821 val_loss=0.9352 val_acc=0.7303 epoch_time=0.04s total=4.96s *
+[EPOCH 150] train_loss=0.9791 val_loss=0.9336 val_acc=0.7309 epoch_time=0.04s total=5.32s *
+[EPOCH 160] train_loss=0.9781 val_loss=0.9318 val_acc=0.7316 epoch_time=0.04s total=5.67s
+[EPOCH 170] train_loss=0.9756 val_loss=0.9299 val_acc=0.7318 epoch_time=0.04s total=6.02s *
+[EPOCH 180] train_loss=0.9745 val_loss=0.9289 val_acc=0.7322 epoch_time=0.04s total=6.37s
+[EPOCH 190] train_loss=0.9725 val_loss=0.9277 val_acc=0.7326 epoch_time=0.04s total=6.73s
+[EPOCH 200] train_loss=0.9721 val_loss=0.9265 val_acc=0.7325 epoch_time=0.04s total=7.08s
+
+[TRAINING] Completed in 7.08s (restored weights from epoch 199, val_loss=0.9262)
+----------------------------------------
+[SCORES] MLP - Encoder: SBERT
+Accuracy:    0.7364
+Macro F1:    0.6403
+Weighted F1: 0.7189
+----------------------------------------

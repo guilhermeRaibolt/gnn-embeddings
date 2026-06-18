@@ -1,0 +1,53 @@
+[LOAD] No existing Qwen features found in data/qwen_depth1. Computing from scratch...                 
+-> data/toys_games.json.gz already exists. Skipping download.                                         
+Loading weights: 100%|█████████████████████████████████████████████| 310/310 [00:00<00:00, 990.46it/s]
+                                                                                                      
+[ENCODE] Qwen encoding 317329 documents...                                                            
+Batches:  63%|███████████████████████████████▎                  | 6213/9917 [1:32:05<21:51,  2.82it/s]
+Batches: 100%|██████████████████████████████████████████████████| 9917/9917 [1:47:09<00:00,  1.54it/s]
+[ENCODE] Qwen done in 6435.84s -> matrix (317329, 1024)                                               
+                                                                                                      
+[SAVE] Qwen matrix: (317329, 1024) -> data/qwen_depth1                                                
+[SAVE] Split indices: train=222130, test=95199 -> data/qwen_depth1                                    
+                                                                                                      
+[LOAD] Loading split indices from data/qwen_depth1                                                    
+                                                                                                      
+[TRAINING] Starting MLP training on QWEN features using device: cuda                                  
+                                                                                                      
+[DATA INFO] 18 classes.                                                                               
+['Action Figures & Statues' 'Arts & Crafts' 'Baby & Toddler Toys'                                     
+ 'Building Toys' 'Dolls & Accessories' 'Dress Up & Pretend Play'                                      
+ 'Electronics for Kids' 'Games' 'Grown-Up Toys' 'Hobbies'                                             
+ 'Learning & Education' 'Novelty & Gag Toys' 'Party Supplies' 'Puzzles'                               
+ 'Sports & Outdoor Play' 'Stuffed Animals & Plush'                                                    
+ 'Toy Remote Control & Play Vehicles' 'Tricycles, Scooters & Wagons']                                 
+                                                                                                      
+[DATA SPLIT] Train: 222130 samples, Val: 47599 samples, Test: 47600 samples                           
+[EPOCH 10] train_loss=2.2840 val_loss=2.1869 val_acc=0.3795 epoch_time=0.03s total=0.30s *
+[EPOCH 20] train_loss=1.4894 val_loss=1.3857 val_acc=0.6532 epoch_time=0.03s total=0.60s *
+[EPOCH 30] train_loss=1.1264 val_loss=1.0431 val_acc=0.7044 epoch_time=0.03s total=0.90s *
+[EPOCH 40] train_loss=1.0449 val_loss=0.9775 val_acc=0.7162 epoch_time=0.03s total=1.20s *
+[EPOCH 50] train_loss=1.0154 val_loss=0.9618 val_acc=0.7218 epoch_time=0.03s total=1.50s *
+[EPOCH 60] train_loss=0.9996 val_loss=0.9482 val_acc=0.7251 epoch_time=0.03s total=1.80s *
+[EPOCH 70] train_loss=0.9937 val_loss=0.9415 val_acc=0.7263 epoch_time=0.03s total=2.09s *
+[EPOCH 80] train_loss=0.9885 val_loss=0.9375 val_acc=0.7274 epoch_time=0.03s total=2.39s *
+[EPOCH 90] train_loss=0.9850 val_loss=0.9340 val_acc=0.7284 epoch_time=0.03s total=2.69s *
+[EPOCH 100] train_loss=0.9807 val_loss=0.9312 val_acc=0.7291 epoch_time=0.03s total=2.99s *
+[EPOCH 110] train_loss=0.9777 val_loss=0.9293 val_acc=0.7293 epoch_time=0.03s total=3.29s *
+[EPOCH 120] train_loss=0.9773 val_loss=0.9276 val_acc=0.7297 epoch_time=0.03s total=3.58s *
+[EPOCH 130] train_loss=0.9734 val_loss=0.9262 val_acc=0.7300 epoch_time=0.03s total=3.88s *
+[EPOCH 140] train_loss=0.9720 val_loss=0.9247 val_acc=0.7304 epoch_time=0.03s total=4.18s *
+[EPOCH 150] train_loss=0.9704 val_loss=0.9236 val_acc=0.7304 epoch_time=0.03s total=4.48s
+[EPOCH 160] train_loss=0.9699 val_loss=0.9224 val_acc=0.7308 epoch_time=0.03s total=4.78s
+[EPOCH 170] train_loss=0.9681 val_loss=0.9217 val_acc=0.7311 epoch_time=0.03s total=5.08s *
+[EPOCH 180] train_loss=0.9670 val_loss=0.9206 val_acc=0.7315 epoch_time=0.03s total=5.37s *
+[EPOCH 190] train_loss=0.9654 val_loss=0.9200 val_acc=0.7321 epoch_time=0.03s total=5.67s
+[EPOCH 200] train_loss=0.9639 val_loss=0.9192 val_acc=0.7319 epoch_time=0.03s total=5.97s
+
+[TRAINING] Completed in 5.97s (restored weights from epoch 196, val_loss=0.9193)
+----------------------------------------
+[SCORES] MLP - Encoder: QWEN
+Accuracy:    0.7353
+Macro F1:    0.6342
+Weighted F1: 0.7162
+----------------------------------------

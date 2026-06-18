@@ -1,4 +1,5 @@
 import os
+import time
 import joblib
 import numpy as np
 from scipy import sparse
@@ -40,7 +41,11 @@ class BOWEncoder:
     
 def encode_dataframe(df):
     encoder = BOWEncoder()
+    print(f"\n[ENCODE] BOW encoding {len(df)} documents...")
+    start = time.perf_counter()
     X = encoder.fit_transform(df["text"])
+    elapsed = time.perf_counter() - start
+    print(f"[ENCODE] BOW done in {elapsed:.2f}s -> matrix {X.shape}")
     y = df["category"].to_numpy()
     return X, y, encoder
 
@@ -48,7 +53,6 @@ def encode_dataframe(df):
 def get_bow_features(depth):
     df = load_all_datasets_to_df(depth)
     X, y, encoder = encode_dataframe(df)
-    save_bow(X, y, encoder)
     return X, y, encoder
 
 

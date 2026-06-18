@@ -1,0 +1,41 @@
+[LOAD] Found existing Qwen features in data/qwen_depth1. Loading...
+
+[LOAD] Loading split indices from data/qwen_depth1
+
+[LOAD] Loading split indices from data/qwen_depth1
+
+[TRAINING] Starting GraphSAGE training on QWEN features using device: cuda
+
+[DATA INFO] 18 classes.
+
+[GRAPH] Building Amazon co-purchase graph...
+[GRAPH] 317329 nodes and 7492956 edges built in 4.81s
+
+[DATA SPLIT] Train: 222130 samples, Val: 47599 samples, Test: 47600 samples
+[EPOCH 10] train_loss=2.1563 val_loss=2.1533 val_acc=0.4137 epoch_time=0.23s total=2.28s *
+[EPOCH 20] train_loss=1.4127 val_loss=1.4083 val_acc=0.6433 epoch_time=0.23s total=4.55s *
+[EPOCH 30] train_loss=1.1288 val_loss=1.1248 val_acc=0.6975 epoch_time=0.23s total=6.83s *
+[EPOCH 40] train_loss=1.0258 val_loss=1.0213 val_acc=0.7181 epoch_time=0.23s total=9.10s *
+[EPOCH 50] train_loss=0.9777 val_loss=0.9755 val_acc=0.7268 epoch_time=0.23s total=11.37s *
+[EPOCH 60] train_loss=0.9513 val_loss=0.9505 val_acc=0.7305 epoch_time=0.23s total=13.65s *
+[EPOCH 70] train_loss=0.9366 val_loss=0.9398 val_acc=0.7337 epoch_time=0.23s total=15.92s
+[EPOCH 80] train_loss=0.9294 val_loss=0.9314 val_acc=0.7344 epoch_time=0.23s total=18.19s
+[EPOCH 90] train_loss=0.9232 val_loss=0.9259 val_acc=0.7352 epoch_time=0.23s total=20.46s *
+[EPOCH 100] train_loss=0.9199 val_loss=0.9236 val_acc=0.7369 epoch_time=0.23s total=22.73s
+[EPOCH 110] train_loss=0.9152 val_loss=0.9197 val_acc=0.7372 epoch_time=0.23s total=25.00s
+[EPOCH 120] train_loss=0.9106 val_loss=0.9161 val_acc=0.7378 epoch_time=0.23s total=27.27s
+[EPOCH 130] train_loss=0.9097 val_loss=0.9128 val_acc=0.7401 epoch_time=0.23s total=29.54s *
+[EPOCH 140] train_loss=0.9070 val_loss=0.9107 val_acc=0.7395 epoch_time=0.23s total=31.80s
+[EPOCH 150] train_loss=0.9057 val_loss=0.9096 val_acc=0.7406 epoch_time=0.23s total=34.07s
+[EPOCH 160] train_loss=0.9057 val_loss=0.9081 val_acc=0.7408 epoch_time=0.23s total=36.34s
+[EPOCH 170] train_loss=0.9026 val_loss=0.9087 val_acc=0.7409 epoch_time=0.23s total=38.61s
+
+[EARLY STOP] No val improvement for 10 epochs. Best epoch 161 (val_loss=0.9065).
+
+[TRAINING] Completed in 38.84s (restored weights from epoch 161, val_loss=0.9065)
+----------------------------------------
+[SCORES] GraphSAGE - Encoder: QWEN
+Accuracy:    0.7567
+Macro F1:    0.6548
+Weighted F1: 0.7388
+----------------------------------------

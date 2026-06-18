@@ -1,0 +1,50 @@
+[LOAD] No existing TF-IDF features found in data/tfidf_depth1. Computing from scratch...              
+-> data/toys_games.json.gz already exists. Skipping download.                                         
+                                                                                                      
+[ENCODE] TF-IDF encoding 317329 documents...                                                          
+[ENCODE] TF-IDF done in 15.61s -> matrix (317329, 5000)                                               
+                                                                                                      
+[SAVE] TF-IDF matrix: (317329, 5000) -> data/tfidf_depth1                                             
+[SAVE] Split indices: train=222130, test=95199 -> data/tfidf_depth1                                   
+                                                                                                      
+[LOAD] Loading split indices from data/tfidf_depth1                                                   
+                                                                                                      
+[TRAINING] Starting MLP training on TF-IDF features using device: cuda                                
+                                                                                                      
+[DATA INFO] 18 classes.                                                                               
+['Action Figures & Statues' 'Arts & Crafts' 'Baby & Toddler Toys'                                     
+ 'Building Toys' 'Dolls & Accessories' 'Dress Up & Pretend Play'                                      
+ 'Electronics for Kids' 'Games' 'Grown-Up Toys' 'Hobbies'                                             
+ 'Learning & Education' 'Novelty & Gag Toys' 'Party Supplies' 'Puzzles'                               
+ 'Sports & Outdoor Play' 'Stuffed Animals & Plush'                                                    
+ 'Toy Remote Control & Play Vehicles' 'Tricycles, Scooters & Wagons']                                 
+                                                                                                      
+[DATA SPLIT] Train: 222130 samples, Val: 47599 samples, Test: 47600 samples                           
+[EPOCH 10] train_loss=2.4835 val_loss=2.4315 val_acc=0.2487 epoch_time=0.03s total=0.52s *
+[EPOCH 20] train_loss=1.8937 val_loss=1.8113 val_acc=0.5910 epoch_time=0.03s total=0.82s *
+[EPOCH 30] train_loss=1.3874 val_loss=1.3155 val_acc=0.6668 epoch_time=0.03s total=1.12s *
+[EPOCH 40] train_loss=1.2088 val_loss=1.1586 val_acc=0.6879 epoch_time=0.03s total=1.42s *
+[EPOCH 50] train_loss=1.1570 val_loss=1.1186 val_acc=0.6954 epoch_time=0.03s total=1.72s *
+[EPOCH 60] train_loss=1.1345 val_loss=1.0989 val_acc=0.6988 epoch_time=0.03s total=2.01s *
+[EPOCH 70] train_loss=1.1239 val_loss=1.0888 val_acc=0.7007 epoch_time=0.03s total=2.31s *
+[EPOCH 80] train_loss=1.1186 val_loss=1.0843 val_acc=0.7019 epoch_time=0.03s total=2.61s *
+[EPOCH 90] train_loss=1.1149 val_loss=1.0816 val_acc=0.7023 epoch_time=0.03s total=2.91s *
+[EPOCH 100] train_loss=1.1134 val_loss=1.0795 val_acc=0.7022 epoch_time=0.03s total=3.21s *
+[EPOCH 110] train_loss=1.1113 val_loss=1.0779 val_acc=0.7031 epoch_time=0.03s total=3.51s *
+[EPOCH 120] train_loss=1.1096 val_loss=1.0764 val_acc=0.7031 epoch_time=0.03s total=3.81s
+[EPOCH 130] train_loss=1.1084 val_loss=1.0755 val_acc=0.7033 epoch_time=0.03s total=4.11s
+[EPOCH 140] train_loss=1.1072 val_loss=1.0748 val_acc=0.7033 epoch_time=0.03s total=4.40s
+[EPOCH 150] train_loss=1.1068 val_loss=1.0743 val_acc=0.7033 epoch_time=0.03s total=4.70s
+[EPOCH 160] train_loss=1.1057 val_loss=1.0735 val_acc=0.7031 epoch_time=0.03s total=5.00s
+[EPOCH 170] train_loss=1.1058 val_loss=1.0727 val_acc=0.7033 epoch_time=0.03s total=5.30s *
+[EPOCH 180] train_loss=1.1048 val_loss=1.0722 val_acc=0.7036 epoch_time=0.03s total=5.60s
+[EPOCH 190] train_loss=1.1037 val_loss=1.0716 val_acc=0.7038 epoch_time=0.03s total=5.90s *
+[EPOCH 200] train_loss=1.1031 val_loss=1.0712 val_acc=0.7036 epoch_time=0.03s total=6.19s
+
+[TRAINING] Completed in 6.19s (restored weights from epoch 195, val_loss=1.0712)
+----------------------------------------
+[SCORES] MLP - Encoder: TF-IDF
+Accuracy:    0.7017
+Macro F1:    0.5497
+Weighted F1: 0.6753
+----------------------------------------

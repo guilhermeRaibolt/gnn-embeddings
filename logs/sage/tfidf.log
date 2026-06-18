@@ -1,0 +1,41 @@
+[LOAD] Found cached related data at data/related_depth1.pkl. Loading...                               
+                                                                                                      
+[LOAD] Found existing TF-IDF features in data/tfidf_depth1. Loading...                                
+                                                                                                      
+[LOAD] Loading split indices from data/tfidf_depth1                                                   
+                                                                                                      
+[LOAD] Loading split indices from data/tfidf_depth1                                                   
+                                                                                                      
+[TRAINING] Starting GraphSAGE training on TF-IDF features using device: cuda                          
+                                                                                                      
+[DATA INFO] 18 classes.                                                                               
+                                                                                                      
+[GRAPH] Building Amazon co-purchase graph...                                                          
+[GRAPH] 317329 nodes and 7492956 edges built in 4.63s                                                                  
+                                                                                                      
+[DATA SPLIT] Train: 222130 samples, Val: 47599 samples, Test: 47600 samples                           
+[EPOCH 10] train_loss=2.3903 val_loss=2.3905 val_acc=0.2612 epoch_time=0.23s total=2.65s *            
+[EPOCH 20] train_loss=1.7462 val_loss=1.7457 val_acc=0.5927 epoch_time=0.23s total=4.92s *            
+[EPOCH 30] train_loss=1.3436 val_loss=1.3412 val_acc=0.6630 epoch_time=0.23s total=7.19s *            
+[EPOCH 40] train_loss=1.1829 val_loss=1.1808 val_acc=0.6913 epoch_time=0.23s total=9.47s *            
+[EPOCH 50] train_loss=1.1120 val_loss=1.1095 val_acc=0.7064 epoch_time=0.23s total=11.74s *           
+[EPOCH 60] train_loss=1.0790 val_loss=1.0757 val_acc=0.7114 epoch_time=0.23s total=14.02s *           
+[EPOCH 70] train_loss=1.0599 val_loss=1.0588 val_acc=0.7124 epoch_time=0.23s total=16.29s *           
+[EPOCH 80] train_loss=1.0488 val_loss=1.0486 val_acc=0.7150 epoch_time=0.23s total=18.56s             
+[EPOCH 90] train_loss=1.0454 val_loss=1.0446 val_acc=0.7160 epoch_time=0.23s total=20.83s             
+[EPOCH 100] train_loss=1.0405 val_loss=1.0399 val_acc=0.7171 epoch_time=0.23s total=23.10s            
+[EPOCH 110] train_loss=1.0376 val_loss=1.0370 val_acc=0.7148 epoch_time=0.23s total=25.37s            
+[EPOCH 120] train_loss=1.0361 val_loss=1.0353 val_acc=0.7154 epoch_time=0.23s total=27.64s            
+[EPOCH 130] train_loss=1.0344 val_loss=1.0336 val_acc=0.7153 epoch_time=0.23s total=29.91s *          
+[EPOCH 140] train_loss=1.0330 val_loss=1.0313 val_acc=0.7186 epoch_time=0.23s total=32.18s *          
+[EPOCH 150] train_loss=1.0304 val_loss=1.0313 val_acc=0.7172 epoch_time=0.23s total=34.46s            
+                                                                                                      
+[EARLY STOP] No val improvement for 10 epochs. Best epoch 145 (val_loss=1.0291).                      
+                                                                                                      
+[TRAINING] Completed in 35.59s (restored weights from epoch 145, val_loss=1.0291)                     
+----------------------------------------                                                              
+[SCORES] GraphSAGE - Encoder: TF-IDF                                                                  
+Accuracy:    0.7293                                                                                   
+Macro F1:    0.5824                                                                                   
+Weighted F1: 0.7053                                                                                   
+---------------------------------------- 

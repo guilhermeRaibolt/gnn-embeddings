@@ -2,10 +2,11 @@ import time
 import numpy as np
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from scipy import sparse
 from sklearn.metrics import accuracy_score, f1_score
 from sklearn.preprocessing import LabelEncoder
-from torch.utils.data import DataLoader, Dataset
+from sklearn.decomposition import TruncatedSVD
 
 from src.datasets.splits import load_split
 from src.encoders.tf_idf import load_tfidf, TFIDF_DIR
@@ -15,37 +16,18 @@ from src.encoders.qwen import load_qwen, QWEN_DIR
 
 
 class MLP(nn.Module):
-    def __init__(self, input_dim, num_classes):
+    def __init__(self, input_dim, hidden_dim, num_classes, dropout=0.5):
         super(MLP, self).__init__()
-        self.network = nn.Sequential(
-            nn.Linear(input_dim, 128),
-            nn.ReLU(),
-            nn.Dropout(0.3),
-            nn.Linear(128, 64),
-            nn.ReLU(),
-            nn.Dropout(0.3),
-            nn.Linear(64, num_classes),
-        )
-
+        self.lin1 = nn.Linear(input_dim, hidden_dim)
+        self.lin2 = nn.Linear(hidden_dim, num_classes)
+        self.dropout = dropout
+    
     def forward(self, x):
-        return self.network(x)
-
-
-class SparseDataset(Dataset):
-    def __init__(self, X, y):
-        self.is_sparse = sparse.issparse(X)
-        self.X = X.tocsr() if self.is_sparse else np.asarray(X)
-        self.y = torch.as_tensor(y, dtype=torch.long)
-
-    def __len__(self):
-        return self.X.shape[0]
-
-    def __getitem__(self, idx):
-        if self.is_sparse:
-            row = self.X[idx].toarray().squeeze(0)
-        else:
-            row = self.X[idx]
-        return torch.from_numpy(row).float(), self.y[idx]
+        x = self.lin1(x)
+        x = F.relu(x)
+        x = F.dropout(x, p=self.dropout, training=self.training)
+        x = self.lin2(x)
+        return x
 
 
 def train_mlp(
@@ -55,11 +37,12 @@ def train_mlp(
     train_idx,
     test_idx,
     epochs=200,
-    batch_size=128,
-    lr=1e-3,
-    weight_decay=1e-5,
+    hidden_dim=256,
+    lr=1e-2,
+    weight_decay=5e-4,
+    dropout=0.5,
     device=None,
-    val_fraction=0.1,
+    val_fraction=0.5, # 50% of the test set is for validation
     patience=10,
     min_delta=1e-4,
     seed=0,
@@ -75,32 +58,38 @@ def train_mlp(
 
     print(f"\n[DATA INFO] {len(label_encoder.classes_)} classes.")
 
-    rng = np.random.default_rng(seed)
-    shuffled = rng.permutation(train_idx)
-    n_val = max(1, int(len(shuffled) * val_fraction))
-    val_idx_split, train_idx_split = shuffled[:n_val], shuffled[n_val:]
+    if sparse.issparse(X) or X.shape[1] > 512:
+        svd = TruncatedSVD(n_components=128, random_state=42)
+        X = svd.fit_transform(X)
 
-    X_train, X_val, X_test = X[train_idx_split], X[val_idx_split], X[test_idx]
-    y_train = label_encoder.transform(y[train_idx_split])
+    rng = np.random.default_rng(seed)
+    shuffled = rng.permutation(test_idx)
+    n_val = max(1, int(len(shuffled) * val_fraction))
+    val_idx_split, test_idx_split = shuffled[:n_val], shuffled[n_val:]
+
+    X_train, X_val, X_test = X[train_idx], X[val_idx_split], X[test_idx_split]
+    y_train = label_encoder.transform(y[train_idx])
     y_val = label_encoder.transform(y[val_idx_split])
-    y_test = label_encoder.transform(y[test_idx])
+    y_test = label_encoder.transform(y[test_idx_split])
 
     print(
         f"\n[DATA SPLIT] Train: {X_train.shape[0]} samples, "
         f"Val: {X_val.shape[0]} samples, Test: {X_test.shape[0]} samples"
     )
 
-    train_loader = DataLoader(
-        SparseDataset(X_train, y_train), batch_size=batch_size, shuffle=True
-    )
-    val_loader = DataLoader(
-        SparseDataset(X_val, y_val), batch_size=batch_size, shuffle=False
-    )
-    test_loader = DataLoader(
-        SparseDataset(X_test, y_test), batch_size=batch_size, shuffle=False
-    )
+    x_train_t = torch.from_numpy(X_train).float().to(device)
+    x_val_t = torch.from_numpy(X_val).float().to(device)
+    x_test_t = torch.from_numpy(X_test).float().to(device)
+    y_train_t = torch.from_numpy(y_train).long().to(device)
+    y_val_t = torch.from_numpy(y_val).long().to(device)
+    y_test_t = torch.from_numpy(y_test).long().to(device)
 
-    model = MLP(input_dim=X.shape[1], num_classes=len(label_encoder.classes_)).to(device)
+    model = MLP(
+        input_dim=X.shape[1], 
+        hidden_dim=hidden_dim, 
+        num_classes=len(label_encoder.classes_), 
+        dropout=dropout
+    ).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
     criterion = nn.CrossEntropyLoss()
 
@@ -113,17 +102,18 @@ def train_mlp(
     for epoch in range(1, epochs + 1):
         epoch_start = time.perf_counter()
         model.train()
-        running_loss, n = 0.0, 0
-        for xb, yb in train_loader:
-            xb, yb = xb.to(device), yb.to(device)
-            optimizer.zero_grad()
-            loss = criterion(model(xb), yb)
-            loss.backward()
-            optimizer.step()
-            running_loss += loss.item() * xb.size(0)
-            n += xb.size(0)
+        optimizer.zero_grad()
+        logits = model(x_train_t)
+        loss = criterion(logits, y_train_t)
+        loss.backward()
+        optimizer.step()
+        train_loss = loss.item()
 
-        val_loss, val_acc = evaluate_loss(model, val_loader, criterion, device)
+        with torch.no_grad():
+            model.eval()
+            val_logits = model(x_val_t)
+            val_loss = criterion(val_logits, y_val_t).item()
+            val_acc = (val_logits.argmax(dim=1) == y_val_t).float().mean().item()
 
         epoch_elapsed = time.perf_counter() - epoch_start
         total_elapsed = time.perf_counter() - train_start
@@ -137,12 +127,13 @@ def train_mlp(
         else:
             epochs_without_improvement += 1
 
-        print(
-            f"[EPOCH {epoch:02d}] train_loss={running_loss / n:.4f} "
-            f"val_loss={val_loss:.4f} val_acc={val_acc:.4f} "
-            f"epoch_time={epoch_elapsed:.2f}s total={total_elapsed:.2f}s"
-            + (" *" if improved else "")
-        )
+        if epoch % 10 == 0:
+            print(
+                f"[EPOCH {epoch:02d}] train_loss={train_loss:.4f} "
+                f"val_loss={val_loss:.4f} val_acc={val_acc:.4f} "
+                f"epoch_time={epoch_elapsed:.2f}s total={total_elapsed:.2f}s"
+                + (" *" if improved else "")
+            )
 
         if epochs_without_improvement >= patience:
             print(
@@ -158,8 +149,11 @@ def train_mlp(
         f"(restored weights from epoch {best_epoch}, val_loss={best_val_loss:.4f})"
     )
 
-    y_pred = predict(model, test_loader, device)
-    
+    model.eval()
+    with torch.no_grad():
+        y_pred = model(x_test_t).argmax(dim=1).cpu().numpy()
+    y_test = y_test_t.cpu().numpy()
+
     print("-" * 40)
     print(f"[SCORES] MLP - Encoder: {encoder_name}")
     accuracy = accuracy_score(y_test, y_pred)
@@ -171,30 +165,6 @@ def train_mlp(
     print("-" * 40)
 
     return model, label_encoder
-
-
-@torch.no_grad()
-def predict(model, loader, device):
-    model.eval()
-    preds = []
-    for xb, _ in loader:
-        xb = xb.to(device)
-        preds.append(model(xb).argmax(dim=1).cpu().numpy())
-    return np.concatenate(preds)
-
-
-@torch.no_grad()
-def evaluate_loss(model, loader, criterion, device):
-    model.eval()
-    total_loss, total_correct, n = 0.0, 0, 0
-    for xb, yb in loader:
-        xb, yb = xb.to(device), yb.to(device)
-        logits = model(xb)
-        total_loss += criterion(logits, yb).item() * xb.size(0)
-        total_correct += (logits.argmax(dim=1) == yb).sum().item()
-        n += xb.size(0)
-    denom = max(n, 1)
-    return total_loss / denom, total_correct / denom
 
 
 @torch.no_grad()

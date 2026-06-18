@@ -1,0 +1,43 @@
+[LOAD] Found existing SBERT features in data/sbert_depth1. Loading...                                 
+                                                                                                      
+[LOAD] Loading split indices from data/sbert_depth1                                                   
+                                                                                                      
+[LOAD] Loading split indices from data/sbert_depth1                                                   
+                                                                                                      
+[TRAINING] Starting GraphSAGE training on SBERT features using device: cuda                           
+                                                                                                      
+[DATA INFO] 18 classes.                                                                               
+                                                                                                      
+[GRAPH] Building Amazon co-purchase graph...                                                          
+[GRAPH] 317329 nodes and 7492956 edges built in 5.01s                                                                  
+                                                                                                      
+[DATA SPLIT] Train: 222130 samples, Val: 47599 samples, Test: 47600 samples                           
+[EPOCH 10] train_loss=1.7589 val_loss=1.7572 val_acc=0.5375 epoch_time=0.47s total=4.77s *
+[EPOCH 20] train_loss=1.3025 val_loss=1.3032 val_acc=0.6403 epoch_time=0.47s total=9.49s *
+[EPOCH 30] train_loss=1.1149 val_loss=1.1170 val_acc=0.6900 epoch_time=0.47s total=14.22s *
+[EPOCH 40] train_loss=1.0367 val_loss=1.0357 val_acc=0.7082 epoch_time=0.47s total=18.96s *
+[EPOCH 50] train_loss=1.0050 val_loss=1.0081 val_acc=0.7185 epoch_time=0.47s total=23.68s *
+[EPOCH 60] train_loss=0.9834 val_loss=0.9854 val_acc=0.7236 epoch_time=0.47s total=28.41s *
+[EPOCH 70] train_loss=0.9628 val_loss=0.9686 val_acc=0.7275 epoch_time=0.47s total=33.14s *
+[EPOCH 80] train_loss=0.9489 val_loss=0.9509 val_acc=0.7315 epoch_time=0.47s total=37.87s *
+[EPOCH 90] train_loss=0.9411 val_loss=0.9467 val_acc=0.7326 epoch_time=0.47s total=42.60s
+[EPOCH 100] train_loss=0.9330 val_loss=0.9413 val_acc=0.7343 epoch_time=0.47s total=47.32s *
+[EPOCH 110] train_loss=0.9258 val_loss=0.9351 val_acc=0.7353 epoch_time=0.47s total=52.05s
+[EPOCH 120] train_loss=0.9222 val_loss=0.9308 val_acc=0.7378 epoch_time=0.47s total=56.78s
+[EPOCH 130] train_loss=0.9203 val_loss=0.9273 val_acc=0.7374 epoch_time=0.47s total=61.51s *
+[EPOCH 140] train_loss=0.9177 val_loss=0.9259 val_acc=0.7374 epoch_time=0.47s total=66.24s
+[EPOCH 150] train_loss=0.9149 val_loss=0.9251 val_acc=0.7374 epoch_time=0.47s total=70.96s
+[EPOCH 160] train_loss=0.9122 val_loss=0.9209 val_acc=0.7381 epoch_time=0.47s total=75.69s
+[EPOCH 170] train_loss=0.9102 val_loss=0.9190 val_acc=0.7402 epoch_time=0.47s total=80.41s
+[EPOCH 180] train_loss=0.9090 val_loss=0.9170 val_acc=0.7397 epoch_time=0.47s total=85.14s
+[EPOCH 190] train_loss=0.9079 val_loss=0.9187 val_acc=0.7396 epoch_time=0.47s total=89.87s
+
+[EARLY STOP] No val improvement for 10 epochs. Best epoch 181 (val_loss=0.9151).
+
+[TRAINING] Completed in 90.34s (restored weights from epoch 181, val_loss=0.9151)
+----------------------------------------
+[SCORES] GraphSAGE - Encoder: SBERT
+Accuracy:    0.7607
+Macro F1:    0.6677
+Weighted F1: 0.7448
+----------------------------------------
