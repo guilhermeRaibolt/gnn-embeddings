@@ -6,14 +6,14 @@
 
 [TRAINING] Starting Logistic Regression on QWEN features using device: cpu
 
-[DATA SPLIT] Train: 222130 samples, Test: 95199 samples
+[DATA SPLIT] Train: 222130 samples, Test: 47600 samples
 
 [DATA INFO] 18 classes.
 
-[TRAINING] Completed in 192.66s
+[TRAINING] Completed in 45.05s
 ----------------------------------------
 [SCORES] Logistic Regression - Encoder: QWEN
-Accuracy:    0.7824
-Macro F1:    0.7183
-Weighted F1: 0.7742
+Accuracy:    0.7369
+Macro F1:    0.6592
+Weighted F1: 0.7251
 ----------------------------------------

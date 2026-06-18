@@ -6,14 +6,14 @@
 
 [TRAINING] Starting Logistic Regression on SBERT features using device: cpu
 
-[DATA SPLIT] Train: 222130 samples, Test: 95199 samples
+[DATA SPLIT] Train: 222130 samples, Test: 47600 samples
 
 [DATA INFO] 18 classes.
 
-[TRAINING] Completed in 99.71s
+[TRAINING] Completed in 97.71s
 ----------------------------------------
 [SCORES] Logistic Regression - Encoder: SBERT
-Accuracy:    0.7418
-Macro F1:    0.6664
-Weighted F1: 0.7314
+Accuracy:    0.7429
+Macro F1:    0.6694
+Weighted F1: 0.7327
 ----------------------------------------

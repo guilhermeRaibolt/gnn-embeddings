@@ -4,8 +4,6 @@ Comparison of text-classification baselines on Amazon product metadata. The goal
 
 >Plots comparing encoders across MLP and Logistic Regression for each label depth live in [results.ipynb](results.ipynb).
 
->ALERT: At the moment, this repo is comparing only the non-graph approaches.
-
 ## Scope
 
 Each product is described by `title + description`; the label is its category at a configurable depth in the Amazon taxonomy. Amazon stores categories as ordered paths (e.g. `["Musical Instruments", "Guitars", "Acoustic Guitars"]`), and `depth` simply picks the index in that path: depth 1 keeps a coarse label, higher depths drill into more specific sub-categories. Items whose path is shorter than the requested depth fall back to the deepest leaf of their first branch (see `extract_category` in [src/datasets/amazon_dataset.py](src/datasets/amazon_dataset.py)).

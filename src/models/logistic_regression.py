@@ -1,8 +1,10 @@
 import time
 import numpy as np
+from scipy import sparse
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, f1_score
+from sklearn.decomposition import TruncatedSVD
 
 from src.datasets.splits import load_split
 from src.encoders.tf_idf import load_tfidf, TFIDF_DIR
@@ -22,6 +24,11 @@ def train_logistic_regression(
     seed=0,
 ):
     
+    if sparse.issparse(X) or X.shape[1] > 512:
+        svd_start = time.perf_counter()
+        svd = TruncatedSVD(n_components=128, random_state=random_state)
+        X = svd.fit_transform(X)
+
     rng = np.random.default_rng(seed)
     shuffled = rng.permutation(test_idx)
     n_val = max(1, int(len(shuffled) * 0.5))
@@ -36,7 +43,11 @@ def train_logistic_regression(
     
     print(f"\n[DATA INFO] {len(set(y))} classes.")
 
-    clf = LogisticRegression(max_iter=max_iter, random_state=random_state)
+    clf = LogisticRegression(
+        max_iter=max_iter, 
+        l1_ratio=0, # equivalent to the deprecated penalty='l2'
+        random_state=random_state
+    )
     train_start = time.perf_counter()
     clf.fit(X_train, y_train)
     train_elapsed = time.perf_counter() - train_start

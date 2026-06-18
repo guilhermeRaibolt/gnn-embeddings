@@ -191,13 +191,13 @@ def train_sage(
         else:
             epochs_without_improvement += 1
 
-        if epoch % 10 == 0:
-            print(
-                f"[EPOCH {epoch:02d}] train_loss={loss.item():.4f} "
-                f"val_loss={val_loss:.4f} val_acc={val_acc:.4f} "
-                f"epoch_time={epoch_elapsed:.2f}s total={total_elapsed:.2f}s"
-                + (" *" if improved else "")
-            )
+        # if epoch % 10 == 0:
+        print(
+            f"[EPOCH {epoch:02d}] train_loss={loss.item():.4f} "
+            f"val_loss={val_loss:.4f} val_acc={val_acc:.4f} "
+            f"epoch_time={epoch_elapsed:.2f}s total={total_elapsed:.2f}s"
+            + (" *" if improved else "")
+        )
 
         if epochs_without_improvement >= patience:
             print(
