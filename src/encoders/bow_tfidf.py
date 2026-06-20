@@ -281,8 +281,13 @@ class BagOfWordsEncoder:
         if cache_path_.exists():
             try:
                 x = torch.load(cache_path_, weights_only=True)
-                logger.info("Loaded cached BoW: '%s' shape=%s", cache_key, tuple(x.shape))
-                return x
+                if x.shape[0] == len(inputs):
+                    logger.info("Loaded cached BoW: '%s' shape=%s", cache_key, tuple(x.shape))
+                    return x
+                logger.warning(
+                    "Cached BoW '%s' has %d rows but %d inputs — stale cache, re-encoding.",
+                    cache_key, x.shape[0], len(inputs),
+                )
             except Exception as exc:
                 logger.warning("Cache load failed (%s) — re-encoding.", exc)
         x = self.encode(inputs).float()
@@ -370,8 +375,13 @@ class TFIDFEncoder:
         if cache_path_.exists():
             try:
                 x = torch.load(cache_path_, weights_only=True)
-                logger.info("Loaded cached TF-IDF: '%s' shape=%s", cache_key, tuple(x.shape))
-                return x
+                if x.shape[0] == len(inputs):
+                    logger.info("Loaded cached TF-IDF: '%s' shape=%s", cache_key, tuple(x.shape))
+                    return x
+                logger.warning(
+                    "Cached TF-IDF '%s' has %d rows but %d inputs — stale cache, re-encoding.",
+                    cache_key, x.shape[0], len(inputs),
+                )
             except Exception as exc:
                 logger.warning("Cache load failed (%s) — re-encoding.", exc)
         x = self.encode(inputs).float()

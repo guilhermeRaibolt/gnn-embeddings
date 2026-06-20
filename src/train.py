@@ -133,7 +133,9 @@ class TrainConfig:
     use_neighbor_loader: bool = False
     batch_size: int = 2048
     num_neighbors: list = field(default_factory=lambda: [10, 5])
-    num_workers: int = 4
+    # Each worker process holds a copy of the feature matrix in host RAM, so
+    # keep this modest on memory-constrained nodes (host RAM, not GPU).
+    num_workers: int = 2
 
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> "TrainConfig":
@@ -248,11 +250,15 @@ def _train_pytorch(
 
     if config.use_neighbor_loader:
         _setup = _setup_neighbor_loader
+        # In-training validation runs once per epoch.  Use num_workers=0 here:
+        # spawning a fresh multiprocessing worker pool every epoch (and across
+        # all hparam trials) churns and leaks host RAM, since each worker holds
+        # a copy of the feature matrix.  A single-process full pass is cheap.
         _eval_fn = lambda m, d, mask: evaluate_with_loader(
             m, d, mask, device,
             num_neighbors=config.num_neighbors,
             batch_size=config.batch_size * 2,  # larger batches for inference (no backward)
-            num_workers=config.num_workers,
+            num_workers=0,
         )
     else:
         _setup = _setup_full_graph
@@ -436,6 +442,15 @@ def _setup_neighbor_loader(
         num_nodes=getattr(data, "num_nodes", int(data.y.shape[0])),
     )
 
+    # Only pass worker-related kwargs when num_workers > 0: persistent_workers
+    # and prefetch_factor are invalid for num_workers == 0.  persistent_workers
+    # keeps the pool alive across epochs (created once, not re-forked each
+    # epoch), and prefetch_factor=2 caps the number of large subgraph batches
+    # buffered in host RAM per worker.
+    worker_kwargs: dict[str, Any] = {}
+    if config.num_workers > 0:
+        worker_kwargs = {"persistent_workers": True, "prefetch_factor": 2}
+
     loader = NeighborLoader(
         loader_data,
         num_neighbors=config.num_neighbors,
@@ -443,6 +458,7 @@ def _setup_neighbor_loader(
         input_nodes=loader_data.train_mask,
         shuffle=True,
         num_workers=config.num_workers,
+        **worker_kwargs,
     )
     logger.info(
         "NeighborLoader: num_neighbors=%s  batch_size=%d  num_workers=%d  train_nodes=%d",

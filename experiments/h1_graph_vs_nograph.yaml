@@ -103,7 +103,7 @@ training:
     use:           true
     batch_size:    2048       # ~4x fewer batches/epoch vs 512
     num_neighbors: [10, 5]    # max 50-node 2-hop expansion vs 150
-    num_workers:   4           # parallel CPU sampling/collation
+    num_workers:   2           # each worker copies the feature matrix into host RAM
 
 # --------------------------------------------------------------------------
 # Output paths
