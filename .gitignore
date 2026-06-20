@@ -2,4 +2,7 @@
 
 data
 venv
-.vscode
+.vscode*.gz
+*.pt
+data/
+__pycache__/
