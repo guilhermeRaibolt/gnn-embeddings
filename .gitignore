@@ -1,0 +1,9 @@
+logs/
+logs_baseline/
+__pycache__/
+*.pt
+*.pth
+*.bin
+*.h5
+data/
+

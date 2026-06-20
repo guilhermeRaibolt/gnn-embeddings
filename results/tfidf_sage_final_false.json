@@ -1,0 +1,56 @@
+{
+  "name": "TF-IDF",
+  "safe_name": "tfidf",
+  "kind": "tfidf",
+  "scale": "-",
+  "hf_id": null,
+  "embedding_dim": 4096,
+  "best_config": {
+    "learning_rate": 0.01,
+    "hidden_channels": 128,
+    "dropout": 0.5
+  },
+  "mean_test_accuracy": 0.9685939848423004,
+  "ci95": 0.011309868599633262,
+  "seed_test_accuracies": [
+    0.9677038788795471,
+    0.9694840908050537
+  ],
+  "per_seed_results": [
+    {
+      "seed": 0,
+      "best_epoch": 40,
+      "train_acc": 0.9703611135482788,
+      "train_loss": 0.17581228911876678,
+      "val_acc": 0.9680596590042114,
+      "val_loss": 0.18340487778186798,
+      "test_acc": 0.9677038788795471,
+      "test_loss": 0.1859590709209442
+    },
+    {
+      "seed": 1,
+      "best_epoch": 40,
+      "train_acc": 0.9721364378929138,
+      "train_loss": 0.17067502439022064,
+      "val_acc": 0.9701238870620728,
+      "val_loss": 0.17833296954631805,
+      "test_acc": 0.9694840908050537,
+      "test_loss": 0.18086399137973785
+    }
+  ],
+  "tuning_results": [
+    {
+      "learning_rate": 0.01,
+      "hidden_channels": 128,
+      "dropout": 0.5,
+      "seed": 42,
+      "best_epoch": 40,
+      "train_acc": 0.9734495282173157,
+      "train_loss": 0.16586920619010925,
+      "val_acc": 0.9714317321777344,
+      "val_loss": 0.17339512705802917,
+      "test_acc": 0.9711382985115051,
+      "test_loss": 0.17605797946453094
+    }
+  ]
+}

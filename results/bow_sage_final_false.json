@@ -1,0 +1,56 @@
+{
+  "name": "BoW",
+  "safe_name": "bow",
+  "kind": "bow",
+  "scale": "-",
+  "hf_id": null,
+  "embedding_dim": 4096,
+  "best_config": {
+    "learning_rate": 0.01,
+    "hidden_channels": 128,
+    "dropout": 0.5
+  },
+  "mean_test_accuracy": 0.9748326539993286,
+  "ci95": 0.005905048747536783,
+  "seed_test_accuracies": [
+    0.9743679165840149,
+    0.9752973914146423
+  ],
+  "per_seed_results": [
+    {
+      "seed": 0,
+      "best_epoch": 40,
+      "train_acc": 0.9761071801185608,
+      "train_loss": 0.13254539668560028,
+      "val_acc": 0.9752607941627502,
+      "val_loss": 0.13616757094860077,
+      "test_acc": 0.9743679165840149,
+      "test_loss": 0.13902656733989716
+    },
+    {
+      "seed": 1,
+      "best_epoch": 40,
+      "train_acc": 0.976868748664856,
+      "train_loss": 0.13017240166664124,
+      "val_acc": 0.97601717710495,
+      "val_loss": 0.13378311693668365,
+      "test_acc": 0.9752973914146423,
+      "test_loss": 0.13640816509723663
+    }
+  ],
+  "tuning_results": [
+    {
+      "learning_rate": 0.01,
+      "hidden_channels": 128,
+      "dropout": 0.5,
+      "seed": 42,
+      "best_epoch": 40,
+      "train_acc": 0.978538990020752,
+      "train_loss": 0.1224309653043747,
+      "val_acc": 0.9776401519775391,
+      "val_loss": 0.12584517896175385,
+      "test_acc": 0.9769515991210938,
+      "test_loss": 0.12894108891487122
+    }
+  ]
+}

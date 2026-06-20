@@ -1,0 +1,13 @@
+# Core
+torch>=2.1
+torch-geometric>=2.5
+transformers>=4.40
+sentence-transformers>=2.7
+# Lexical baselines + statistics
+scikit-learn>=1.3
+scipy>=1.10
+numpy>=1.24
+# Notes:
+#   - Install torch + torch-geometric matching your CUDA build first
+#     (see https://pytorch.org and https://pytorch-geometric.readthedocs.io).
+#   - On this cluster the `gnn-embedding` conda env already satisfies all of these.
