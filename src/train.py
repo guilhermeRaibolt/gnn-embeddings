@@ -417,18 +417,33 @@ def _setup_neighbor_loader(
         The ``None`` mask signals that loss is computed on the first
         ``batch_size`` rows (the seed nodes) rather than via a boolean mask.
     """
+    from torch_geometric.data import Data
     from torch_geometric.loader import NeighborLoader
 
+    # NeighborLoader calls index_select on every attribute of the Data object.
+    # Non-tensor attributes such as `meta` (list of dicts) and `class_names`
+    # (list of strings) raise ValueError.  Build a clean Data with only the
+    # tensor attributes that the training and evaluation paths actually need.
+    loader_data = Data(
+        x=data.x,
+        edge_index=data.edge_index,
+        y=data.y,
+        train_mask=data.train_mask,
+        val_mask=data.val_mask,
+        test_mask=data.test_mask,
+        num_nodes=getattr(data, "num_nodes", int(data.y.shape[0])),
+    )
+
     loader = NeighborLoader(
-        data,
+        loader_data,
         num_neighbors=config.num_neighbors,
         batch_size=config.batch_size,
-        input_nodes=data.train_mask,
+        input_nodes=loader_data.train_mask,
         shuffle=True,
     )
     logger.info(
         "NeighborLoader: num_neighbors=%s  batch_size=%d  train_nodes=%d",
-        config.num_neighbors, config.batch_size, int(data.train_mask.sum()),
+        config.num_neighbors, config.batch_size, int(loader_data.train_mask.sum()),
     )
 
     def train_iter(_epoch: int):
@@ -437,7 +452,7 @@ def _setup_neighbor_loader(
             # batch.batch_size == number of seed nodes (first rows are seeds).
             yield batch, "x", "edge_index", "y", None, batch.batch_size
 
-    return data, train_iter
+    return loader_data, train_iter
 
 
 # ---------------------------------------------------------------------------

@@ -163,10 +163,23 @@ def evaluate_with_loader(
     Returns:
         Dict with keys ``"accuracy"``, ``"f1_macro"``, ``"f1_weighted"``.
     """
+    from torch_geometric.data import Data
     from torch_geometric.loader import NeighborLoader
 
+    # Strip non-tensor attributes (e.g. `meta`, `class_names`) that
+    # NeighborLoader cannot index_select over.
+    loader_data = Data(
+        x=data.x,
+        edge_index=data.edge_index,
+        y=data.y,
+        train_mask=data.train_mask,
+        val_mask=data.val_mask,
+        test_mask=data.test_mask,
+        num_nodes=getattr(data, "num_nodes", int(data.y.shape[0])),
+    )
+
     loader = NeighborLoader(
-        data,
+        loader_data,
         num_neighbors=num_neighbors,
         batch_size=batch_size,
         input_nodes=None,  # all N nodes as seeds
