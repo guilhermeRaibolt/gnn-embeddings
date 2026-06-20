@@ -31,7 +31,7 @@ dataset:
     # - Sports_and_Outdoors
     # - Cell_Phones_and_Accessories
     # - Health_and_Personal_Care
-    # - Toys_and_Games
+    - Toys_and_Games
     # - Video_Games
     # - Tools_and_Home_Improvement
     # - Beauty
@@ -41,7 +41,7 @@ dataset:
     # - Automotive
     # - Grocery_and_Gourmet_Food
     # - Patio,_Lawn_and_Garden
-    - Musical_Instruments
+    # - Musical_Instruments
     # - Baby
     # - Digital_Music
     # - Amazon_Instant_Video  
@@ -52,11 +52,11 @@ dataset:
 # --------------------------------------------------------------------------
 # H1 results path (used to extract best GNN + hyperparams as warm-start)
 # --------------------------------------------------------------------------
-h1_results_path: project_results/h1_results.json
+h1_results_path: project_results/h1_results_no_no.json
 
 # Fallback values used when h1_results.json does not exist yet
 # (e.g., during --mock smoke tests).
-fallback_gnn: GCN
+fallback_gnn: GraphSAGE
 fallback_hparams:
   lr: 0.01
   weight_decay: 0.0001
@@ -182,5 +182,5 @@ training:
 # --------------------------------------------------------------------------
 results:
   dir:            results
-  output_file:    project_results/h3_results.json
+  output_file:    project_results/h3_results_2.json
   embeddings_dir: data/embeddings

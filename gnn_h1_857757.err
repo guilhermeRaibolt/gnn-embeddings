@@ -1,0 +1,64 @@
+Python 3.11.13 loaded
+Commands: python, python3, pip, pip3
+Pip cache: /tmp/pip_cache_abertrand-24
+14:50:48 INFO __main__ :: Loaded experiment config: experiments/h1_graph_vs_nograph.yaml
+14:50:48 INFO __main__ :: Loading real dataset …
+14:50:56 INFO __main__ :: Loading Amazon co-purchase dataset …
+14:51:06 INFO __main__ :: Dataset: N=316632  E=3748195  C=41  train=189985 val=63322 test=63325
+14:51:06 INFO __main__ :: Computing CLIP-TEXT embeddings …
+14:51:06 INFO __main__ :: Fitting TF-IDF (max_features=10000) on 189985 training texts …
+14:51:42 INFO __main__ :: Transforming all 316632 nodes …
+14:52:25 INFO __main__ :: Embedding shape: (316632, 10000)  dtype=torch.float32
+14:52:25 INFO __main__ :: Embeddings assigned: shape=(316632, 10000)
+14:52:32 INFO __main__ :: ============================================================
+14:52:32 INFO __main__ :: Model: GCN | hparam trials: 20 | seed runs: 5
+14:52:32 INFO __main__ :: ============================================================
+14:52:32 INFO __main__ :: Step 1: Hyperparameter search …
+14:52:32 INFO src.train :: Hyperparameter search: model=GCN encoder=clip-text n_trials=20
+14:52:32 INFO src.train :: Trial 1/20 [random] | params={'lr': 0.05, 'weight_decay': 0.0001, 'hidden_channels': 128, 'dropout': 0.0}
+14:52:32 INFO src.train :: train_model: encoder=clip-text model=GCN seed=0 device=auto
+/home/infres/abertrand-24/miniconda3/envs/env_gnn/lib/python3.11/site-packages/torch_geometric/sampler/neighbor_sampler.py:61: UserWarning: Using 'NeighborSampler' without a 'pyg-lib' installation is deprecated and will be removed soon. Please install 'pyg-lib' for accelerated neighborhood sampling
+  warnings.warn(f"Using '{self.__class__.__name__}' without a "
+14:52:33 INFO src.train :: NeighborLoader: num_neighbors=[15, 10]  batch_size=512  train_nodes=189985
+Traceback (most recent call last):
+  File "/home/infres/abertrand-24/projet/gnn-embeddings/scripts/run_h1.py", line 541, in <module>
+    main()
+  File "/home/infres/abertrand-24/projet/gnn-embeddings/scripts/run_h1.py", line 499, in main
+    per_seed, summary = run_model(
+                        ^^^^^^^^^^
+  File "/home/infres/abertrand-24/projet/gnn-embeddings/scripts/run_h1.py", line 262, in run_model
+    hparam_result = hyperparameter_search(
+                    ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/infres/abertrand-24/projet/gnn-embeddings/src/train.py", line 694, in hyperparameter_search
+    result = train_model(model, data, trial_config)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/infres/abertrand-24/projet/gnn-embeddings/src/train.py", line 532, in train_model
+    return _train_pytorch(model, data, config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/infres/abertrand-24/projet/gnn-embeddings/src/train.py", line 272, in _train_pytorch
+    for batch_data, x_key, ei_key, y_key, mask_key, batch_size in train_iter(epoch):
+  File "/home/infres/abertrand-24/projet/gnn-embeddings/src/train.py", line 435, in train_iter
+    for batch in loader:
+  File "/home/infres/abertrand-24/miniconda3/envs/env_gnn/lib/python3.11/site-packages/torch/utils/data/dataloader.py", line 630, in __next__
+    data = self._next_data()
+           ^^^^^^^^^^^^^^^^^
+  File "/home/infres/abertrand-24/miniconda3/envs/env_gnn/lib/python3.11/site-packages/torch/utils/data/dataloader.py", line 673, in _next_data
+    data = self._dataset_fetcher.fetch(index)  # may raise StopIteration
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/infres/abertrand-24/miniconda3/envs/env_gnn/lib/python3.11/site-packages/torch/utils/data/_utils/fetch.py", line 55, in fetch
+    return self.collate_fn(data)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/infres/abertrand-24/miniconda3/envs/env_gnn/lib/python3.11/site-packages/torch_geometric/loader/node_loader.py", line 150, in collate_fn
+    out = self.filter_fn(out)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/home/infres/abertrand-24/miniconda3/envs/env_gnn/lib/python3.11/site-packages/torch_geometric/loader/node_loader.py", line 167, in filter_fn
+    data = filter_data(  #
+           ^^^^^^^^^^^^^^^
+  File "/home/infres/abertrand-24/miniconda3/envs/env_gnn/lib/python3.11/site-packages/torch_geometric/loader/utils.py", line 163, in filter_data
+    filter_node_store_(data._store, out._store, node)
+  File "/home/infres/abertrand-24/miniconda3/envs/env_gnn/lib/python3.11/site-packages/torch_geometric/loader/utils.py", line 98, in filter_node_store_
+    out_store[key] = index_select(value, index, dim=dim)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/infres/abertrand-24/miniconda3/envs/env_gnn/lib/python3.11/site-packages/torch_geometric/loader/utils.py", line 81, in index_select
+    raise ValueError(f"Encountered invalid feature tensor type "
+ValueError: Encountered invalid feature tensor type (got '<class 'list'>')
