@@ -4,6 +4,12 @@ Two responsibilities:
 
 - ``evaluate(model, data, mask)``: compute accuracy and macro/weighted F1
   on a single fold (train/val/test) for either a GNN or a flat classifier.
+  Performs a single full-graph forward pass; suitable when the full graph
+  fits in GPU memory or when running under ``torch.no_grad()`` on CPU.
+- ``evaluate_with_loader(model, data, mask, device, ...)``: same metrics
+  but uses a ``NeighborLoader`` for inference so that only one subgraph
+  at a time is on the GPU.  Use this when ``use_neighbor_loader=True`` is
+  set in ``TrainConfig``.
 - ``run_seed_sweep(train_fn, n_seeds, base_seed)``: rerun a training
   function ``n_seeds`` times with consecutive seeds and aggregate the
   resulting metrics into a mean / std / 95 % CI summary.
@@ -16,15 +22,10 @@ benchmark table.
 
 Model contract
 --------------
-``evaluate`` calls the model in ``eval`` mode under ``torch.no_grad()``.
-The model must be callable on the PyG ``Data`` object directly:
-
-    out = model(data)        # shape (N, C) logits, or (N,) class ids
-
-GNN modules naturally take a ``Data`` (or unpack ``data.x`` /
-``data.edge_index`` internally). Flat classifiers (MLP / LogReg) can be
-wrapped in a thin ``nn.Module`` that ignores ``data.edge_index`` and
-forwards ``data.x``.
+Both ``evaluate`` and ``evaluate_with_loader`` call the model in ``eval``
+mode under ``torch.no_grad()``.  The model must accept
+``forward(x, edge_index)`` and return ``(N, C)`` logits or ``(N,)``
+class indices.
 """
 
 from __future__ import annotations
@@ -112,6 +113,84 @@ def evaluate(
 
     y_true = data.y[mask].detach().cpu().numpy()
     y_pred = preds[mask].detach().cpu().numpy()
+
+    return {
+        "accuracy": float(accuracy_score(y_true, y_pred)),
+        "f1_macro": float(
+            f1_score(y_true, y_pred, average="macro", zero_division=0)
+        ),
+        "f1_weighted": float(
+            f1_score(y_true, y_pred, average="weighted", zero_division=0)
+        ),
+    }
+
+
+# ---------------------------------------------------------------------------
+# NeighborLoader-based evaluation
+# ---------------------------------------------------------------------------
+
+
+def evaluate_with_loader(
+    model: nn.Module,
+    data: Any,
+    mask: torch.Tensor,
+    device: torch.device,
+    num_neighbors: list[int],
+    batch_size: int = 1024,
+) -> dict[str, float]:
+    """Evaluate using a NeighborLoader for memory-efficient mini-batch inference.
+
+    Instead of a single full-graph forward pass, this function iterates over
+    mini-batches of seed nodes (all N nodes, no shuffling).  Each subgraph is
+    moved to ``device`` independently, keeping GPU memory bounded by the
+    neighbourhood size rather than the full graph.
+
+    The ``batch.n_id`` attribute returned by NeighborLoader gives the global
+    node indices for every node in the subgraph (seeds first, then sampled
+    neighbours).  We use ``batch.n_id[:batch.batch_size]`` to scatter seed
+    predictions back into a full-size prediction tensor.
+
+    Args:
+        model: ``nn.Module`` with ``forward(x, edge_index) -> Tensor``.
+        data: PyG ``Data`` object (CPU) with ``x``, ``edge_index``, and ``y``.
+        mask: Boolean ``(N,)`` mask selecting nodes to score.
+        device: Device to run inference on.
+        num_neighbors: Neighbour counts per hop, e.g. ``[15, 10]``.
+            Should match the training loader config for consistency.
+        batch_size: Number of seed nodes per inference mini-batch.
+            Using a larger value than training is fine (no backward pass).
+
+    Returns:
+        Dict with keys ``"accuracy"``, ``"f1_macro"``, ``"f1_weighted"``.
+    """
+    from torch_geometric.loader import NeighborLoader
+
+    loader = NeighborLoader(
+        data,
+        num_neighbors=num_neighbors,
+        batch_size=batch_size,
+        input_nodes=None,  # all N nodes as seeds
+        shuffle=False,
+    )
+
+    n_nodes = int(data.y.shape[0])
+    preds = torch.zeros(n_nodes, dtype=torch.long)
+
+    was_training = model.training
+    model.eval()
+    try:
+        with torch.no_grad():
+            for batch in loader:
+                batch = batch.to(device)
+                out = model(batch.x, batch.edge_index)
+                seed_preds = _to_predictions(out)[: batch.batch_size]
+                preds[batch.n_id[: batch.batch_size]] = seed_preds.cpu()
+    finally:
+        if was_training:
+            model.train()
+
+    y_true = data.y[mask].cpu().numpy()
+    y_pred = preds[mask].numpy()
 
     return {
         "accuracy": float(accuracy_score(y_true, y_pred)),

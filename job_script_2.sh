@@ -1,8 +1,8 @@
 #!/bin/bash
-#SBATCH --job-name=gnn_h1
+#SBATCH --job-name=gnn_h3
 #SBATCH --output=%x_%j.out
 #SBATCH --error=%x_%j.err
-#SBATCH --partition=3090
+#SBATCH --partition=P100
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=32G
@@ -20,6 +20,6 @@ echo "Job $SLURM_JOB_ID started on $(hostname) at $(date)"
 
 nvidia-smi
 
-python3 scripts/run_h1.py --config experiments/h1_graph_vs_nograph.yaml
+python3 scripts/run_h3_text.py --config experiments/h3_text_encoders.yaml
 
 echo "Job finished at $(date)"

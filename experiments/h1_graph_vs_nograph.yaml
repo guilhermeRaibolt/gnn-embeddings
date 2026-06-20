@@ -97,6 +97,13 @@ training:
   n_seed_runs:      5     # seed sweep repetitions for final evaluation
   base_seed:        0
 
+  # NeighborLoader mini-batch training — set use: true to avoid GPU OOM
+  # on large categories.  num_neighbors matches num_layers (one entry per hop).
+  neighbor_loader:
+    use:           true
+    batch_size:    512
+    num_neighbors: [15, 10]
+
 # --------------------------------------------------------------------------
 # Output paths
 # --------------------------------------------------------------------------

@@ -456,7 +456,7 @@ def main(argv: list[str] | None = None) -> None:
     logger.info("Embeddings assigned: shape=%s", tuple(x.shape))
 
     # --- Build base TrainConfig ---
-    # Use the Yaml config
+    nl_cfg = training_cfg.get("neighbor_loader", {})
     base_config = TrainConfig(
         in_channels=in_channels,
         hidden_channels=training_cfg.get("hidden_channels", 128),
@@ -471,6 +471,9 @@ def main(argv: list[str] | None = None) -> None:
         encoder_name=encoder_cfg["name"],
         model_name="",        # set per model in run_model()
         checkpoint_dir=str(results_dir / "checkpoints"),
+        use_neighbor_loader=bool(nl_cfg.get("use", False)),
+        batch_size=int(nl_cfg.get("batch_size", 512)),
+        num_neighbors=list(nl_cfg.get("num_neighbors", [15, 10])),
     )
 
     # --- Select models ---

@@ -6,6 +6,17 @@ handles three concerns:
 1. **PyTorch training** (``_train_pytorch``): Adam optimiser, cosine LR
    schedule with linear warmup, early stopping on validation accuracy,
    and checkpoint saving.  Used for GCN, GraphSAGE, GAT, and MLP.
+   Supports two forward-pass modes selected by ``TrainConfig.use_neighbor_loader``:
+
+   - *Full-graph* (default, ``use_neighbor_loader=False``): the entire
+     graph is moved to the GPU once and a single forward pass is run each
+     epoch.  Memory-efficient for small graphs thanks to the SparseTensor
+     optimisation for SAGEConv, but OOMs on large categories.
+   - *NeighborLoader* (``use_neighbor_loader=True``): each epoch
+     iterates over mini-batches of seed nodes sampled by
+     ``torch_geometric.loader.NeighborLoader``.  Only the k-hop
+     neighbourhood of each seed batch is materialised on the GPU, cutting
+     peak GPU memory by 10–50× at the cost of neighbourhood approximation.
 
 2. **Sklearn training** (``_train_logreg``): single ``fit`` call on the
    training split; no LR schedule.  Used for ``LogRegClassifier``.
@@ -27,10 +38,11 @@ Python scalars) so it can be embedded directly in result files.
 
 Transductive training convention
 ---------------------------------
-All GNN models operate on the full graph during the forward pass and
-compute the classification loss **only on the training-mask nodes**.
-This is the standard transductive node-classification setup used in the
-Cora/CiteSeer/Amazon benchmarks from the PyG literature.
+In full-graph mode all GNN models operate on the full graph during the
+forward pass and compute the classification loss **only on the
+training-mask nodes**.  In NeighborLoader mode the forward pass operates
+on sampled subgraphs; loss is computed on the seed (target) nodes that
+form the first ``batch.batch_size`` rows of each mini-batch.
 """
 
 from __future__ import annotations
@@ -49,7 +61,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.optim.lr_scheduler import CosineAnnealingLR, LinearLR, SequentialLR
 
-from src.eval.harness import evaluate
+from src.eval.harness import evaluate, evaluate_with_loader
 from src.models.baselines import LogRegClassifier
 from src.utils.device import resolve_device
 from src.utils.seed import set_seed
@@ -116,6 +128,11 @@ class TrainConfig:
     num_heads: int = 2        # GAT
     C: float = 1.0            # LogReg
     logreg_max_iter: int = 1000  # LogReg
+
+    # NeighborLoader mini-batch training
+    use_neighbor_loader: bool = False
+    batch_size: int = 512
+    num_neighbors: list = field(default_factory=lambda: [15, 10])
 
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> "TrainConfig":
@@ -187,10 +204,13 @@ def _train_pytorch(
 ) -> dict[str, Any]:
     """Train a PyTorch model with Adam + warmup-cosine schedule + early stop.
 
+    Dispatches to full-graph or NeighborLoader mini-batch training based on
+    ``config.use_neighbor_loader``.
+
     Args:
         model: An ``nn.Module`` with ``forward(x, edge_index)`` signature.
-        data: Graph data with ``x``, ``edge_index``, ``y``, and split
-            masks.
+        data: Graph data with ``x``, ``edge_index``, ``y``, and split masks.
+            Must be a PyG ``Data`` object when ``use_neighbor_loader=True``.
         config: Full ``TrainConfig`` for this run.
 
     Returns:
@@ -202,32 +222,6 @@ def _train_pytorch(
     set_seed(config.seed)
     device = _resolve_device(config.device)
     model = model.to(device)
-    data = _move_data(data, device)
-
-    # Convert edge_index -> SparseTensor for memory-efficient message passing.
-    # GCNConv transforms features *before* propagation, so it gathers only
-    # (num_edges, hidden) — small.  SAGEConv propagates the *raw* input
-    # features, so with a dense edge_index it materialises a
-    # (num_edges, in_channels) gather tensor: for 843k edges x 10k-dim
-    # TF-IDF that is ~31 GiB and OOMs even a 16 GB GPU.
-    # Passing a SparseTensor instead makes PyG dispatch to
-    # ``message_and_aggregate`` (sparse matmul), which never materialises
-    # that tensor.  The result is mathematically identical, and because the
-    # co-purchase graph is undirected the adjacency is symmetric so the
-    # transpose convention does not matter.
-    try:
-        from torch_sparse import SparseTensor
-
-        if not isinstance(data.edge_index, SparseTensor):
-            n_nodes = int(data.x.size(0))
-            data.edge_index = SparseTensor.from_edge_index(
-                data.edge_index, sparse_sizes=(n_nodes, n_nodes)
-            ).t()
-    except ImportError:
-        logger.warning(
-            "torch_sparse not installed — falling back to dense edge_index. "
-            "High-dimensional features may OOM with SAGEConv."
-        )
 
     ckpt_dir = Path(config.checkpoint_dir)
     ckpt_dir.mkdir(parents=True, exist_ok=True)
@@ -251,30 +245,55 @@ def _train_pytorch(
         optimizer, schedulers=[warmup, cosine], milestones=[config.warmup_epochs]
     )
 
+    if config.use_neighbor_loader:
+        _setup = _setup_neighbor_loader
+        _eval_fn = lambda m, d, mask: evaluate_with_loader(
+            m, d, mask, device,
+            num_neighbors=config.num_neighbors,
+            batch_size=config.batch_size * 2,  # larger batches for inference
+        )
+    else:
+        _setup = _setup_full_graph
+        _eval_fn = evaluate
+
+    data, train_iter = _setup(data, device, config)
+
     best_val_acc = -1.0
     best_epoch = 0
     epochs_no_improve = 0
     t0 = time.perf_counter()
 
     for epoch in range(1, config.max_epochs + 1):
-        # ----- train step -----
+        # ----- train step(s) -----
         model.train()
-        optimizer.zero_grad()
-        out = model(data.x, data.edge_index)
-        loss = F.cross_entropy(out[data.train_mask], data.y[data.train_mask])
-        loss.backward()
-        optimizer.step()
+        epoch_loss = 0.0
+        n_batches = 0
+
+        for batch_data, x_key, ei_key, y_key, mask_key, batch_size in train_iter(epoch):
+            optimizer.zero_grad()
+            out = model(getattr(batch_data, x_key), getattr(batch_data, ei_key))
+            y = getattr(batch_data, y_key)
+            if mask_key is not None:
+                loss = F.cross_entropy(out[getattr(batch_data, mask_key)], y[getattr(batch_data, mask_key)])
+            else:
+                loss = F.cross_entropy(out[:batch_size], y[:batch_size])
+            loss.backward()
+            optimizer.step()
+            epoch_loss += loss.item()
+            n_batches += 1
+
         scheduler.step()
 
         # ----- validation -----
-        val_metrics = evaluate(model, data, data.val_mask)
+        val_metrics = _eval_fn(model, data, data.val_mask)
         val_acc = val_metrics["accuracy"]
+        avg_loss = epoch_loss / max(n_batches, 1)
 
         current_lr = scheduler.get_last_lr()[0]
         logger.debug(
             json.dumps({
                 "epoch": epoch,
-                "train_loss": round(float(loss), 5),
+                "train_loss": round(avg_loss, 5),
                 "val_acc": round(val_acc, 5),
                 "lr": round(current_lr, 8),
             })
@@ -287,7 +306,7 @@ def _train_pytorch(
             torch.save(model.state_dict(), ckpt_path)
             logger.info(
                 "epoch %d | val_acc=%.4f (best) | loss=%.4f",
-                epoch, val_acc, float(loss),
+                epoch, val_acc, avg_loss,
             )
         else:
             epochs_no_improve += 1
@@ -302,7 +321,7 @@ def _train_pytorch(
 
     # Load best checkpoint and evaluate on test set.
     model.load_state_dict(torch.load(ckpt_path, weights_only=True, map_location=device))
-    test_metrics = evaluate(model, data, data.test_mask)
+    test_metrics = _eval_fn(model, data, data.test_mask)
 
     return {
         "encoder_name": config.encoder_name,
@@ -322,6 +341,103 @@ def _train_pytorch(
             "num_layers": config.num_layers,
         },
     }
+
+
+# ---------------------------------------------------------------------------
+# Training setup helpers (full-graph and NeighborLoader)
+# ---------------------------------------------------------------------------
+
+
+def _setup_full_graph(
+    data: Any,
+    device: torch.device,
+    config: TrainConfig,
+):
+    """Move the full graph to ``device`` and return a single-step iterator.
+
+    Also applies the SparseTensor optimisation for SAGEConv: without it,
+    SAGEConv with dense edge_index materialises an (E × in_channels) gather
+    tensor — 31 GiB for 843k edges × 10k TF-IDF dims — and OOMs a 16 GB GPU.
+    SparseTensor dispatches to ``message_and_aggregate`` (sparse matmul)
+    which never builds that tensor.
+
+    Args:
+        data: PyG Data or duck-typed equivalent.
+        device: Target device.
+        config: Unused here but kept for a uniform signature.
+
+    Returns:
+        ``(data_on_device, train_iter)`` where ``train_iter(epoch)`` yields
+        exactly one tuple per epoch representing the full-graph forward pass.
+    """
+    data = _move_data(data, device)
+
+    # SparseTensor optimisation for memory-efficient SAGEConv message-passing.
+    try:
+        from torch_sparse import SparseTensor
+
+        if not isinstance(data.edge_index, SparseTensor):
+            n_nodes = int(data.x.size(0))
+            data.edge_index = SparseTensor.from_edge_index(
+                data.edge_index, sparse_sizes=(n_nodes, n_nodes)
+            ).t()
+    except ImportError:
+        logger.warning(
+            "torch_sparse not installed — falling back to dense edge_index. "
+            "High-dimensional features may OOM with SAGEConv."
+        )
+
+    def train_iter(_epoch: int):
+        # Yields (data, x_attr, ei_attr, y_attr, mask_attr, batch_size=None)
+        # mask_attr drives loss masking; batch_size is unused in this path.
+        yield data, "x", "edge_index", "y", "train_mask", None
+
+    return data, train_iter
+
+
+def _setup_neighbor_loader(
+    data: Any,
+    device: torch.device,
+    config: TrainConfig,
+):
+    """Create a NeighborLoader for mini-batch training.
+
+    Data stays on CPU; each batch is moved to ``device`` inside the iterator
+    so that GPU memory holds only one subgraph at a time.
+
+    Args:
+        data: PyG Data object with ``train_mask``, ``x``, ``edge_index``, ``y``.
+        device: Target device for each mini-batch.
+        config: Provides ``num_neighbors`` and ``batch_size``.
+
+    Returns:
+        ``(data_on_cpu, train_iter)`` where ``train_iter(epoch)`` yields one
+        tuple per mini-batch.  Each tuple:
+        ``(batch_on_device, "x", "edge_index", "y", None, batch.batch_size)``.
+        The ``None`` mask signals that loss is computed on the first
+        ``batch_size`` rows (the seed nodes) rather than via a boolean mask.
+    """
+    from torch_geometric.loader import NeighborLoader
+
+    loader = NeighborLoader(
+        data,
+        num_neighbors=config.num_neighbors,
+        batch_size=config.batch_size,
+        input_nodes=data.train_mask,
+        shuffle=True,
+    )
+    logger.info(
+        "NeighborLoader: num_neighbors=%s  batch_size=%d  train_nodes=%d",
+        config.num_neighbors, config.batch_size, int(data.train_mask.sum()),
+    )
+
+    def train_iter(_epoch: int):
+        for batch in loader:
+            batch = batch.to(device)
+            # batch.batch_size == number of seed nodes (first rows are seeds).
+            yield batch, "x", "edge_index", "y", None, batch.batch_size
+
+    return data, train_iter
 
 
 # ---------------------------------------------------------------------------
