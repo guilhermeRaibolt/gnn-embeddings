@@ -136,7 +136,8 @@ def evaluate_with_loader(
     mask: torch.Tensor,
     device: torch.device,
     num_neighbors: list[int],
-    batch_size: int = 1024,
+    batch_size: int = 4096,
+    num_workers: int = 4,
 ) -> dict[str, float]:
     """Evaluate using a NeighborLoader for memory-efficient mini-batch inference.
 
@@ -155,10 +156,11 @@ def evaluate_with_loader(
         data: PyG ``Data`` object (CPU) with ``x``, ``edge_index``, and ``y``.
         mask: Boolean ``(N,)`` mask selecting nodes to score.
         device: Device to run inference on.
-        num_neighbors: Neighbour counts per hop, e.g. ``[15, 10]``.
+        num_neighbors: Neighbour counts per hop, e.g. ``[10, 5]``.
             Should match the training loader config for consistency.
         batch_size: Number of seed nodes per inference mini-batch.
-            Using a larger value than training is fine (no backward pass).
+            Can be larger than training batch_size (no backward pass).
+        num_workers: Parallel DataLoader workers for CPU sampling.
 
     Returns:
         Dict with keys ``"accuracy"``, ``"f1_macro"``, ``"f1_weighted"``.
@@ -184,6 +186,7 @@ def evaluate_with_loader(
         batch_size=batch_size,
         input_nodes=None,  # all N nodes as seeds
         shuffle=False,
+        num_workers=num_workers,
     )
 
     n_nodes = int(data.y.shape[0])

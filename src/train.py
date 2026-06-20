@@ -131,8 +131,9 @@ class TrainConfig:
 
     # NeighborLoader mini-batch training
     use_neighbor_loader: bool = False
-    batch_size: int = 512
-    num_neighbors: list = field(default_factory=lambda: [15, 10])
+    batch_size: int = 2048
+    num_neighbors: list = field(default_factory=lambda: [10, 5])
+    num_workers: int = 4
 
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> "TrainConfig":
@@ -250,7 +251,8 @@ def _train_pytorch(
         _eval_fn = lambda m, d, mask: evaluate_with_loader(
             m, d, mask, device,
             num_neighbors=config.num_neighbors,
-            batch_size=config.batch_size * 2,  # larger batches for inference
+            batch_size=config.batch_size * 2,  # larger batches for inference (no backward)
+            num_workers=config.num_workers,
         )
     else:
         _setup = _setup_full_graph
@@ -440,10 +442,12 @@ def _setup_neighbor_loader(
         batch_size=config.batch_size,
         input_nodes=loader_data.train_mask,
         shuffle=True,
+        num_workers=config.num_workers,
     )
     logger.info(
-        "NeighborLoader: num_neighbors=%s  batch_size=%d  train_nodes=%d",
-        config.num_neighbors, config.batch_size, int(loader_data.train_mask.sum()),
+        "NeighborLoader: num_neighbors=%s  batch_size=%d  num_workers=%d  train_nodes=%d",
+        config.num_neighbors, config.batch_size, config.num_workers,
+        int(loader_data.train_mask.sum()),
     )
 
     def train_iter(_epoch: int):

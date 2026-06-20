@@ -472,8 +472,9 @@ def main(argv: list[str] | None = None) -> None:
         model_name="",        # set per model in run_model()
         checkpoint_dir=str(results_dir / "checkpoints"),
         use_neighbor_loader=bool(nl_cfg.get("use", False)),
-        batch_size=int(nl_cfg.get("batch_size", 512)),
-        num_neighbors=list(nl_cfg.get("num_neighbors", [15, 10])),
+        batch_size=int(nl_cfg.get("batch_size", 2048)),
+        num_neighbors=list(nl_cfg.get("num_neighbors", [10, 5])),
+        num_workers=int(nl_cfg.get("num_workers", 4)),
     )
 
     # --- Select models ---

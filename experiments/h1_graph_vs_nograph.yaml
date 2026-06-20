@@ -101,8 +101,9 @@ training:
   # on large categories.  num_neighbors matches num_layers (one entry per hop).
   neighbor_loader:
     use:           true
-    batch_size:    512
-    num_neighbors: [15, 10]
+    batch_size:    2048       # ~4x fewer batches/epoch vs 512
+    num_neighbors: [10, 5]    # max 50-node 2-hop expansion vs 150
+    num_workers:   4           # parallel CPU sampling/collation
 
 # --------------------------------------------------------------------------
 # Output paths
