@@ -1,0 +1,150 @@
+[LOAD] Found cached related data at data/related_depth1.pkl. Loading...                               
+                                                                                                      
+[LOAD] Found existing CLIP-text features in data/clip_text_depth1. Loading...                         
+                                                                                                      
+[LOAD] Loading split indices from data/clip_text_depth1                                               
+                                                                                                      
+[LOAD] Loading split indices from data/clip_text_depth1                                               
+                                                                                                      
+[TRAINING] Starting GraphSAGE training on CLIP-TEXT features using device: cuda                       
+                                                                                                      
+[DATA INFO] 18 classes.                                                                               
+                                                                                                      
+[GRAPH] Building Amazon co-purchase graph...                                                          
+[GRAPH] 317329 nodes and 7492956 edges built in 6.50s                                                 
+                                                                                                      
+[DATA SPLIT] Train: 222130 samples, Val: 47599 samples, Test: 47600 samples                           
+[EPOCH 01] train_loss=2.8996 val_loss=2.8993 val_acc=0.0393 epoch_time=0.98s total=0.98s *            
+[EPOCH 02] train_loss=2.7850 val_loss=2.7847 val_acc=0.2549 epoch_time=0.37s total=1.35s *            
+[EPOCH 03] train_loss=2.6653 val_loss=2.6653 val_acc=0.3353 epoch_time=0.37s total=1.73s *            
+[EPOCH 04] train_loss=2.5354 val_loss=2.5352 val_acc=0.3342 epoch_time=0.37s total=2.10s *            
+[EPOCH 05] train_loss=2.4156 val_loss=2.4157 val_acc=0.3204 epoch_time=0.37s total=2.48s *            
+[EPOCH 06] train_loss=2.3127 val_loss=2.3120 val_acc=0.3239 epoch_time=0.37s total=2.85s *            
+[EPOCH 07] train_loss=2.1959 val_loss=2.1950 val_acc=0.3693 epoch_time=0.37s total=3.22s *            
+[EPOCH 08] train_loss=2.0541 val_loss=2.0518 val_acc=0.4520 epoch_time=0.37s total=3.60s *            
+[EPOCH 09] train_loss=1.9054 val_loss=1.9022 val_acc=0.5265 epoch_time=0.37s total=3.97s *            
+[EPOCH 10] train_loss=1.7702 val_loss=1.7665 val_acc=0.5969 epoch_time=0.37s total=4.35s *            
+[EPOCH 11] train_loss=1.6536 val_loss=1.6485 val_acc=0.6415 epoch_time=0.37s total=4.72s *            
+[EPOCH 12] train_loss=1.5525 val_loss=1.5471 val_acc=0.6662 epoch_time=0.37s total=5.10s *            
+[EPOCH 13] train_loss=1.4614 val_loss=1.4551 val_acc=0.6812 epoch_time=0.37s total=5.47s *            
+[EPOCH 14] train_loss=1.3802 val_loss=1.3732 val_acc=0.6894 epoch_time=0.38s total=5.85s *            
+[EPOCH 15] train_loss=1.3079 val_loss=1.3009 val_acc=0.6964 epoch_time=0.37s total=6.22s *            
+[EPOCH 16] train_loss=1.2457 val_loss=1.2389 val_acc=0.7002 epoch_time=0.37s total=6.59s *            
+[EPOCH 17] train_loss=1.1966 val_loss=1.1890 val_acc=0.7018 epoch_time=0.37s total=6.97s *            
+[EPOCH 18] train_loss=1.1555 val_loss=1.1479 val_acc=0.7063 epoch_time=0.37s total=7.34s *            
+[EPOCH 19] train_loss=1.1198 val_loss=1.1155 val_acc=0.7101 epoch_time=0.37s total=7.72s *            
+[EPOCH 20] train_loss=1.0892 val_loss=1.0823 val_acc=0.7152 epoch_time=0.37s total=8.09s *            
+[EPOCH 21] train_loss=1.0635 val_loss=1.0590 val_acc=0.7212 epoch_time=0.37s total=8.47s *            
+[EPOCH 22] train_loss=1.0410 val_loss=1.0354 val_acc=0.7248 epoch_time=0.37s total=8.84s *
+[EPOCH 23] train_loss=1.0228 val_loss=1.0185 val_acc=0.7269 epoch_time=0.37s total=9.22s *            
+[EPOCH 24] train_loss=1.0052 val_loss=1.0004 val_acc=0.7298 epoch_time=0.37s total=9.59s *            
+[EPOCH 25] train_loss=0.9900 val_loss=0.9855 val_acc=0.7336 epoch_time=0.37s total=9.96s *            
+[EPOCH 26] train_loss=0.9776 val_loss=0.9721 val_acc=0.7340 epoch_time=0.37s total=10.34s *           
+[EPOCH 27] train_loss=0.9652 val_loss=0.9630 val_acc=0.7341 epoch_time=0.38s total=10.71s *           
+[EPOCH 28] train_loss=0.9560 val_loss=0.9539 val_acc=0.7371 epoch_time=0.37s total=11.09s *           
+[EPOCH 29] train_loss=0.9452 val_loss=0.9424 val_acc=0.7400 epoch_time=0.37s total=11.46s *           
+[EPOCH 30] train_loss=0.9369 val_loss=0.9352 val_acc=0.7413 epoch_time=0.37s total=11.84s *           
+[EPOCH 31] train_loss=0.9280 val_loss=0.9224 val_acc=0.7442 epoch_time=0.37s total=12.21s *           
+[EPOCH 32] train_loss=0.9215 val_loss=0.9169 val_acc=0.7432 epoch_time=0.37s total=12.59s *           
+[EPOCH 33] train_loss=0.9127 val_loss=0.9128 val_acc=0.7455 epoch_time=0.37s total=12.96s *           
+[EPOCH 34] train_loss=0.9067 val_loss=0.9050 val_acc=0.7461 epoch_time=0.37s total=13.34s *           
+[EPOCH 35] train_loss=0.9014 val_loss=0.9012 val_acc=0.7465 epoch_time=0.37s total=13.71s *           
+[EPOCH 36] train_loss=0.8958 val_loss=0.8964 val_acc=0.7457 epoch_time=0.37s total=14.08s *           
+[EPOCH 37] train_loss=0.8915 val_loss=0.8914 val_acc=0.7482 epoch_time=0.37s total=14.46s *           
+[EPOCH 38] train_loss=0.8879 val_loss=0.8878 val_acc=0.7477 epoch_time=0.37s total=14.83s *           
+[EPOCH 39] train_loss=0.8858 val_loss=0.8812 val_acc=0.7485 epoch_time=0.37s total=15.21s *           
+[EPOCH 40] train_loss=0.8816 val_loss=0.8804 val_acc=0.7490 epoch_time=0.37s total=15.58s *           
+[EPOCH 41] train_loss=0.8778 val_loss=0.8793 val_acc=0.7479 epoch_time=0.37s total=15.96s *           
+[EPOCH 42] train_loss=0.8747 val_loss=0.8775 val_acc=0.7506 epoch_time=0.37s total=16.33s *           
+[EPOCH 43] train_loss=0.8741 val_loss=0.8690 val_acc=0.7530 epoch_time=0.37s total=16.71s *           
+[EPOCH 44] train_loss=0.8710 val_loss=0.8706 val_acc=0.7529 epoch_time=0.37s total=17.08s             
+[EPOCH 45] train_loss=0.8692 val_loss=0.8695 val_acc=0.7522 epoch_time=0.37s total=17.45s             
+[EPOCH 46] train_loss=0.8659 val_loss=0.8680 val_acc=0.7524 epoch_time=0.37s total=17.83s *           
+[EPOCH 47] train_loss=0.8644 val_loss=0.8651 val_acc=0.7545 epoch_time=0.37s total=18.20s *           
+[EPOCH 48] train_loss=0.8622 val_loss=0.8629 val_acc=0.7535 epoch_time=0.37s total=18.58s *           
+[EPOCH 49] train_loss=0.8604 val_loss=0.8626 val_acc=0.7540 epoch_time=0.37s total=18.95s *           
+[EPOCH 50] train_loss=0.8575 val_loss=0.8575 val_acc=0.7560 epoch_time=0.37s total=19.33s *           
+[EPOCH 51] train_loss=0.8552 val_loss=0.8602 val_acc=0.7555 epoch_time=0.37s total=19.70s             
+[EPOCH 52] train_loss=0.8551 val_loss=0.8570 val_acc=0.7549 epoch_time=0.37s total=20.08s *           
+[EPOCH 53] train_loss=0.8524 val_loss=0.8542 val_acc=0.7556 epoch_time=0.37s total=20.45s *           
+[EPOCH 54] train_loss=0.8513 val_loss=0.8542 val_acc=0.7552 epoch_time=0.37s total=20.82s             
+[EPOCH 55] train_loss=0.8488 val_loss=0.8519 val_acc=0.7558 epoch_time=0.37s total=21.20s *           
+[EPOCH 56] train_loss=0.8479 val_loss=0.8490 val_acc=0.7563 epoch_time=0.37s total=21.57s *           
+[EPOCH 57] train_loss=0.8466 val_loss=0.8485 val_acc=0.7547 epoch_time=0.37s total=21.95s *           
+[EPOCH 58] train_loss=0.8457 val_loss=0.8461 val_acc=0.7572 epoch_time=0.37s total=22.32s *           
+[EPOCH 59] train_loss=0.8432 val_loss=0.8453 val_acc=0.7581 epoch_time=0.37s total=22.70s *           
+[EPOCH 60] train_loss=0.8440 val_loss=0.8451 val_acc=0.7587 epoch_time=0.37s total=23.07s *           
+[EPOCH 61] train_loss=0.8408 val_loss=0.8437 val_acc=0.7575 epoch_time=0.37s total=23.44s *           
+[EPOCH 62] train_loss=0.8402 val_loss=0.8442 val_acc=0.7576 epoch_time=0.37s total=23.82s             
+[EPOCH 63] train_loss=0.8414 val_loss=0.8436 val_acc=0.7572 epoch_time=0.37s total=24.19s *           
+[EPOCH 64] train_loss=0.8392 val_loss=0.8424 val_acc=0.7566 epoch_time=0.37s total=24.57s *           
+[EPOCH 65] train_loss=0.8390 val_loss=0.8405 val_acc=0.7593 epoch_time=0.37s total=24.94s *           
+[EPOCH 66] train_loss=0.8376 val_loss=0.8418 val_acc=0.7594 epoch_time=0.37s total=25.32s             
+[EPOCH 67] train_loss=0.8375 val_loss=0.8391 val_acc=0.7594 epoch_time=0.37s total=25.69s *           
+[EPOCH 68] train_loss=0.8354 val_loss=0.8366 val_acc=0.7592 epoch_time=0.37s total=26.06s *           
+[EPOCH 69] train_loss=0.8361 val_loss=0.8407 val_acc=0.7578 epoch_time=0.38s total=26.44s             
+[EPOCH 70] train_loss=0.8359 val_loss=0.8407 val_acc=0.7587 epoch_time=0.37s total=26.81s             
+[EPOCH 71] train_loss=0.8357 val_loss=0.8370 val_acc=0.7593 epoch_time=0.37s total=27.19s             
+[EPOCH 72] train_loss=0.8350 val_loss=0.8369 val_acc=0.7576 epoch_time=0.38s total=27.56s             
+[EPOCH 73] train_loss=0.8328 val_loss=0.8360 val_acc=0.7596 epoch_time=0.37s total=27.94s *           
+[EPOCH 74] train_loss=0.8337 val_loss=0.8380 val_acc=0.7586 epoch_time=0.37s total=28.31s             
+[EPOCH 75] train_loss=0.8326 val_loss=0.8357 val_acc=0.7583 epoch_time=0.37s total=28.69s *
+[EPOCH 76] train_loss=0.8320 val_loss=0.8319 val_acc=0.7621 epoch_time=0.37s total=29.06s *
+[EPOCH 77] train_loss=0.8316 val_loss=0.8349 val_acc=0.7582 epoch_time=0.37s total=29.44s
+[EPOCH 78] train_loss=0.8312 val_loss=0.8360 val_acc=0.7592 epoch_time=0.37s total=29.81s
+[EPOCH 79] train_loss=0.8299 val_loss=0.8339 val_acc=0.7611 epoch_time=0.37s total=30.18s
+[EPOCH 80] train_loss=0.8308 val_loss=0.8353 val_acc=0.7613 epoch_time=0.37s total=30.56s
+[EPOCH 81] train_loss=0.8289 val_loss=0.8330 val_acc=0.7609 epoch_time=0.37s total=30.93s
+[EPOCH 82] train_loss=0.8293 val_loss=0.8326 val_acc=0.7598 epoch_time=0.37s total=31.31s
+[EPOCH 83] train_loss=0.8299 val_loss=0.8312 val_acc=0.7611 epoch_time=0.37s total=31.68s *
+[EPOCH 84] train_loss=0.8290 val_loss=0.8306 val_acc=0.7596 epoch_time=0.37s total=32.05s *
+[EPOCH 85] train_loss=0.8269 val_loss=0.8297 val_acc=0.7601 epoch_time=0.37s total=32.43s *
+[EPOCH 86] train_loss=0.8283 val_loss=0.8305 val_acc=0.7610 epoch_time=0.37s total=32.80s
+[EPOCH 87] train_loss=0.8270 val_loss=0.8316 val_acc=0.7598 epoch_time=0.37s total=33.18s
+[EPOCH 88] train_loss=0.8267 val_loss=0.8292 val_acc=0.7618 epoch_time=0.37s total=33.55s *
+[EPOCH 89] train_loss=0.8259 val_loss=0.8284 val_acc=0.7615 epoch_time=0.37s total=33.93s *
+[EPOCH 90] train_loss=0.8258 val_loss=0.8288 val_acc=0.7620 epoch_time=0.37s total=34.30s
+[EPOCH 91] train_loss=0.8258 val_loss=0.8309 val_acc=0.7613 epoch_time=0.37s total=34.67s
+[EPOCH 92] train_loss=0.8252 val_loss=0.8302 val_acc=0.7601 epoch_time=0.37s total=35.05s
+[EPOCH 93] train_loss=0.8253 val_loss=0.8295 val_acc=0.7612 epoch_time=0.38s total=35.42s
+[EPOCH 94] train_loss=0.8252 val_loss=0.8302 val_acc=0.7608 epoch_time=0.37s total=35.80s
+[EPOCH 95] train_loss=0.8243 val_loss=0.8280 val_acc=0.7619 epoch_time=0.37s total=36.17s *
+[EPOCH 96] train_loss=0.8241 val_loss=0.8267 val_acc=0.7604 epoch_time=0.37s total=36.55s *
+[EPOCH 97] train_loss=0.8232 val_loss=0.8267 val_acc=0.7617 epoch_time=0.37s total=36.92s
+[EPOCH 98] train_loss=0.8224 val_loss=0.8269 val_acc=0.7610 epoch_time=0.37s total=37.30s
+[EPOCH 99] train_loss=0.8227 val_loss=0.8245 val_acc=0.7619 epoch_time=0.37s total=37.67s *
+[EPOCH 100] train_loss=0.8226 val_loss=0.8257 val_acc=0.7625 epoch_time=0.37s total=38.04s
+[EPOCH 101] train_loss=0.8222 val_loss=0.8261 val_acc=0.7620 epoch_time=0.37s total=38.42s
+[EPOCH 102] train_loss=0.8215 val_loss=0.8253 val_acc=0.7625 epoch_time=0.37s total=38.79s
+[EPOCH 103] train_loss=0.8215 val_loss=0.8266 val_acc=0.7629 epoch_time=0.37s total=39.17s
+[EPOCH 104] train_loss=0.8208 val_loss=0.8242 val_acc=0.7623 epoch_time=0.37s total=39.54s *
+[EPOCH 105] train_loss=0.8209 val_loss=0.8260 val_acc=0.7623 epoch_time=0.37s total=39.92s
+[EPOCH 106] train_loss=0.8203 val_loss=0.8239 val_acc=0.7622 epoch_time=0.37s total=40.29s *
+[EPOCH 107] train_loss=0.8210 val_loss=0.8231 val_acc=0.7642 epoch_time=0.37s total=40.66s *
+[EPOCH 108] train_loss=0.8208 val_loss=0.8247 val_acc=0.7620 epoch_time=0.37s total=41.04s
+[EPOCH 109] train_loss=0.8200 val_loss=0.8262 val_acc=0.7615 epoch_time=0.37s total=41.41s
+[EPOCH 110] train_loss=0.8202 val_loss=0.8243 val_acc=0.7632 epoch_time=0.37s total=41.79s
+[EPOCH 111] train_loss=0.8196 val_loss=0.8239 val_acc=0.7632 epoch_time=0.37s total=42.16s
+[EPOCH 112] train_loss=0.8193 val_loss=0.8256 val_acc=0.7619 epoch_time=0.37s total=42.54s
+[EPOCH 113] train_loss=0.8198 val_loss=0.8220 val_acc=0.7641 epoch_time=0.37s total=42.91s *
+[EPOCH 114] train_loss=0.8194 val_loss=0.8211 val_acc=0.7635 epoch_time=0.37s total=43.28s *
+[EPOCH 115] train_loss=0.8187 val_loss=0.8253 val_acc=0.7611 epoch_time=0.37s total=43.66s
+[EPOCH 116] train_loss=0.8183 val_loss=0.8252 val_acc=0.7622 epoch_time=0.37s total=44.03s
+[EPOCH 117] train_loss=0.8195 val_loss=0.8239 val_acc=0.7631 epoch_time=0.37s total=44.41s
+[EPOCH 118] train_loss=0.8189 val_loss=0.8245 val_acc=0.7642 epoch_time=0.37s total=44.78s
+[EPOCH 119] train_loss=0.8173 val_loss=0.8226 val_acc=0.7627 epoch_time=0.37s total=45.16s
+[EPOCH 120] train_loss=0.8182 val_loss=0.8234 val_acc=0.7626 epoch_time=0.37s total=45.53s
+[EPOCH 121] train_loss=0.8178 val_loss=0.8213 val_acc=0.7618 epoch_time=0.37s total=45.90s
+[EPOCH 122] train_loss=0.8172 val_loss=0.8214 val_acc=0.7632 epoch_time=0.37s total=46.28s
+[EPOCH 123] train_loss=0.8184 val_loss=0.8219 val_acc=0.7635 epoch_time=0.37s total=46.65s
+[EPOCH 124] train_loss=0.8179 val_loss=0.8225 val_acc=0.7636 epoch_time=0.37s total=47.02s
+
+[EARLY STOP] No val improvement for 10 epochs. Best epoch 114 (val_loss=0.8211).
+
+[TRAINING] Completed in 47.03s (restored weights from epoch 114, val_loss=0.8211)
+----------------------------------------
+[SCORES] GraphSAGE - Encoder: CLIP-TEXT
+Accuracy:    0.7750
+Macro F1:    0.6873
+Weighted F1: 0.7612
+----------------------------------------

@@ -1,0 +1,19 @@
+[LOAD] Found existing CLIP-text features in data/clip_text_depth1. Loading...
+
+[LOAD] Loading split indices from data/clip_text_depth1
+
+[LOAD] Loading split indices from data/clip_text_depth1
+
+[TRAINING] Starting Logistic Regression on CLIP-TEXT features using device: cpu
+
+[DATA SPLIT] Train: 222130 samples, Test: 47600 samples
+
+[DATA INFO] 18 classes.
+
+[TRAINING] Completed in 86.96s
+----------------------------------------
+[SCORES] Logistic Regression - Encoder: CLIP-TEXT
+Accuracy:    0.7878
+Macro F1:    0.7192
+Weighted F1: 0.7794
+----------------------------------------

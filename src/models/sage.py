@@ -22,6 +22,7 @@ from src.encoders.tf_idf import load_tfidf, TFIDF_DIR
 from src.encoders.bow import load_bow, BOW_DIR
 from src.encoders.sbert import load_sbert, SBERT_DIR
 from src.encoders.qwen import load_qwen, QWEN_DIR
+from src.encoders.clip_text import load_clip_text, CLIP_TEXT_DIR
 
 
 class GraphSAGE(nn.Module):
@@ -111,7 +112,7 @@ def train_sage(
     edge_index = build_graph_from_amazon(related)
     print(f"[GRAPH] {X.shape[0]} nodes and {edge_index.shape[1]} edges built in {time.perf_counter() - graph_start:.2f}s")
 
-    if sparse.issparse(X) or X.shape[1] > 512:
+    if sparse.issparse(X) or X.shape[1] > 256:
         svd = TruncatedSVD(n_components=128, random_state=42)
         X = svd.fit_transform(X)
     
@@ -239,22 +240,27 @@ if __name__ == "__main__":
 
     related = load_related_data(target_subcategory_depth)
 
-    dir_tfidf = TFIDF_DIR+"_depth"+str(target_subcategory_depth)
-    X, y, encoder = load_tfidf(dir_tfidf)
-    train_idx, test_idx = load_split(dir_tfidf)
-    train_sage(X, y, related, 'TF-IDF', train_idx, test_idx)
+    # dir_tfidf = TFIDF_DIR+"_depth"+str(target_subcategory_depth)
+    # X, y, encoder = load_tfidf(dir_tfidf)
+    # train_idx, test_idx = load_split(dir_tfidf)
+    # train_sage(X, y, related, 'TF-IDF', train_idx, test_idx)
 
-    dir_bow = BOW_DIR+"_depth"+str(target_subcategory_depth)
-    X, y, encoder = load_bow(dir_bow)
-    train_idx, test_idx = load_split(dir_bow)
-    train_sage(X, y, related, 'BOW', train_idx, test_idx)
+    # dir_bow = BOW_DIR+"_depth"+str(target_subcategory_depth)
+    # X, y, encoder = load_bow(dir_bow)
+    # train_idx, test_idx = load_split(dir_bow)
+    # train_sage(X, y, related, 'BOW', train_idx, test_idx)
 
-    dir_sbert = SBERT_DIR+"_depth"+str(target_subcategory_depth)
-    X, y, encoder = load_sbert(dir_sbert)
-    train_idx, test_idx = load_split(dir_sbert)
-    train_sage(X, y, related, 'SBERT', train_idx, test_idx)
+    # dir_sbert = SBERT_DIR+"_depth"+str(target_subcategory_depth)
+    # X, y, encoder = load_sbert(dir_sbert)
+    # train_idx, test_idx = load_split(dir_sbert)
+    # train_sage(X, y, related, 'SBERT', train_idx, test_idx)
 
-    dir_qwen = QWEN_DIR+"_depth"+str(target_subcategory_depth)
-    X, y, encoder = load_qwen(dir_qwen)
-    train_idx, test_idx = load_split(dir_qwen)
-    train_sage(X, y, related, 'QWEN', train_idx, test_idx)
+    # dir_qwen = QWEN_DIR+"_depth"+str(target_subcategory_depth)
+    # X, y, encoder = load_qwen(dir_qwen)
+    # train_idx, test_idx = load_split(dir_qwen)
+    # train_sage(X, y, related, 'QWEN', train_idx, test_idx)
+    
+    dir_cliptext = CLIP_TEXT_DIR+"_depth"+str(target_subcategory_depth)
+    X, y, encoder = load_clip_text(dir_cliptext)
+    train_idx, test_idx = load_split(dir_cliptext)
+    train_sage(X, y, related, 'CLIP-TEXT', train_idx, test_idx)
