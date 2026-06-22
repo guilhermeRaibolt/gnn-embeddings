@@ -11,7 +11,7 @@ from src.encoders.tf_idf import load_tfidf, TFIDF_DIR
 from src.encoders.bow import load_bow, BOW_DIR
 from src.encoders.sbert import load_sbert, SBERT_DIR
 from src.encoders.qwen import load_qwen, QWEN_DIR
-
+from src.encoders.clip_text import load_clip_text, CLIP_TEXT_DIR
 
 def train_logistic_regression(
     X,
@@ -71,22 +71,27 @@ if __name__ == "__main__":
     
     target_subcategory_depth = 1
 
-    dir_tfidf = TFIDF_DIR+"_depth"+str(target_subcategory_depth)
-    X, y, encoder = load_tfidf(dir_tfidf)
-    train_idx, test_idx = load_split(dir_tfidf)
-    train_logistic_regression(X, y, 'TF-IDF', train_idx, test_idx)
+    # dir_tfidf = TFIDF_DIR+"_depth"+str(target_subcategory_depth)
+    # X, y, encoder = load_tfidf(dir_tfidf)
+    # train_idx, test_idx = load_split(dir_tfidf)
+    # train_logistic_regression(X, y, 'TF-IDF', train_idx, test_idx)
 
-    dir_bow = BOW_DIR+"_depth"+str(target_subcategory_depth)
-    X, y, encoder = load_bow(dir_bow)
-    train_idx, test_idx = load_split(dir_bow)
-    train_logistic_regression(X, y, 'BOW', train_idx, test_idx)
+    # dir_bow = BOW_DIR+"_depth"+str(target_subcategory_depth)
+    # X, y, encoder = load_bow(dir_bow)
+    # train_idx, test_idx = load_split(dir_bow)
+    # train_logistic_regression(X, y, 'BOW', train_idx, test_idx)
 
-    dir_sbert = SBERT_DIR+"_depth"+str(target_subcategory_depth)
-    X, y, encoder = load_sbert(dir_sbert)
-    train_idx, test_idx = load_split(dir_sbert)
-    train_logistic_regression(X, y, 'SBERT', train_idx, test_idx)
+    # dir_sbert = SBERT_DIR+"_depth"+str(target_subcategory_depth)
+    # X, y, encoder = load_sbert(dir_sbert)
+    # train_idx, test_idx = load_split(dir_sbert)
+    # train_logistic_regression(X, y, 'SBERT', train_idx, test_idx)
     
-    dir_qwen = QWEN_DIR+"_depth"+str(target_subcategory_depth)
-    X, y, encoder = load_qwen(dir_qwen)
-    train_idx, test_idx = load_split(dir_qwen)
-    train_logistic_regression(X, y, 'QWEN', train_idx, test_idx)
+    # dir_qwen = QWEN_DIR+"_depth"+str(target_subcategory_depth)
+    # X, y, encoder = load_qwen(dir_qwen)
+    # train_idx, test_idx = load_split(dir_qwen)
+    # train_logistic_regression(X, y, 'QWEN', train_idx, test_idx)
+    
+    dir_cliptext = CLIP_TEXT_DIR+"_depth"+str(target_subcategory_depth)
+    X, y, encoder = load_clip_text(dir_cliptext)
+    train_idx, test_idx = load_split(dir_cliptext)
+    train_logistic_regression(X, y, 'CLIP-TEXT', train_idx, test_idx)

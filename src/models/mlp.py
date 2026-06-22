@@ -13,6 +13,7 @@ from src.encoders.tf_idf import load_tfidf, TFIDF_DIR
 from src.encoders.bow import load_bow, BOW_DIR
 from src.encoders.sbert import load_sbert, SBERT_DIR
 from src.encoders.qwen import load_qwen, QWEN_DIR
+from src.encoders.clip_text import load_clip_text, CLIP_TEXT_DIR
 
 
 class MLP(nn.Module):
@@ -202,3 +203,8 @@ if __name__ == "__main__":
     X, y, encoder = load_qwen(dir_qwen)
     train_idx, test_idx = load_split(dir_qwen)
     train_mlp(X, y, 'QWEN', train_idx, test_idx)
+    
+    dir_cliptext = CLIP_TEXT_DIR+"_depth"+str(target_subcategory_depth)
+    X, y, encoder = load_clip_text(dir_cliptext)
+    train_idx, test_idx = load_split(dir_cliptext)
+    train_mlp(X, y, 'CLIP-TEXT', train_idx, test_idx)
