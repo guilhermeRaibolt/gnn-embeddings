@@ -20,9 +20,9 @@ Encoders compared (all **frozen**, extracted offline once and cached):
 | Dense    | sBERT `all-MiniLM-L6-v2` (batch 256) |
 | LLM      | Qwen3-Embedding 0.6B → 4B → 8B  |
 
-For each encoder the GNN (GraphSAGE or GCN) hyper-parameters are tuned
-independently, then the best config is re-run over **5 seeds** to report the mean
-test accuracy and a **95 % confidence interval**.
+For each encoder the model (GraphSAGE, GCN, or an edge-free MLP baseline)
+hyper-parameters are tuned independently, then the best config is re-run over
+**5 seeds** to report the mean test accuracy and a **95 % confidence interval**.
 
 ## Layout
 
@@ -36,7 +36,7 @@ trygnn/
     ├── config.py          # encoder catalogue, dataset URLs, dataclasses
     ├── data.py            # download, parse, build & cache the graph
     ├── encoders.py        # BoW / TF-IDF / sBERT / Qwen3 extraction (+OOM retry)
-    ├── models.py          # GCN / GraphSAGE
+    ├── models.py          # GCN / GraphSAGE / MLP
     ├── training.py        # training, search, multi-seed eval + CI
     ├── summary.py         # Markdown results table
     └── visualization.py   # accuracy bar chart, t-SNE, training curves
@@ -84,6 +84,9 @@ Useful flags:
 ```bash
 # Only the lexical + sBERT baselines (skip the large LLMs):
 python main.py --encoders bow,tfidf,sbert_minilm
+
+# Run the MLP baseline instead of a graph model:
+python main.py --gnn mlp --device cuda
 
 # Random search instead of full grid, capped at 6 trials:
 python main.py --search-strategy random --max-trials 6

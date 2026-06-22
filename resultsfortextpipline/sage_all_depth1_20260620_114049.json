@@ -1,0 +1,66 @@
+{
+  "model": "GraphSAGE",
+  "depth": 1,
+  "encoders": [
+    "tfidf",
+    "bow",
+    "sbert",
+    "qwen06b",
+    "qwen4b",
+    "qwen8b"
+  ],
+  "started_at": "20260620_114049",
+  "results": [
+    {
+      "encoder": "tfidf",
+      "accuracy": 0.7319957983193277,
+      "macro_f1": 0.5922458516080246,
+      "weighted_f1": 0.7097696172425216,
+      "best_epoch": 115,
+      "best_val_loss": 0.9966479539871216,
+      "train_time_seconds": 10.371864876942709,
+      "num_classes": 18,
+      "train_samples": 222130,
+      "val_samples": 47599,
+      "test_samples": 47600,
+      "display_name": "TF-IDF",
+      "model_name": "sklearn TfidfVectorizer",
+      "feature_dir": "data/tfidf_depth1",
+      "total_run_seconds": 30.667709422996268
+    },
+    {
+      "encoder": "bow",
+      "accuracy": 0.7475840336134454,
+      "macro_f1": 0.6576687384710119,
+      "weighted_f1": 0.7337811656868362,
+      "best_epoch": 137,
+      "best_val_loss": 0.9166337847709656,
+      "train_time_seconds": 11.220945476787165,
+      "num_classes": 18,
+      "train_samples": 222130,
+      "val_samples": 47599,
+      "test_samples": 47600,
+      "display_name": "BOW",
+      "model_name": "sklearn CountVectorizer",
+      "feature_dir": "data/bow_depth1",
+      "total_run_seconds": 45.48011780297384
+    },
+    {
+      "encoder": "sbert",
+      "accuracy": 0.7624579831932773,
+      "macro_f1": 0.6770049485939917,
+      "weighted_f1": 0.7480331596657955,
+      "best_epoch": 135,
+      "best_val_loss": 0.8729822635650635,
+      "train_time_seconds": 15.07920984714292,
+      "num_classes": 18,
+      "train_samples": 222130,
+      "val_samples": 47599,
+      "test_samples": 47600,
+      "display_name": "SBERT",
+      "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+      "feature_dir": "data/sbert_depth1",
+      "total_run_seconds": 21.166945619042963
+    }
+  ]
+}

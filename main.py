@@ -60,7 +60,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--figures-dir", type=Path, default=root / "figures")
     p.add_argument("--no-plots", action="store_true", help="Disable figure generation.")
     p.add_argument("--tsne-max-points", type=int, default=2000, help="t-SNE subsample size.")
-    p.add_argument("--gnn", choices=["sage", "gcn"], default="sage", help="GNN backbone.")
+    p.add_argument("--gnn", choices=["sage", "gcn", "mlp"], default="sage", help="Model backbone.")
     p.add_argument(
         "--encoders",
         type=str,
